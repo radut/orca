@@ -134,6 +134,11 @@ describe('MobileMarkdown rendering', () => {
     expect(buttons.map((button) => button.props.text)).toEqual(['pnpm test', 'exit'])
   })
 
+  it('gives no copy control to a Mermaid fence that is still arriving', () => {
+    const tree = render('```mermaid\ngraph TD\n  A-->B', true)
+    expect(tree.root.findAll((node) => String(node.type) === 'MobileSourceCopyButton')).toEqual([])
+  })
+
   it('C12: opens a link with brackets in it, and one with a title, at their own address', () => {
     const tree = render(
       '[wiki](https://en.wikipedia.org/wiki/Foo_(bar)) and [docs](https://x.com/a "The docs")'

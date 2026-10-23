@@ -55,16 +55,20 @@ function renderCode(node: Code, key: number, ctx: MarkdownBlockContext): ReactNo
       <MermaidDiagram key={`${node.value}:${occurrence}`} source={node.value} base={MERMAID_BASE} />
     )
   }
+  // A Mermaid fence still streaming becomes a diagram once closed, so it gets no copy control.
+  const copyable = node.value.length > 0 && !isMobileMermaidLanguage(node.lang ?? undefined)
   return (
     <View key={key} style={styles.codeBlock}>
-      <View style={styles.codeHeader}>
-        {node.lang ? <NativeText style={styles.codeLanguage}>{node.lang}</NativeText> : null}
-        {node.value.length > 0 ? (
-          <View style={styles.codeCopy}>
-            <MobileSourceCopyButton text={node.value} accessibilityLabel="Copy code" />
-          </View>
-        ) : null}
-      </View>
+      {node.lang || copyable ? (
+        <View style={styles.codeHeader}>
+          {node.lang ? <NativeText style={styles.codeLanguage}>{node.lang}</NativeText> : null}
+          {copyable ? (
+            <View style={styles.codeCopy}>
+              <MobileSourceCopyButton text={node.value} accessibilityLabel="Copy code" />
+            </View>
+          ) : null}
+        </View>
+      ) : null}
       <MarkdownText
         selectable
         style={[styles.codeText, scaledMarkdownText(styles.codeText, ctx.textScale)]}
