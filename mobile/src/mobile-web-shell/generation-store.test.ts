@@ -616,6 +616,37 @@ describe('reusable assets for the next download', () => {
     expect((await store.readActiveGeneration(HOST))?.buildId).toBe(NEXT_BUILD)
   })
 
+  it("reuses another host's cached assets, so a host on the same build downloads nothing twice", async () => {
+    const fs = createFakeFileSystem()
+    const store = createGenerationStore({ fileSystem: fs })
+    const OTHER = deriveHostCacheKey('host-b')
+    await activate(store, OTHER)
+
+    const reusable = await store.openReusableAssets(HOST)
+    expect(reusable.has(SCRIPT!)).toBe(true)
+    expect(await reusable.check(SCRIPT!)).toBe(true)
+    await activate(store, HOST, LEFT_TO_STAGE)
+
+    expect(fs.bytes(`${HOST}/generations/${NEXT_BUILD}/assets/app-2.js`)).toEqual(
+      new Uint8Array(2).fill(7)
+    )
+    expect((await store.readActiveGeneration(OTHER))?.buildId).toBe(BUILD)
+  })
+
+  it("leaves another host's ambiguous cache to that host's own open", async () => {
+    const fs = createFakeFileSystem()
+    const store = createGenerationStore({ fileSystem: fs })
+    const OTHER = deriveHostCacheKey('host-b')
+    await activate(store, OTHER)
+    fs.seed(`${OTHER}/generations/${SECOND_BUILD}/index.html`, {
+      kind: 'file',
+      bytes: new Uint8Array(8)
+    })
+
+    expect((await store.openReusableAssets(HOST)).has(SCRIPT!)).toBe(false)
+    expect(fs.paths()).toContain(`${OTHER}/generations/${BUILD}`)
+  })
+
   it('refuses to stage a reused asset the active generation no longer holds', async () => {
     const fs = createFakeFileSystem()
     const store = createGenerationStore({ fileSystem: fs })

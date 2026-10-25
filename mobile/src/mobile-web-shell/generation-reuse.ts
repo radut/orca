@@ -12,31 +12,35 @@ import type { GenerationFileSystem } from './generation-store-file-system'
  * asset the next build renamed is still found.
  */
 function cachedFileOf(
-  active: ActiveGeneration | null,
+  actives: readonly ActiveGeneration[],
   asset: MobileWebBundleAssetRead
 ): string | null {
-  const cached = active?.manifest.assets.find((entry) => entry.sha256 === asset.sha256)
-  return active === null || cached?.byteLength !== asset.byteLength
-    ? null
-    : joinUri(active.directory, requireStorablePath(cached.path))
+  for (const active of actives) {
+    const cached = active.manifest.assets.find((entry) => entry.sha256 === asset.sha256)
+    if (cached?.byteLength === asset.byteLength) {
+      return joinUri(active.directory, requireStorablePath(cached.path))
+    }
+  }
+  return null
 }
 
-/** What a download may leave to the stage: matched now, and still whole on disk when checked. */
+/** What a download may leave to the stage: matched now, and still whole on disk when checked.
+ *  The host's own generation first, then other hosts': hosts on one build download it once. */
 export function reusableAssetsOf(
   fs: GenerationFileSystem,
-  active: ActiveGeneration | null
+  actives: readonly ActiveGeneration[]
 ): MobileWebBundleReusableAssets {
   return {
     has: (asset) => {
       try {
-        return cachedFileOf(active, asset) !== null
+        return cachedFileOf(actives, asset) !== null
       } catch {
         return false
       }
     },
     check: async (asset) => {
       try {
-        const source = cachedFileOf(active, asset)
+        const source = cachedFileOf(actives, asset)
         return source !== null && (await fs.fileSize(source)) === asset.byteLength
       } catch {
         return false
@@ -52,11 +56,11 @@ export function reusableAssetsOf(
  */
 export async function copyCachedAsset(
   fs: GenerationFileSystem,
-  active: ActiveGeneration | null,
+  actives: readonly ActiveGeneration[],
   asset: MobileWebBundleAssetRead,
   target: string
 ): Promise<void> {
-  const source = cachedFileOf(active, asset)
+  const source = cachedFileOf(actives, asset)
   if (source === null) {
     throw new Error(`the cached generation no longer holds the reused asset ${asset.path}`)
   }

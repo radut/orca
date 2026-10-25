@@ -42,8 +42,8 @@ export type StagedGeneration = {
 
 export type GenerationStore = {
   readActiveGeneration(hostKey: string): Promise<ActiveGeneration | null>
-  /** The host's active generation, by content, for a download to leave unchanged assets to the
-   *  stage, which copies them from it. */
+  /** Every host's active generation (this host's first), by content, for a download to leave
+   *  unchanged assets to the stage, which copies them from it. */
   openReusableAssets(hostKey: string): Promise<MobileWebBundleReusableAssets>
   stageGeneration(hostKey: string, result: MobileWebBundleFetchResult): Promise<StagedGeneration>
   commitGeneration(staged: StagedGeneration): Promise<ActiveGeneration>
@@ -140,7 +140,10 @@ export function createGenerationStore(options: {
     await writeHostOrder(order.filter((key) => hosts.includes(key) && !evicted.has(key)))
   }
 
-  async function readActive(hostKey: string): Promise<ActiveGeneration | null> {
+  async function readActive(
+    hostKey: string,
+    dropAmbiguous = true
+  ): Promise<ActiveGeneration | null> {
     const generations = generationsRoot(hostKey)
     const directories = (await fs.list(generations)).filter((entry) => entry.isDirectory)
     if (directories.length === 0) {
@@ -167,8 +170,29 @@ export function createGenerationStore(options: {
         return { buildId: manifest.buildId, directory, manifest }
       }
     }
-    await dropHostTree(hostKey)
+    if (dropAmbiguous) {
+      await dropHostTree(hostKey)
+    }
     return null
+  }
+
+  /** The host's own generation first; another host's ambiguous tree is left to its own open. */
+  async function readReusableGenerations(hostKey: string): Promise<readonly ActiveGeneration[]> {
+    const actives: ActiveGeneration[] = []
+    const own = await readActive(hostKey)
+    if (own !== null) {
+      actives.push(own)
+    }
+    for (const host of await listHostDirectories()) {
+      if (host.name === hostKey) {
+        continue
+      }
+      const other = await readActive(host.name, false).catch(() => null)
+      if (other !== null) {
+        actives.push(other)
+      }
+    }
+    return actives
   }
 
   async function stage(
@@ -185,13 +209,15 @@ export function createGenerationStore(options: {
     }))
     // Here rather than during the download, so a sweep or a second download of this build never
     // takes a copy out from under it: the stage runs on the queue they do.
-    const active = reused.size > 0 ? await readActive(hostKey) : null
+    const actives = reused.size > 0 ? await readReusableGenerations(hostKey) : []
     // Residue from an earlier attempt is dropped rather than written over: a half-written tree
     // plus a fresh write is not a generation either side verified.
     await fs.delete(directory)
     try {
       for (const { asset, uri, bytes } of assets) {
-        await (bytes === null ? copyCachedAsset(fs, active, asset, uri) : fs.writeBytes(uri, bytes))
+        await (bytes === null
+          ? copyCachedAsset(fs, actives, asset, uri)
+          : fs.writeBytes(uri, bytes))
       }
       // Last, always: a tree without it never reads back as an activation, which is what makes an
       // interrupted write recoverable rather than ambiguous.
@@ -272,7 +298,7 @@ export function createGenerationStore(options: {
   }
 
   async function openReusable(hostKey: string): Promise<MobileWebBundleReusableAssets> {
-    return reusableAssetsOf(fs, await readActive(hostKey))
+    return reusableAssetsOf(fs, await readReusableGenerations(hostKey))
   }
 
   async function sweep(): Promise<void> {
