@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Animated, View, Text, Pressable, ActivityIndicator } from 'react-native'
 import { saveTerminalTextScale } from '../storage/preferences'
 import { MobileBrowserPane } from '../browser/MobileBrowserPane'
@@ -10,6 +11,8 @@ import type { MobileSessionController } from './use-mobile-session-controller'
 import { useWorkspaceExecutionHost } from '../navigation/workspace-execution-host'
 import { FileReader } from './MobileSessionFileReader'
 import { MarkdownReader } from './MobileSessionMarkdownReader'
+import { MarkdownLinkHandlerContext } from '../components/markdown-link-handler'
+import { MobileLinkActionSheet } from './MobileLinkActionSheet'
 
 export function MobileSessionActiveContent({
   controller
@@ -87,8 +90,16 @@ export function MobileSessionActiveContent({
     keyboardLift,
     activeTerminalKeyboardLift,
     toastAnimatedStyle,
-    createTabBusy
+    createTabBusy,
+    handleCreateBrowser,
+    isFloatingWorkspaceRoute
   } = controller
+  const [tappedLink, setTappedLink] = useState<string | null>(null)
+  // Why: a browser tab needs a real worktree and a host that streams it; elsewhere only the phone's.
+  const openInOrca =
+    isFloatingWorkspaceRoute || browserScreencastSupported === false
+      ? undefined
+      : (url: string) => void handleCreateBrowser(url)
   const content = showLoadingState ? (
     <View style={styles.emptyState}>
       <ActivityIndicator size="small" color={colors.textSecondary} />
@@ -235,24 +246,32 @@ export function MobileSessionActiveContent({
           onOpenUrl={handleTerminalOpenUrl}
         />
       ))}
-      <MobileNativeChatOverlay
-        controller={nativeChatController}
-        activeSessionTabId={controller.activeSessionTab?.id}
-        onOpenFile={handleNativeChatFileTap}
-        images={nativeChatImages}
-        structuredComposer={nativeChatStructuredComposer}
-        onMicPress={dictationEnabled ? handleDictationToggle : undefined}
-        micActive={dictation.isRecording}
-        dictationMode={dictationMode}
-        onMicPressIn={handleDictationPressIn}
-        onMicPressOut={handleDictationPressOut}
-        inputLockReason={nativeChatOverlayInputLockReason}
-        sendErrorMessage={nativeChatSendError.message}
-        onClearSendError={nativeChatSendError.clear}
-        sendSurfaceId={controller.nativeChatScopeKey ?? ''}
-        sessionId={resolveMobileNativeChatSessionId(controller.activeSessionTab)}
-        getSendCompletionGeneration={controller.getSendCompletionGeneration}
-        keyboardInset={keyboardLift}
+      <MarkdownLinkHandlerContext.Provider value={setTappedLink}>
+        <MobileNativeChatOverlay
+          controller={nativeChatController}
+          activeSessionTabId={controller.activeSessionTab?.id}
+          onOpenFile={handleNativeChatFileTap}
+          images={nativeChatImages}
+          structuredComposer={nativeChatStructuredComposer}
+          onMicPress={dictationEnabled ? handleDictationToggle : undefined}
+          micActive={dictation.isRecording}
+          dictationMode={dictationMode}
+          onMicPressIn={handleDictationPressIn}
+          onMicPressOut={handleDictationPressOut}
+          inputLockReason={nativeChatOverlayInputLockReason}
+          sendErrorMessage={nativeChatSendError.message}
+          onClearSendError={nativeChatSendError.clear}
+          sendSurfaceId={controller.nativeChatScopeKey ?? ''}
+          sessionId={resolveMobileNativeChatSessionId(controller.activeSessionTab)}
+          getSendCompletionGeneration={controller.getSendCompletionGeneration}
+          keyboardInset={keyboardLift}
+        />
+      </MarkdownLinkHandlerContext.Provider>
+      <MobileLinkActionSheet
+        url={tappedLink}
+        onClose={() => setTappedLink(null)}
+        openInOrca={openInOrca}
+        showToast={showToast}
       />
       {toastMessage && (
         <Animated.View pointerEvents="none" style={[styles.toast, toastAnimatedStyle]}>

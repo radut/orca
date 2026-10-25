@@ -16,6 +16,8 @@ export type MarkdownInlineContext = {
   /** When provided, detected file paths and file-target hrefs render as tappable and invoke
    *  this with the path text; without it, paths render as plain text. */
   onOpenFile?: (pathText: string) => void
+  /** When provided, web hrefs go here instead of straight to the system browser. */
+  onOpenLink?: (url: string) => void
   tone: MarkdownTone
   textScale: number
 }
@@ -24,8 +26,16 @@ type SpanStyle = TextProps['style']
 
 // Web/mail hrefs open the system handler; file-target hrefs (file: URIs and
 // scheme-less paths — the entire desktop file-link contract) go to onOpenFile.
-export function openMarkdownHref(href: string, onOpenFile?: (pathText: string) => void): void {
+export function openMarkdownHref(
+  href: string,
+  onOpenFile?: (pathText: string) => void,
+  onOpenLink?: (url: string) => void
+): void {
   const route = routeMarkdownHref(href)
+  if (route.kind === 'web' && onOpenLink) {
+    onOpenLink(route.url)
+    return
+  }
   if (route.kind === 'web') {
     // The seam, not react-native's `Linking`: this module is in the tasks page closure, and inside
     // the shell's WebView `openURL` resolves without opening anything.
@@ -77,7 +87,7 @@ function renderLink(
     <MarkdownText
       key={key}
       style={[outer, styles.link, ctx.tone.link]}
-      onPress={() => openMarkdownHref(url, ctx.onOpenFile)}
+      onPress={() => openMarkdownHref(url, ctx.onOpenFile, ctx.onOpenLink)}
     >
       {label}
     </MarkdownText>

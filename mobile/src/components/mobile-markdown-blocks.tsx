@@ -162,7 +162,7 @@ function renderBlock(
           <Pressable
             key={key}
             style={styles.imageFrame}
-            onPress={() => openMarkdownHref(only.url, ctx.onOpenFile)}
+            onPress={() => openMarkdownHref(only.url, ctx.onOpenFile, ctx.onOpenLink)}
             onLongPress={ctx.rowLongPress}
           >
             <NativeText style={styles.link}>{only.alt || 'Open image'}</NativeText>

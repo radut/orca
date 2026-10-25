@@ -5,6 +5,7 @@ import { MARKDOWN_TONES, scaledMarkdownText, styles } from './mobile-markdown-st
 import { renderBlocks, type MarkdownBlockContext } from './mobile-markdown-blocks'
 import { MarkdownText } from './mobile-markdown-text'
 import { MarkdownTextContext, type MarkdownTextSetup } from './mobile-markdown-text-setup'
+import { MarkdownLinkHandlerContext } from './markdown-link-handler'
 import { useMobileMarkdownTree } from './use-mobile-markdown-tree'
 import type { NativeChatVisualDirective } from '../../../src/shared/native-chat-visual-directive'
 
@@ -47,6 +48,7 @@ function MobileMarkdownContent({
 }: Props) {
   // Interactive children own their touches and must forward the row action.
   const setup = useContext(MarkdownTextContext)
+  const onOpenLink = useContext(MarkdownLinkHandlerContext) ?? undefined
   const text = content?.trim() ?? ''
   const { root, directives } = useMobileMarkdownTree(text, renderVisual !== undefined, growing)
   if (!text) {
@@ -60,6 +62,7 @@ function MobileMarkdownContent({
   const ctx: MarkdownBlockContext = {
     growing,
     onOpenFile,
+    onOpenLink,
     tone,
     textScale,
     // Zoomed list text has read a size above the sheet's since it first scaled; kept as it was.

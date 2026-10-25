@@ -3,6 +3,7 @@ import { act, create, type ReactTestInstance, type ReactTestRenderer } from 'rea
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { colors, onBrightColors } from '../theme/mobile-theme'
 import { MobileMarkdown } from './MobileMarkdown'
+import { MarkdownLinkHandlerContext } from './markdown-link-handler'
 
 const openURL = vi.fn((_url: string) => Promise.resolve())
 
@@ -142,6 +143,29 @@ describe('MobileMarkdown rendering', () => {
     expect(texts(tree)).toEqual(['Open http://localhost:3000.'])
     press(tree, 'http://localhost:3000')
     expect(openURL).toHaveBeenLastCalledWith('http://localhost:3000')
+  })
+
+  it('hands a web link to the screen that offers choices, and still opens files directly', () => {
+    const onOpenLink = vi.fn()
+    const onOpenFile = vi.fn()
+    act(() => {
+      renderer = create(
+        createElement(
+          MarkdownLinkHandlerContext.Provider,
+          { value: onOpenLink },
+          createElement(MobileMarkdown, {
+            content: '[docs](https://x.com/a) and [file](src/a.ts)',
+            onOpenFile
+          })
+        )
+      )
+    })
+    press(renderer!, 'docs')
+    press(renderer!, 'file')
+
+    expect(onOpenLink).toHaveBeenCalledWith('https://x.com/a')
+    expect(openURL).not.toHaveBeenCalled()
+    expect(onOpenFile).toHaveBeenCalledWith('src/a.ts')
   })
 
   it('C17: resolves a reference link and draws a footnote', () => {
