@@ -1,6 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
 
-vi.mock('react-native', () => ({ Platform: { OS: 'ios' } }))
 vi.mock('lucide-react-native', () => ({
   Copy: 'Copy',
   ExternalLink: 'ExternalLink',
@@ -15,13 +14,13 @@ const { linkSheetActions } = await import('./MobileLinkActionSheet')
 const URL = 'https://x.com/a'
 
 describe('link sheet actions', () => {
-  it('offers the Orca browser, Safari and copy, each with the tapped link', () => {
+  it('offers the Orca browser, the phone browser and copy, each with the tapped link', () => {
     const handlers = { openInOrca: vi.fn(), openExternal: vi.fn(), copy: vi.fn() }
     const actions = linkSheetActions(URL, handlers)
 
     expect(actions.map((action) => action.label)).toEqual([
       'Open in Orca browser',
-      'Open in Safari',
+      'Open in browser',
       'Copy link'
     ])
     for (const action of actions) {
@@ -35,6 +34,6 @@ describe('link sheet actions', () => {
   it('leaves the Orca browser out where a tab cannot open', () => {
     const actions = linkSheetActions(URL, { openExternal: vi.fn(), copy: vi.fn() })
 
-    expect(actions.map((action) => action.label)).toEqual(['Open in Safari', 'Copy link'])
+    expect(actions.map((action) => action.label)).toEqual(['Open in browser', 'Copy link'])
   })
 })

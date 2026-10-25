@@ -1,11 +1,10 @@
 import { Copy, ExternalLink, Globe } from 'lucide-react-native'
-import { Platform } from 'react-native'
 import { ActionSheetModal, type ActionSheetAction } from '../components/ActionSheetModal'
 import { openExternalLink } from '../platform/external-link'
 import { useClipboardWriter } from '../platform/clipboard'
 
 export type LinkSheetHandlers = {
-  /** Absent where an Orca browser tab cannot open (no worktree, or a host without streaming). */
+  // Absent where an Orca browser tab cannot open (floating workspace, or a host without streaming).
   openInOrca?: (url: string) => void
   openExternal: (url: string) => void
   copy: (url: string) => void
@@ -25,7 +24,8 @@ export function linkSheetActions(url: string, handlers: LinkSheetHandlers): Acti
         ]
       : []),
     {
-      label: Platform.OS === 'ios' ? 'Open in Safari' : 'Open in browser',
+      // The phone's default browser, which may not be Safari.
+      label: 'Open in browser',
       icon: ExternalLink,
       closeBeforePress: true,
       onPress: () => handlers.openExternal(url)
@@ -34,7 +34,7 @@ export function linkSheetActions(url: string, handlers: LinkSheetHandlers): Acti
   ]
 }
 
-/** The choices for a tapped chat link: Orca's browser on the host, the phone's, or the clipboard. */
+// Choices for a tapped chat link: Orca's browser on the host, the phone's browser, or the clipboard.
 export function MobileLinkActionSheet(props: {
   url: string | null
   onClose: () => void
