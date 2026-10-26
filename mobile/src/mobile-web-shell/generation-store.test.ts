@@ -634,6 +634,21 @@ describe('reusable assets for the next download', () => {
     expect(fs.paths()).toContain(`${OTHER}/generations/${BUILD}`)
   })
 
+  it("copies from the next host's cache when the first one's file cannot be read", async () => {
+    const fs = createFakeFileSystem()
+    const store = createGenerationStore({ fileSystem: fs })
+    const OTHER = deriveHostCacheKey('host-b')
+    await activate(store, HOST)
+    await activate(store, OTHER)
+    fs.failReadsAt(`${HOST}/generations/${BUILD}/assets/app.js`)
+
+    await activate(store, HOST, LEFT_TO_STAGE)
+
+    expect(fs.bytes(`${HOST}/generations/${NEXT_BUILD}/assets/app-2.js`)).toEqual(
+      new Uint8Array(2).fill(7)
+    )
+  })
+
   it('refuses to stage a reused asset the active generation no longer holds', async () => {
     const fs = createFakeFileSystem()
     const store = createGenerationStore({ fileSystem: fs })

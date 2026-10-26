@@ -6,17 +6,18 @@ import type { ActiveGeneration } from './generation-store'
 import type { GenerationFileSystem } from './generation-store-file-system'
 
 // Copy immutable, previously hash-verified assets without reading them into JS; match content so renamed assets remain reusable.
-function cachedFileOf(
+function cachedFilesOf(
   actives: readonly ActiveGeneration[],
   asset: MobileWebBundleAssetRead
-): string | null {
+): string[] {
+  const files: string[] = []
   for (const active of actives) {
     const cached = active.manifest.assets.find((entry) => entry.sha256 === asset.sha256)
     if (cached?.byteLength === asset.byteLength) {
-      return joinUri(active.directory, requireStorablePath(cached.path))
+      files.push(joinUri(active.directory, requireStorablePath(cached.path)))
     }
   }
-  return null
+  return files
 }
 
 export function reusableAssetsOf(
@@ -26,15 +27,15 @@ export function reusableAssetsOf(
   return {
     has: (asset) => {
       try {
-        return cachedFileOf(actives, asset) !== null
+        return cachedFilesOf(actives, asset).length > 0
       } catch {
         return false
       }
     },
     check: async (asset) => {
       try {
-        const source = cachedFileOf(actives, asset)
-        return source !== null && (await fs.fileSize(source)) === asset.byteLength
+        const [source] = cachedFilesOf(actives, asset)
+        return source !== undefined && (await fs.fileSize(source)) === asset.byteLength
       } catch {
         return false
       }
@@ -49,12 +50,23 @@ export async function copyCachedAsset(
   asset: MobileWebBundleAssetRead,
   target: string
 ): Promise<void> {
-  const source = cachedFileOf(actives, asset)
-  if (source === null) {
+  const sources = cachedFilesOf(actives, asset)
+  if (sources.length === 0) {
     throw new Error(`the cached generation no longer holds the reused asset ${asset.path}`)
   }
-  await fs.copyFile(source, target)
-  if ((await fs.fileSize(target)) !== asset.byteLength) {
-    throw new Error(`the reused asset ${asset.path} did not copy whole`)
+  // An unreadable copy in one host's cache falls through to the next; the last failure fails the stage.
+  let failure: unknown
+  for (const source of sources) {
+    try {
+      await fs.delete(target)
+      await fs.copyFile(source, target)
+      if ((await fs.fileSize(target)) === asset.byteLength) {
+        return
+      }
+      failure = new Error(`the reused asset ${asset.path} did not copy whole`)
+    } catch (error) {
+      failure = error
+    }
   }
+  throw failure
 }
