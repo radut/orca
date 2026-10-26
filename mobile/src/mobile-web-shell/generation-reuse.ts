@@ -34,8 +34,12 @@ export function reusableAssetsOf(
     },
     check: async (asset) => {
       try {
-        const [source] = cachedFilesOf(actives, asset)
-        return source !== undefined && (await fs.fileSize(source)) === asset.byteLength
+        for (const source of cachedFilesOf(actives, asset)) {
+          if ((await fs.fileSize(source).catch(() => null)) === asset.byteLength) {
+            return true
+          }
+        }
+        return false
       } catch {
         return false
       }

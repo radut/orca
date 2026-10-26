@@ -649,6 +649,25 @@ describe('reusable assets for the next download', () => {
     )
   })
 
+  it("still reuses an asset when the first host's copy is cut short and the next one is whole", async () => {
+    const fs = createFakeFileSystem()
+    const store = createGenerationStore({ fileSystem: fs })
+    const OTHER = deriveHostCacheKey('host-b')
+    await activate(store, HOST)
+    await activate(store, OTHER)
+    fs.seed(`${HOST}/generations/${BUILD}/assets/app.js`, {
+      kind: 'file',
+      bytes: new Uint8Array(1)
+    })
+
+    expect(await (await store.openReusableAssets(HOST)).check(SCRIPT!)).toBe(true)
+    await activate(store, HOST, LEFT_TO_STAGE)
+
+    expect(fs.bytes(`${HOST}/generations/${NEXT_BUILD}/assets/app-2.js`)).toEqual(
+      new Uint8Array(2).fill(7)
+    )
+  })
+
   it('refuses to stage a reused asset the active generation no longer holds', async () => {
     const fs = createFakeFileSystem()
     const store = createGenerationStore({ fileSystem: fs })
