@@ -53,25 +53,20 @@ function renderCode(node: Code, key: number, ctx: MarkdownBlockContext): ReactNo
       <MermaidDiagram key={`${node.value}:${occurrence}`} source={node.value} base={MERMAID_BASE} />
     )
   }
-  const copyable = node.value.length > 0
   return (
     <View key={key} style={styles.codeBlock}>
-      {node.lang || copyable ? (
-        <View style={styles.codeHeader}>
-          {node.lang ? <NativeText style={styles.codeLanguage}>{node.lang}</NativeText> : null}
-          {copyable ? (
-            <View style={styles.codeCopy}>
-              <MobileSourceCopyButton text={node.value} accessibilityLabel="Copy code" />
-            </View>
-          ) : null}
-        </View>
+      <View style={styles.codeBody}>
+        {node.lang ? <NativeText style={styles.codeLanguage}>{node.lang}</NativeText> : null}
+        <MarkdownText
+          selectable
+          style={[styles.codeText, scaledMarkdownText(styles.codeText, ctx.textScale)]}
+        >
+          {node.value}
+        </MarkdownText>
+      </View>
+      {node.value ? (
+        <MobileSourceCopyButton text={node.value} accessibilityLabel="Copy code" />
       ) : null}
-      <MarkdownText
-        selectable
-        style={[styles.codeText, scaledMarkdownText(styles.codeText, ctx.textScale)]}
-      >
-        {node.value}
-      </MarkdownText>
     </View>
   )
 }

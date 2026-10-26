@@ -62,17 +62,16 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.borderSubtle,
     borderRadius: radii.input,
-    padding: spacing.sm
-  },
-  codeHeader: {
+    padding: spacing.sm,
     flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: spacing.xs
+    alignItems: 'flex-start',
+    gap: spacing.xs
   },
-  codeCopy: { marginLeft: 'auto' },
+  codeBody: { flex: 1 },
   codeLanguage: {
     fontSize: 10,
     color: colors.textMuted,
+    marginBottom: spacing.xs,
     textTransform: 'uppercase'
   },
   codeText: {
