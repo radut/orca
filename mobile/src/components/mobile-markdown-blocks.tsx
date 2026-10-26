@@ -53,8 +53,7 @@ function renderCode(node: Code, key: number, ctx: MarkdownBlockContext): ReactNo
       <MermaidDiagram key={`${node.value}:${occurrence}`} source={node.value} base={MERMAID_BASE} />
     )
   }
-  // A Mermaid fence still streaming becomes a diagram once closed, so it gets no copy control.
-  const copyable = node.value.length > 0 && !isMobileMermaidLanguage(node.lang ?? undefined)
+  const copyable = node.value.length > 0
   return (
     <View key={key} style={styles.codeBlock}>
       {node.lang || copyable ? (
