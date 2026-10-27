@@ -13,7 +13,7 @@ import { isMobileMermaidLanguage } from './mobile-mermaid-language'
 import { mobileMarkdownTableColumnWidths } from './mobile-markdown-table-columns'
 import { mobileMarkdownVisualPlaceholderIndex } from './mobile-markdown-visual-lines'
 import {
-  openMarkdownLink,
+  openMarkdownHref,
   renderInline,
   type MarkdownInlineContext
 } from './mobile-markdown-inline'
@@ -166,7 +166,7 @@ function renderBlock(
           <Pressable
             key={key}
             style={styles.imageFrame}
-            onPress={() => openMarkdownLink(only.url, ctx)}
+            onPress={() => openMarkdownHref(only.url, ctx)}
             onLongPress={ctx.rowLongPress}
           >
             <NativeText style={styles.link}>{only.alt || 'Open image'}</NativeText>

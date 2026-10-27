@@ -152,7 +152,7 @@ describe('MobileMarkdown rendering', () => {
     expect(openURL).toHaveBeenLastCalledWith('http://localhost:3000')
   })
 
-  it('hands a web link to the screen that offers choices, and still opens files directly', () => {
+  it('hands a web link to the screen that offers choices; mail and file links still open directly', () => {
     const onOpenLink = vi.fn()
     const onOpenFile = vi.fn()
     act(() => {
@@ -161,17 +161,20 @@ describe('MobileMarkdown rendering', () => {
           MarkdownLinkHandlerContext.Provider,
           { value: onOpenLink },
           createElement(MobileMarkdown, {
-            content: '[docs](https://x.com/a) and [file](src/a.ts)',
+            content: '[docs](https://x.com/a), [mail](mailto:a@x.com) and [file](src/a.ts)',
             onOpenFile
           })
         )
       )
     })
     press(renderer!, 'docs')
+    press(renderer!, 'mail')
     press(renderer!, 'file')
 
+    expect(onOpenLink).toHaveBeenCalledTimes(1)
     expect(onOpenLink).toHaveBeenCalledWith('https://x.com/a')
-    expect(openURL).not.toHaveBeenCalled()
+    expect(openURL).toHaveBeenCalledTimes(1)
+    expect(openURL).toHaveBeenCalledWith('mailto:a@x.com')
     expect(onOpenFile).toHaveBeenCalledWith('src/a.ts')
   })
 

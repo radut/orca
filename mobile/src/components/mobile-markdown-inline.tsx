@@ -24,29 +24,24 @@ export type MarkdownInlineContext = {
 type SpanStyle = TextProps['style']
 
 // Send web/mail links to system handler; desktop-compatible file:/scheme-less targets go to onOpenFile.
-export function openMarkdownHref(href: string, onOpenFile?: (pathText: string) => void): void {
-  const route = routeMarkdownHref(href)
-  if (route.kind === 'web') {
-    // Use link-opening seam: RN Linking inside shell page resolves without opening anything.
-    openExternalLink(route.url)
-    return
-  }
-  if (route.kind === 'file' && onOpenFile) {
-    onOpenFile(route.pathText)
-  }
-}
-
-// Same as openMarkdownHref, except a web link goes to ctx.onOpenLink when the screen gives one.
-export function openMarkdownLink(
+export function openMarkdownHref(
   href: string,
   ctx: Pick<MarkdownInlineContext, 'onOpenFile' | 'onOpenLink'>
 ): void {
   const route = routeMarkdownHref(href)
-  if (route.kind === 'web' && ctx.onOpenLink) {
-    ctx.onOpenLink(route.url)
+  if (route.kind === 'web') {
+    // Mail links skip the screen's choices: the Orca browser can't open them.
+    if (ctx.onOpenLink && !/^mailto:/i.test(route.url)) {
+      ctx.onOpenLink(route.url)
+      return
+    }
+    // Use link-opening seam: RN Linking inside shell page resolves without opening anything.
+    openExternalLink(route.url)
     return
   }
-  openMarkdownHref(href, ctx.onOpenFile)
+  if (route.kind === 'file' && ctx.onOpenFile) {
+    ctx.onOpenFile(route.pathText)
+  }
 }
 
 // A plain text run, with tappable file paths split out when onOpenFile is provided.
@@ -89,7 +84,7 @@ function renderLink(
     <MarkdownText
       key={key}
       style={[outer, styles.link, ctx.tone.link]}
-      onPress={() => openMarkdownLink(url, ctx)}
+      onPress={() => openMarkdownHref(url, ctx)}
     >
       {label}
     </MarkdownText>
