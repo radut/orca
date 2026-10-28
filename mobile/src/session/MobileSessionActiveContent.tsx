@@ -6,9 +6,12 @@ import { TerminalPaneView } from './TerminalPaneView'
 import { MobileNativeChatOverlay } from './MobileNativeChatOverlay'
 import { resolveMobileNativeChatSessionId } from './native-chat/mobile-native-chat-eligibility'
 import { colors } from '../theme/mobile-theme'
+import { useMobileColorScheme } from '../theme/use-mobile-color-scheme'
 import { styles } from './mobile-session-styles'
 import type { MobileSessionController } from './use-mobile-session-controller'
 import { useWorkspaceExecutionHost } from '../navigation/workspace-execution-host'
+import { useHostProfile } from '../transport/use-host-profile'
+import { useHostDisplay } from '../transport/use-host-display'
 import { FileReader } from './MobileSessionFileReader'
 import { MarkdownReader } from './MobileSessionMarkdownReader'
 import { MarkdownLinkHandlerContext } from '../components/markdown-link-handler'
@@ -19,6 +22,7 @@ export function MobileSessionActiveContent({
 }: {
   controller: MobileSessionController
 }) {
+  useMobileColorScheme()
   const executionHost = useWorkspaceExecutionHost()
   const {
     hostId,
@@ -101,6 +105,8 @@ export function MobileSessionActiveContent({
     isFloatingWorkspaceRoute || browserScreencastSupported === false
       ? undefined
       : (url: string) => void handleCreateBrowser(url)
+  const hostProfile = useHostProfile(hostId)
+  const hostTitle = useHostDisplay(hostProfile).title
   const content = showLoadingState ? (
     <View style={styles.emptyState}>
       <ActivityIndicator size="small" color={colors.textSecondary} />
@@ -267,6 +273,8 @@ export function MobileSessionActiveContent({
           sessionId={resolveMobileNativeChatSessionId(controller.activeSessionTab)}
           getSendCompletionGeneration={controller.getSendCompletionGeneration}
           keyboardInset={keyboardLift}
+          // A workspace routed to another server stops with that server, whose name the phone lacks.
+          hostName={executionHost === undefined && hostProfile ? hostTitle : null}
         />
       </MarkdownLinkHandlerContext.Provider>
       <MobileLinkActionSheet
