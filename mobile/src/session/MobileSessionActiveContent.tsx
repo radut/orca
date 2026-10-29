@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Animated, View, Text, Pressable, ActivityIndicator } from 'react-native'
 import { saveTerminalTextScale } from '../storage/preferences'
 import { MobileBrowserPane } from '../browser/MobileBrowserPane'
@@ -107,6 +107,10 @@ export function MobileSessionActiveContent({
       : (url: string) => void handleCreateBrowser(url)
   const hostProfile = useHostProfile(hostId)
   const hostTitle = useHostDisplay(hostProfile).title
+  const nativeChatImageSource = useMemo(
+    () => (client ? { client, worktreeId } : undefined),
+    [client, worktreeId]
+  )
   const content = showLoadingState ? (
     <View style={styles.emptyState}>
       <ActivityIndicator size="small" color={colors.textSecondary} />
@@ -257,12 +261,15 @@ export function MobileSessionActiveContent({
       <MarkdownLinkHandlerContext.Provider value={setTappedLink}>
         <MobileNativeChatOverlay
           controller={nativeChatController}
+          imageSource={nativeChatImageSource}
           activeSessionTabId={controller.activeSessionTab?.id}
           onOpenFile={handleNativeChatFileTap}
           images={nativeChatImages}
           structuredComposer={nativeChatStructuredComposer}
           onMicPress={dictationEnabled ? handleDictationToggle : undefined}
-          micActive={dictation.isRecording}
+          micActive={dictation.isStarting || dictation.isRecording}
+          micStarting={dictation.isStarting}
+          micProcessing={dictation.isProcessing}
           dictationMode={dictationMode}
           onMicPressIn={handleDictationPressIn}
           onMicPressOut={handleDictationPressOut}
