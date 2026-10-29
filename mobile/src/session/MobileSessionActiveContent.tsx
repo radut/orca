@@ -22,6 +22,8 @@ import { useHostDisplay } from '../transport/use-host-display'
 import { FileReader } from './MobileSessionFileReader'
 import { MobileSessionContentState } from './MobileSessionContentState'
 import { MarkdownReader } from './MobileSessionMarkdownReader'
+import { MarkdownLinkHandlerContext } from '../components/markdown-link-handler'
+import { MobileLinkActionSheet } from './MobileLinkActionSheet'
 
 export function MobileSessionActiveContent({
   controller
@@ -108,8 +110,16 @@ export function MobileSessionActiveContent({
     keyboardLift,
     activeTerminalKeyboardLift,
     toastAnimatedStyle,
-    createTabBusy
+    createTabBusy,
+    handleCreateBrowser,
+    isFloatingWorkspaceRoute
   } = controller
+  const [tappedLink, setTappedLink] = useState<string | null>(null)
+  // Why: a browser tab needs a real worktree and a host that streams it; elsewhere only the phone's.
+  const openInOrca =
+    isFloatingWorkspaceRoute || browserScreencastSupported === false
+      ? undefined
+      : (url: string) => void handleCreateBrowser(url)
   const hostProfile = useHostProfile(hostId)
   const hostTitle = useHostDisplay(hostProfile).title
   const nativeChatImageSource = useMemo(
@@ -311,42 +321,50 @@ export function MobileSessionActiveContent({
             onOpenUrl={handleTerminalOpenUrl}
           />
         ))}
-        <MobileNativeChatDictationPreviewContext.Provider value={chatDictationPreview}>
-          <MobileDictationMeterContext.Provider value={dictation.meter}>
-            <MobileAgentMessageProvider
-              key={JSON.stringify([hostId, executionHost, worktreeId])}
-              tabs={controller.sessionTabs}
-              terminals={controller.terminals}
-              scopeKey={nativeChatImageSource}
-              open={openSender}
-            >
-              <MobileNativeChatOverlay
-                controller={nativeChatController}
-                imageSource={nativeChatImageSource}
-                activeSessionTabId={controller.activeSessionTab?.id}
-                onOpenFile={handleNativeChatFileTap}
-                images={nativeChatImages}
-                structuredComposer={nativeChatStructuredComposer}
-                onMicPress={dictationEnabled ? handleDictationToggle : undefined}
-                micActive={dictation.isStarting || dictation.isRecording}
-                micStarting={dictation.isStarting}
-                micProcessing={dictation.isProcessing}
-                dictationMode={dictationMode}
-                onMicPressIn={handleDictationPressIn}
-                onMicPressOut={handleDictationPressOut}
-                inputLockReason={nativeChatOverlayInputLockReason}
-                sendErrorMessage={nativeChatSendError.message}
-                onClearSendError={nativeChatSendError.clear}
-                sendSurfaceId={controller.nativeChatScopeKey ?? ''}
-                sessionId={resolveMobileNativeChatSessionId(controller.activeSessionTab)}
-                getSendCompletionGeneration={controller.getSendCompletionGeneration}
-                keyboardInset={keyboardLift}
-                // A workspace routed to another server stops with that server, whose name the phone lacks.
-                hostName={executionHost === undefined && hostProfile ? hostTitle : null}
-              />
-            </MobileAgentMessageProvider>
-          </MobileDictationMeterContext.Provider>
-        </MobileNativeChatDictationPreviewContext.Provider>
+        <MarkdownLinkHandlerContext.Provider value={setTappedLink}>
+          <MobileNativeChatDictationPreviewContext.Provider value={chatDictationPreview}>
+            <MobileDictationMeterContext.Provider value={dictation.meter}>
+              <MobileAgentMessageProvider
+                key={JSON.stringify([hostId, executionHost, worktreeId])}
+                tabs={controller.sessionTabs}
+                terminals={controller.terminals}
+                scopeKey={nativeChatImageSource}
+                open={openSender}
+              >
+                <MobileNativeChatOverlay
+                  controller={nativeChatController}
+                  imageSource={nativeChatImageSource}
+                  activeSessionTabId={controller.activeSessionTab?.id}
+                  onOpenFile={handleNativeChatFileTap}
+                  images={nativeChatImages}
+                  structuredComposer={nativeChatStructuredComposer}
+                  onMicPress={dictationEnabled ? handleDictationToggle : undefined}
+                  micActive={dictation.isStarting || dictation.isRecording}
+                  micStarting={dictation.isStarting}
+                  micProcessing={dictation.isProcessing}
+                  dictationMode={dictationMode}
+                  onMicPressIn={handleDictationPressIn}
+                  onMicPressOut={handleDictationPressOut}
+                  inputLockReason={nativeChatOverlayInputLockReason}
+                  sendErrorMessage={nativeChatSendError.message}
+                  onClearSendError={nativeChatSendError.clear}
+                  sendSurfaceId={controller.nativeChatScopeKey ?? ''}
+                  sessionId={resolveMobileNativeChatSessionId(controller.activeSessionTab)}
+                  getSendCompletionGeneration={controller.getSendCompletionGeneration}
+                  keyboardInset={keyboardLift}
+                  // A workspace routed to another server stops with that server, whose name the phone lacks.
+                  hostName={executionHost === undefined && hostProfile ? hostTitle : null}
+                />
+              </MobileAgentMessageProvider>
+            </MobileDictationMeterContext.Provider>
+          </MobileNativeChatDictationPreviewContext.Provider>
+        </MarkdownLinkHandlerContext.Provider>
+        <MobileLinkActionSheet
+          url={tappedLink}
+          onClose={() => setTappedLink(null)}
+          openInOrca={openInOrca}
+          showToast={showToast}
+        />
         {toastMessage && (
           <Animated.View pointerEvents="none" style={[styles.toast, toastAnimatedStyle]}>
             <Text style={styles.toastText}>{toastMessage}</Text>
