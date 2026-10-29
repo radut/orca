@@ -1581,7 +1581,8 @@
       "reload": "Reload",
       "dialogTitle": "Browser Dialog",
       "keyboardPlaceholder": "Type on page…",
-      "sendText": "Send text to browser"
+      "sendText": "Send text to browser",
+      "renderLocally": "Draw the page on this phone"
     },
     "pointerModifiers": {
       "clickModifier": "{{key}} click modifier"
@@ -1594,6 +1595,13 @@
       "sent": "Sent",
       "deliveryUnconfirmed": "Delivery unconfirmed — check page before retrying",
       "dialogAnswerFailed": "That answer did not reach the page."
+    },
+    "localPane": {
+      "streamFromHost": "Stream from the host instead",
+      "loadFailed": "Page did not load: {{error}}"
+    },
+    "surface": {
+      "localFailed": "Streaming from the host: {{reason}}"
     }
   },
   "files": {

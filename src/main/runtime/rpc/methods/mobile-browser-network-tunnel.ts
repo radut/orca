@@ -7,11 +7,14 @@ import {
 import { resolveBrowserNetworkExecutionRoute } from '../../../browser/browser-network-execution-route-dispatch'
 import type { BrowserNetworkTunnelOutboundMemoryBudgetRegistry } from '../../../browser/browser-network-tunnel-outbound-memory-budget'
 import { BrowserNetworkTunnelSession } from '../../../browser/browser-network-tunnel-session'
+import { randomUUID } from 'node:crypto'
 import {
   MOBILE_BROWSER_TUNNEL_METHOD,
-  MobileBrowserTunnelParams
+  MOBILE_BROWSER_TUNNEL_UNSUBSCRIBE_METHOD,
+  MobileBrowserTunnelParams,
+  MobileBrowserTunnelUnsubscribeParams
 } from '../../../../shared/mobile-browser-tunnel-protocol'
-import { defineStreamingMethod } from '../core'
+import { defineMethod, defineStreamingMethod } from '../core'
 import { BROWSER_NETWORK_TUNNEL_OUTBOUND_MEMORY } from './browser-network-tunnel'
 
 const MAX_TUNNEL_GENERATION = 0xffff_ffff
@@ -83,6 +86,8 @@ export function createMobileBrowserTunnelMethods(
         }
 
         const tunnelGeneration = nextTunnelGeneration()
+        // Unguessable, because the unsubscribe method trusts whoever names it.
+        const subscriptionId = `mobile-browser-tunnel:${randomUUID()}`
         let resolveClosed = (): void => {}
         const closed = new Promise<void>((resolve) => {
           resolveClosed = resolve
@@ -125,22 +130,27 @@ export function createMobileBrowserTunnelMethods(
           unregisterFrames = registerBrowserTunnelFrameHandler((bytes) =>
             session.handleBinary(bytes)
           )
-          runtime.registerSubscriptionCleanup(
-            JSON.stringify(['mobile-browser-tunnel', connectionId]),
-            cleanup,
-            connectionId
-          )
+          runtime.registerSubscriptionCleanup(subscriptionId, cleanup, connectionId)
           signal?.addEventListener('abort', cleanup, { once: true })
           void route.whenInvalidated?.then(cleanup)
           if (signal?.aborted || !route.isValid()) {
             return
           }
-          emit({ type: 'ready', tunnelGeneration })
+          emit({ type: 'ready', tunnelGeneration, subscriptionId })
           await closed
         } finally {
           signal?.removeEventListener('abort', cleanup)
           cleanup()
         }
+      }
+    }),
+    defineMethod({
+      name: MOBILE_BROWSER_TUNNEL_UNSUBSCRIBE_METHOD,
+      permission: 'workspace',
+      params: MobileBrowserTunnelUnsubscribeParams,
+      handler: (params, { runtime }) => {
+        runtime.cleanupSubscription(params.subscriptionId)
+        return { unsubscribed: true }
       }
     })
   ]

@@ -45,7 +45,7 @@ function harness() {
     unsubscribe,
     ready: (next: number) => {
       generation = next
-      emit({ type: 'ready', tunnelGeneration: next })
+      emit({ type: 'ready', tunnelGeneration: next, subscriptionId: `tunnel-${next}` })
     },
     emit: (event: MobileBrowserTunnelEvent) => emit(event),
     host: (

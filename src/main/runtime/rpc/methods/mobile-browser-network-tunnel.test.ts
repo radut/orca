@@ -24,11 +24,13 @@ const NATIVE_HOST_KEY = browserNetworkExecutionHostKey({
 function runtime(
   resolution: unknown = { status: 'resolved', executionHostKey: NATIVE_HOST_KEY }
 ): OrcaRuntimeService {
+  const cleanups = new Map<string, () => void>()
   // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: the tunnel method reads only these runtime members.
   return {
     getRuntimeId: () => 'runtime-a',
     getStartedAt: () => 1,
-    registerSubscriptionCleanup: vi.fn(),
+    registerSubscriptionCleanup: (id: string, cleanup: () => void) => cleanups.set(id, cleanup),
+    cleanupSubscription: (id: string) => cleanups.get(id)?.(),
     resolveBrowserExecutionHostKeyForWorkspace: vi.fn(async () => resolution)
   } as unknown as OrcaRuntimeService
 }
@@ -41,12 +43,20 @@ const request = {
 }
 
 const ReadyReply = z.object({
-  result: z.object({ type: z.literal('ready'), tunnelGeneration: z.number() })
+  result: z.object({
+    type: z.literal('ready'),
+    tunnelGeneration: z.number(),
+    subscriptionId: z.string()
+  })
 })
 
-function readyGeneration(reply: unknown): number | null {
+function readyResult(reply: unknown) {
   const parsed = ReadyReply.safeParse(reply)
-  return parsed.success ? parsed.data.result.tunnelGeneration : null
+  return parsed.success ? parsed.data.result : null
+}
+
+function readyGeneration(reply: unknown): number | null {
+  return readyResult(reply)?.tunnelGeneration ?? null
 }
 
 type PhoneSocket = {
@@ -179,6 +189,26 @@ describe('network.mobileBrowserTunnel RPC', () => {
     })
 
     phone.close()
+    await phone.done
+  })
+
+  it('ends the tunnel when the phone unsubscribes', async () => {
+    const hostRuntime = runtime()
+    const phone = connectPhone(hostRuntime)
+    await vi.waitFor(() => expect(phone.generation()).toBeGreaterThan(0))
+    const subscriptionId = phone.replies.map(readyResult).find(Boolean)?.subscriptionId
+    expect(subscriptionId).toMatch(/^mobile-browser-tunnel:/)
+
+    const dispatcher = new RpcDispatcher({
+      runtime: hostRuntime,
+      methods: MOBILE_BROWSER_TUNNEL_METHODS
+    })
+    await dispatcher.dispatch({
+      id: 'unsubscribe',
+      authToken: 'bound-by-websocket',
+      method: 'network.mobileBrowserTunnel.unsubscribe',
+      params: { subscriptionId }
+    })
     await phone.done
   })
 

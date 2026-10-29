@@ -1,0 +1,118 @@
+import ExpoModulesCore
+import Network
+import WebKit
+
+/// A web view whose every connection goes through one host's loopback SOCKS5 proxy.
+/// It never loads before the proxy is set, so the phone's own network never sees the page.
+final class OrcaProxiedBrowserView: ExpoView, WKNavigationDelegate, WKUIDelegate {
+  let onNavigationState = EventDispatcher()
+
+  private var proxyKey: String?
+  private var storeId: String?
+  private var requestedUrl: String?
+  private var loadedUrl: String?
+  private var webView: WKWebView?
+  private var observations: [NSKeyValueObservation] = []
+
+  required init(appContext: AppContext? = nil) {
+    super.init(appContext: appContext)
+    clipsToBounds = true
+  }
+
+  func setProxyKey(_ value: String) { proxyKey = value }
+  func setStoreId(_ value: String) { storeId = value }
+  func setUrl(_ value: String) { requestedUrl = value }
+
+  func propsDidUpdate() {
+    if webView == nil {
+      createWebView()
+    }
+    guard let webView, let requestedUrl, requestedUrl != loadedUrl, let url = URL(string: requestedUrl)
+    else { return }
+    loadedUrl = requestedUrl
+    webView.load(URLRequest(url: url))
+  }
+
+  func goBack() { webView?.goBack() }
+  func goForward() { webView?.goForward() }
+  func reload() { webView?.reload() }
+  func stopLoading() { webView?.stopLoading() }
+
+  override func layoutSubviews() {
+    super.layoutSubviews()
+    webView?.frame = bounds
+  }
+
+  private func createWebView() {
+    guard #available(iOS 17.0, *),
+      let proxyKey, let storeId, let identifier = UUID(uuidString: storeId),
+      let server = OrcaProxiedBrowserModule.proxies[proxyKey], server.port != 0,
+      let port = NWEndpoint.Port(rawValue: server.port)
+    else { return }
+    var proxy = ProxyConfiguration(
+      socksv5Proxy: NWEndpoint.hostPort(host: .ipv4(.loopback), port: port))
+    proxy.applyCredential(username: server.username, password: server.password)
+    // Without failover a broken tunnel fails the load instead of going out on the phone's network.
+    proxy.allowFailover = false
+    let store = WKWebsiteDataStore(forIdentifier: identifier)
+    store.proxyConfigurations = [proxy]
+    let configuration = WKWebViewConfiguration()
+    configuration.websiteDataStore = store
+    configuration.allowsInlineMediaPlayback = true
+    let webView = WKWebView(frame: bounds, configuration: configuration)
+    webView.navigationDelegate = self
+    webView.uiDelegate = self
+    webView.allowsBackForwardNavigationGestures = true
+    addSubview(webView)
+    self.webView = webView
+    observations = [
+      webView.observe(\.url) { [weak self] _, _ in self?.publishState() },
+      webView.observe(\.title) { [weak self] _, _ in self?.publishState() },
+      webView.observe(\.isLoading) { [weak self] _, _ in self?.publishState() },
+      webView.observe(\.canGoBack) { [weak self] _, _ in self?.publishState() },
+      webView.observe(\.canGoForward) { [weak self] _, _ in self?.publishState() },
+      webView.observe(\.estimatedProgress) { [weak self] _, _ in self?.publishState() }
+    ]
+  }
+
+  private func publishState(error: String? = nil) {
+    guard let webView else { return }
+    var payload: [String: Any] = [
+      "url": webView.url?.absoluteString ?? "",
+      "title": webView.title ?? "",
+      "loading": webView.isLoading,
+      "canGoBack": webView.canGoBack,
+      "canGoForward": webView.canGoForward,
+      "progress": webView.estimatedProgress
+    ]
+    if let error {
+      payload["error"] = error
+    }
+    onNavigationState(payload)
+  }
+
+  func webView(
+    _ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error
+  ) {
+    publishState(error: error.localizedDescription)
+  }
+
+  func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+    publishState(error: error.localizedDescription)
+  }
+
+  // Pages that open a new window load in this one, as the streamed browser does.
+  func webView(
+    _ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration,
+    for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures
+  ) -> WKWebView? {
+    if navigationAction.targetFrame == nil {
+      webView.load(navigationAction.request)
+    }
+    return nil
+  }
+
+  deinit {
+    observations.removeAll()
+  }
+}
