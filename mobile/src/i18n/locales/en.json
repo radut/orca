@@ -2564,6 +2564,14 @@
       "unknown": "{{agent}}'s chat could not be found on this host. Reconnect to its computer and try again.",
       "unsupported": "{{agent}}'s chat can't be reopened until Orca is updated.",
       "unreachable": "{{agent}}'s chat is not available yet. Retry in a moment."
+    },
+    "linkActionSheet": {
+      "openInOrca": "Open in Orca browser",
+      "openInBrowser": "Open in browser",
+      "copyLink": "Copy link",
+      "linkCopied": "Link copied",
+      "copyFailed": "Could not copy the link",
+      "title": "Link"
     }
   },
   "chat": {
