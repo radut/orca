@@ -2462,6 +2462,14 @@
       "chatNotFound": "Orca can't find this chat.",
       "startNewChat": "Start a new chat to continue.",
       "tryAgain": "Try again."
+    },
+    "linkActionSheet": {
+      "openInOrca": "Open in Orca browser",
+      "openInBrowser": "Open in browser",
+      "copyLink": "Copy link",
+      "linkCopied": "Link copied",
+      "copyFailed": "Could not copy the link",
+      "title": "Link"
     }
   },
   "chat": {
