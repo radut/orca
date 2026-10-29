@@ -41,6 +41,12 @@ export const BRIDGE_NATIVE_VERB_NAMES = [
 
 export type BridgeNativeVerb = (typeof BRIDGE_NATIVE_VERB_NAMES)[number]
 
+// Verbs the shell grants every page without a manifest declaration: routes are capped at 16 grants, and these only
+// open an in-app view of something the page already shows.
+export const BRIDGE_IMPLICIT_NATIVE_VERBS = [
+  'native.browser.local'
+] as const satisfies readonly BridgeNativeVerb[]
+
 // Keep clipboard reads text-only; images use media.pick and chunked reads instead of exceeding inline reply limits.
 export const BRIDGE_CLIPBOARD_MIMES = ['text'] as const
 

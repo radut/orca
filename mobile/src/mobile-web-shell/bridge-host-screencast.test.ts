@@ -206,7 +206,7 @@ describe('the binary lane is served only to a route granted it', () => {
     const bridge = harness({ ready: true, routeGrants: ['navigate', 'storage'] })
     expect(bridge.last()).toMatchObject({
       type: 'init',
-      grants: { native: ['fault', 'rpcEnvelope', 'navigate', 'storage'] }
+      grants: { native: ['fault', 'rpcEnvelope', 'navigate', 'storage', 'native.browser.local'] }
     })
     bridge.host.receive(screencastSubscribe(ID, true))
     expect(bridge.diagnostics).toEqual([{ kind: 'binary-lane-refused', id: ID }])
