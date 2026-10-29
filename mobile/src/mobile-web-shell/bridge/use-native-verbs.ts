@@ -20,6 +20,8 @@ import {
   clipboardReadResultSchema,
   clipboardWriteResultSchema,
   pdfViewResultSchema,
+  browserLocalResultSchema,
+  type BridgeBrowserLocalParams,
   type BridgeClipboardMime,
   type BridgeNativeVerb,
   type BridgePdfOpenParams
@@ -47,6 +49,9 @@ export type NativeVerbs = {
   canOpenPdf: boolean
   openPdf: (params: BridgePdfOpenParams) => Promise<void>
   cancelPdf: () => Promise<void>
+  canOpenLocalBrowser: boolean
+  // Resolves once the shell shows the tab in its own web view.
+  openLocalBrowser: (params: BridgeBrowserLocalParams) => Promise<void>
 }
 
 // Expose stable reason codes, including local ungranted and frame refusals. Unknown newer-shell codes floor to unreported so caller switches remain exhaustive.
@@ -163,6 +168,10 @@ export function useNativeVerbs(): NativeVerbs {
       },
       cancelPdf: async () => {
         await call('native.pdf.view', { action: 'cancel' }, pdfViewResultSchema)
+      },
+      canOpenLocalBrowser: has('native.browser.local'),
+      openLocalBrowser: async (params) => {
+        await call('native.browser.local', params, browserLocalResultSchema)
       }
     }
   }, [client])

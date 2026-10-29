@@ -1,6 +1,7 @@
 import { useEffect, useState, type ComponentProps } from 'react'
 import { View } from 'react-native'
 import { translate } from '../i18n/mobile-i18n'
+import { useShellLocalBrowser } from '../platform/shell-local-browser'
 import { mobileBrowserPaneStyles } from './mobile-browser-pane-styles'
 import { MobileBrowserPane } from './MobileBrowserPane'
 import { MobileLocalBrowserPane } from './MobileLocalBrowserPane'
@@ -20,6 +21,8 @@ export function MobileBrowserSurface({ hostId, ...paneProps }: Props): React.JSX
   const [streamed, setStreamed] = useState(() => streamedHosts.has(hostId))
   const localPossible = canRenderBrowserLocally(client)
   const local = useMobileBrowserLocalTunnel(client, hostId, worktreeId, localPossible && !streamed)
+  // A page served into the app shell cannot host native views, so it asks the shell to show one.
+  const openInShell = useShellLocalBrowser()
 
   const failure = !streamed && local.status === 'failed' ? local.message : null
   useEffect(() => {
@@ -59,7 +62,24 @@ export function MobileBrowserSurface({ hostId, ...paneProps }: Props): React.JSX
   return (
     <MobileBrowserPane
       {...paneProps}
-      onRenderLocally={localPossible && streamed ? () => chooseStreamed(false) : undefined}
+      onRenderLocally={
+        localPossible && streamed
+          ? () => chooseStreamed(false)
+          : openInShell
+            ? () =>
+                void openInShell({ worktreeId, url: tab.url }).catch((error: unknown) =>
+                  onToast(
+                    translate(
+                      'browser.surface.localFailed',
+                      'Streaming from the host: {{reason}}',
+                      {
+                        reason: error instanceof Error ? error.message : String(error)
+                      }
+                    )
+                  )
+                )
+            : undefined
+      }
     />
   )
 }

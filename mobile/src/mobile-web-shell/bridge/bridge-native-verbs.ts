@@ -35,7 +35,8 @@ export const BRIDGE_NATIVE_VERB_NAMES = [
   'native.audio.read',
   'native.audio.stop',
   'native.storage.read',
-  'native.pdf.view'
+  'native.pdf.view',
+  'native.browser.local'
 ] as const
 
 export type BridgeNativeVerb = (typeof BRIDGE_NATIVE_VERB_NAMES)[number]
@@ -85,6 +86,15 @@ export type BridgePdfOpenParams = Omit<
   'action'
 >
 
+// The shell draws a browser tab in its own web view, with traffic through the host; relayed servers stay streamed.
+export const browserLocalParamsSchema = z.strictObject({
+  worktreeId: z.string().min(1),
+  url: z.string().max(8192)
+})
+export const browserLocalResultSchema = z.strictObject({})
+
+export type BridgeBrowserLocalParams = z.infer<typeof browserLocalParamsSchema>
+
 export const BRIDGE_NATIVE_VERBS: Readonly<Record<BridgeNativeVerb, BridgeNativeVerbSpec>> = {
   'native.clipboard.write': {
     params: clipboardWriteParamsSchema,
@@ -129,6 +139,10 @@ export const BRIDGE_NATIVE_VERBS: Readonly<Record<BridgeNativeVerb, BridgeNative
   'native.pdf.view': {
     params: pdfViewParamsSchema,
     result: pdfViewResultSchema
+  },
+  'native.browser.local': {
+    params: browserLocalParamsSchema,
+    result: browserLocalResultSchema
   }
 }
 
