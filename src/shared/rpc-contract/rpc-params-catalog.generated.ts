@@ -29,6 +29,7 @@ import {
 } from '../desktop-browser-bridge-protocol'
 import { RegisterDeviceKeyParamsSchema } from '../device-key-registration-contract'
 import { HostAccountLaunchEnvParams } from '../host-account-launch-env'
+import { MobileBrowserTunnelParams } from '../mobile-browser-tunnel-protocol'
 import {
   PairingGetEndpointsParamsSchema,
   PairingProvisionRelayParamsSchema
@@ -1237,6 +1238,7 @@ export const RPC_PARAMS_BY_METHOD = {
   'nativeChat.subscribe': NativeChatSession,
   'nativeChat.unsubscribe': NativeChatUnsubscribe,
   'network.browserTunnel': BrowserNetworkTunnelAttachParams,
+  'network.mobileBrowserTunnel': MobileBrowserTunnelParams,
   'notifications.getMissedSince': NotificationGetMissedSinceParams,
   'notifications.registerPush': NotificationRegisterPushParams,
   'notifications.reportDesktopPresence': NotificationReportDesktopPresenceParams,
