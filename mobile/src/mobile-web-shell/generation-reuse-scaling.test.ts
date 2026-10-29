@@ -132,19 +132,21 @@ it.each([
       await fs.delete(`${active.directory}/${active.manifest.assets[0]!.path}`)
     }
     let cachedHashReads = 0
-    const reusable = reusableAssetsOf(fs, {
-      ...active,
-      manifest: {
-        ...active.manifest,
-        assets: active.manifest.assets.map((asset) => ({
-          ...asset,
-          get sha256() {
-            cachedHashReads += 1
-            return asset.sha256
-          }
-        }))
+    const reusable = reusableAssetsOf(fs, [
+      {
+        ...active,
+        manifest: {
+          ...active.manifest,
+          assets: active.manifest.assets.map((asset) => ({
+            ...asset,
+            get sha256() {
+              cachedHashReads += 1
+              return asset.sha256
+            }
+          }))
+        }
       }
-    })
+    ])
     const host = bundleHost(next)
     const fetched = await fetchMobileWebBundle({ client: host.client, reusable })
     await store.commitGeneration(await store.stageGeneration(hostKey, fetched))
