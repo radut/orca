@@ -135,7 +135,7 @@ export function MobileWebShellScreen({
   // Create the media registry before the bridge; staged files belong to this page session.
   const serveDeviceVerb = useNativeDeviceVerbs(readySessionId)
   const servePdfView = useNativePdfViewer(hostId, readySessionId)
-  const localBrowser = useNativeLocalBrowser(hostId)
+  const localBrowser = useNativeLocalBrowser(hostId, readySessionId)
   // Read the shell's storage for this host.
   const serveNativeVerb = (verb: BridgeNativeVerb, params: unknown): Promise<unknown> =>
     verb === 'native.storage.read'
@@ -144,7 +144,9 @@ export function MobileWebShellScreen({
         ? servePdfView(params)
         : verb === 'native.browser.local'
           ? localBrowser.serve(params)
-          : serveDeviceVerb(verb, params)
+          : verb === 'native.browser.view'
+            ? localBrowser.serveView(params)
+            : serveDeviceVerb(verb, params)
   // Both externalLink and cancelled navigation use this filtered opener. Report device-handler failure without throwing from a native frame callback; neither path has a reply.
   const openUrlForPage = (url: string) => {
     void Linking.openURL(url).catch((error: unknown) => {
@@ -318,7 +320,10 @@ export function MobileWebShellScreen({
         ref={bridge.viewRef}
         // Overlays cannot cover the screen beneath; hide their opaque WebView until first paint.
         style={[styles.shellView, overlay && pageFrame !== 'painted' && styles.unpaintedOverlay]}
-        onLayout={pageFold.onShellLayout}
+        onLayout={(event) => {
+          pageFold.onShellLayout(event)
+          localBrowser.onPageLayout(event)
+        }}
         generationDirectory={state.generationDirectory}
         sessionId={state.sessionId}
         bridgeEnabled={bridge.bridgeEnabled}

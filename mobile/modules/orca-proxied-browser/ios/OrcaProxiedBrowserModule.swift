@@ -86,6 +86,7 @@ public class OrcaProxiedBrowserModule: Module, ProxiedBrowserSocksServerDelegate
       Prop("storeId") { (view: OrcaProxiedBrowserView, value: String) in view.setStoreId(value) }
       Prop("url") { (view: OrcaProxiedBrowserView, value: String) in view.setUrl(value) }
       Prop("direct") { (view: OrcaProxiedBrowserView, value: Bool) in view.setDirect(value) }
+      Prop("desktopSite") { (view: OrcaProxiedBrowserView, value: Bool) in view.setDesktopSite(value) }
 
       AsyncFunction("goBack") { (view: OrcaProxiedBrowserView) in view.goBack() }
       AsyncFunction("goForward") { (view: OrcaProxiedBrowserView) in view.goForward() }

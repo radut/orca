@@ -11,6 +11,7 @@ final class OrcaProxiedBrowserView: ExpoView, WKNavigationDelegate, WKUIDelegate
   private var storeId: String?
   private var requestedUrl: String?
   private var direct = false
+  private var desktopSite = false
   private var loadedUrl: String?
   private var webView: WKWebView?
   private var observations: [NSKeyValueObservation] = []
@@ -25,6 +26,8 @@ final class OrcaProxiedBrowserView: ExpoView, WKNavigationDelegate, WKUIDelegate
   func setUrl(_ value: String) { requestedUrl = value }
   // Read once, when the web view is created; switching networks remounts the view.
   func setDirect(_ value: Bool) { direct = value }
+  // Read once too: a page asks for its layout when it loads, so switching remounts the view.
+  func setDesktopSite(_ value: Bool) { desktopSite = value }
 
   func propsDidUpdate() {
     if webView == nil {
@@ -55,6 +58,7 @@ final class OrcaProxiedBrowserView: ExpoView, WKNavigationDelegate, WKUIDelegate
     let configuration = WKWebViewConfiguration()
     configuration.websiteDataStore = store
     configuration.allowsInlineMediaPlayback = true
+    configuration.defaultWebpagePreferences.preferredContentMode = desktopSite ? .desktop : .mobile
     let webView = WKWebView(frame: bounds, configuration: configuration)
     webView.navigationDelegate = self
     webView.uiDelegate = self

@@ -7,13 +7,13 @@ import { PickerModal, type PickerOption } from '../components/PickerModal'
 import type { Translate } from '../i18n/mobile-i18n'
 import { useMobileTranslation } from '../i18n/use-mobile-translation'
 import {
-  DEFAULT_LOCAL_BROWSER_NETWORK,
+  DEFAULT_BROWSER_DRAWING,
   DEFAULT_TERMINAL_LINK_OPEN_MODE,
-  loadLocalBrowserNetwork,
+  loadBrowserDrawing,
   loadTerminalLinkOpenMode,
-  saveLocalBrowserNetwork,
+  saveBrowserDrawing,
   saveTerminalLinkOpenMode,
-  type MobileLocalBrowserNetwork,
+  type MobileBrowserDrawing,
   type MobileTerminalLinkOpenMode
 } from '../storage/preferences'
 import { colors, radii, spacing, typography } from '../theme/mobile-theme'
@@ -42,11 +42,19 @@ function linkModeOptions(t: Translate): PickerOption<MobileTerminalLinkOpenMode>
   ]
 }
 
-function networkOptions(t: Translate): PickerOption<MobileLocalBrowserNetwork>[] {
+function drawingOptions(t: Translate): PickerOption<MobileBrowserDrawing>[] {
   return [
     {
+      value: 'stream',
+      label: t('settings.browserSettingsScreen.streamDrawing', 'Stream from the host'),
+      subtitle: t(
+        'settings.browserSettingsScreen.streamDrawingDescription',
+        "Show pictures of the desktop's browser; the phone button still draws a tab here."
+      )
+    },
+    {
       value: 'host',
-      label: t('settings.browserSettingsScreen.hostNetwork', 'Through the host'),
+      label: t('settings.browserSettingsScreen.hostDrawing', 'Draw on the phone, through the host'),
       subtitle: t(
         'settings.browserSettingsScreen.hostNetworkDescription',
         'Traffic goes out from your paired desktop, using its network and proxy settings.'
@@ -54,7 +62,7 @@ function networkOptions(t: Translate): PickerOption<MobileLocalBrowserNetwork>[]
     },
     {
       value: 'phone',
-      label: t('settings.browserSettingsScreen.phoneNetwork', "Phone's network"),
+      label: t('settings.browserSettingsScreen.phoneDrawing', 'Draw on the phone, on its network'),
       subtitle: t(
         'settings.browserSettingsScreen.phoneNetworkDescription',
         'Traffic goes out from this phone, like any app on it.'
@@ -76,20 +84,20 @@ export default function BrowserSettingsScreen({
   useMobileColorScheme()
   const router = useRouter()
   const insets = useSafeAreaInsets()
-  const [pickerOpen, setPickerOpen] = useState<'links' | 'network' | null>(null)
+  const [pickerOpen, setPickerOpen] = useState<'links' | 'drawing' | null>(null)
   const linkMode = useSavedBrowserPreference(
     loadTerminalLinkOpenMode,
     saveTerminalLinkOpenMode,
     DEFAULT_TERMINAL_LINK_OPEN_MODE
   )
-  const network = useSavedBrowserPreference(
-    loadLocalBrowserNetwork,
-    saveLocalBrowserNetwork,
-    DEFAULT_LOCAL_BROWSER_NETWORK
+  const drawing = useSavedBrowserPreference(
+    loadBrowserDrawing,
+    saveBrowserDrawing,
+    DEFAULT_BROWSER_DRAWING
   )
   const options = linkModeOptions(t)
-  const networks = networkOptions(t)
-  const error = linkMode.error ?? network.error
+  const drawings = drawingOptions(t)
+  const error = linkMode.error ?? drawing.error
 
   return (
     <View style={[styles.container, { paddingTop: insets.top + spacing.sm }]}>
@@ -150,27 +158,27 @@ export default function BrowserSettingsScreen({
         </View>
 
         <Text style={[styles.groupHeading, styles.groupTopGap]}>
-          {t('settings.browserSettingsScreen.phoneDrawnHeading', 'PAGES DRAWN ON THE PHONE')}
+          {t('settings.browserSettingsScreen.tabsHeading', 'BROWSER TABS')}
         </Text>
         <Text style={styles.groupDescription}>
           {t(
-            'settings.browserSettingsScreen.phoneDrawnDescription',
-            'Choose the network a browser tab uses when you open it full screen on the phone.'
+            'settings.browserSettingsScreen.tabsDescription',
+            'Choose how browser tabs show on the phone, and the network pages drawn here use.'
           )}
         </Text>
         <View style={[styles.section, styles.sectionTopGap]}>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel={t('settings.browserSettingsScreen.connectFrom', 'Connect from')}
+            accessibilityLabel={t('settings.browserSettingsScreen.showTabs', 'Show tabs')}
             style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
-            onPress={() => setPickerOpen('network')}
+            onPress={() => setPickerOpen('drawing')}
           >
             <Network size={16} color={colors.textSecondary} />
             <View style={styles.rowContent}>
               <Text style={styles.rowLabel}>
-                {t('settings.browserSettingsScreen.connectFrom', 'Connect from')}
+                {t('settings.browserSettingsScreen.showTabs', 'Show tabs')}
               </Text>
-              <Text style={styles.rowSublabel}>{optionLabel(network.value, networks)}</Text>
+              <Text style={styles.rowSublabel}>{optionLabel(drawing.value, drawings)}</Text>
             </View>
             <ChevronRight size={16} color={colors.textMuted} />
           </Pressable>
@@ -185,12 +193,12 @@ export default function BrowserSettingsScreen({
         onSelect={linkMode.select}
         onClose={() => setPickerOpen(null)}
       />
-      <PickerModal<MobileLocalBrowserNetwork>
-        visible={pickerOpen === 'network'}
-        title={t('settings.browserSettingsScreen.connectFrom', 'Connect from')}
-        options={networks}
-        selected={network.value}
-        onSelect={network.select}
+      <PickerModal<MobileBrowserDrawing>
+        visible={pickerOpen === 'drawing'}
+        title={t('settings.browserSettingsScreen.showTabs', 'Show tabs')}
+        options={drawings}
+        selected={drawing.value}
+        onSelect={drawing.select}
         onClose={() => setPickerOpen(null)}
       />
     </View>

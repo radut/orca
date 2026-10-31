@@ -249,21 +249,23 @@ export function saveTerminalLinkOpenMode(mode: MobileTerminalLinkOpenMode): Prom
 
 // Where pages the phone draws itself connect from: the paired host's network, or the phone's own.
 export type MobileLocalBrowserNetwork = 'host' | 'phone'
+// How browser tabs show: frames streamed from the host's browser, or drawn on the phone on one of the networks.
+export type MobileBrowserDrawing = 'stream' | MobileLocalBrowserNetwork
 
-const LOCAL_BROWSER_NETWORK_KEY = 'orca:localBrowserNetwork'
-export const DEFAULT_LOCAL_BROWSER_NETWORK: MobileLocalBrowserNetwork = 'host'
+const BROWSER_DRAWING_KEY = 'orca:localBrowserNetwork'
+export const DEFAULT_BROWSER_DRAWING: MobileBrowserDrawing = 'host'
 
-export async function loadLocalBrowserNetwork(): Promise<MobileLocalBrowserNetwork> {
+export async function loadBrowserDrawing(): Promise<MobileBrowserDrawing> {
   try {
-    const raw = await AsyncStorage.getItem(LOCAL_BROWSER_NETWORK_KEY)
-    return raw === 'host' || raw === 'phone' ? raw : DEFAULT_LOCAL_BROWSER_NETWORK
+    const raw = await AsyncStorage.getItem(BROWSER_DRAWING_KEY)
+    return raw === 'stream' || raw === 'host' || raw === 'phone' ? raw : DEFAULT_BROWSER_DRAWING
   } catch {
-    return DEFAULT_LOCAL_BROWSER_NETWORK
+    return DEFAULT_BROWSER_DRAWING
   }
 }
 
-export function saveLocalBrowserNetwork(network: MobileLocalBrowserNetwork): Promise<void> {
-  return persistMirrored(LOCAL_BROWSER_NETWORK_KEY, network)
+export function saveBrowserDrawing(drawing: MobileBrowserDrawing): Promise<void> {
+  return persistMirrored(BROWSER_DRAWING_KEY, drawing)
 }
 
 function stringArray(value: unknown): string[] {

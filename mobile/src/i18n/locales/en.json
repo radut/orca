@@ -52,12 +52,14 @@
       "loadFailed": "Could not load browser preferences. Try again.",
       "saveFailed": "Could not save browser preferences. Try again.",
       "openTerminalLinks": "Open terminal links",
-      "phoneDrawnHeading": "PAGES DRAWN ON THE PHONE",
-      "phoneDrawnDescription": "Choose the network a browser tab uses when you open it full screen on the phone.",
-      "connectFrom": "Connect from",
-      "hostNetwork": "Through the host",
+      "tabsHeading": "BROWSER TABS",
+      "tabsDescription": "Choose how browser tabs show on the phone, and the network pages drawn here use.",
+      "showTabs": "Show tabs",
+      "streamDrawing": "Stream from the host",
+      "streamDrawingDescription": "Show pictures of the desktop's browser; the phone button still draws a tab here.",
+      "hostDrawing": "Draw on the phone, through the host",
       "hostNetworkDescription": "Traffic goes out from your paired desktop, using its network and proxy settings.",
-      "phoneNetwork": "Phone's network",
+      "phoneDrawing": "Draw on the phone, on its network",
       "phoneNetworkDescription": "Traffic goes out from this phone, like any app on it."
     },
     "menuItems": {
@@ -1607,7 +1609,9 @@
       "streamFromHost": "Stream from the host instead",
       "loadFailed": "Page did not load: {{error}}",
       "throughHost": "Connect through the host",
-      "phoneNetwork": "Connect on the phone's network"
+      "phoneNetwork": "Connect on the phone's network",
+      "fullScreen": "Full screen",
+      "leaveFullScreen": "Leave full screen"
     },
     "surface": {
       "localFailed": "Streaming from the host: {{reason}}"

@@ -3,6 +3,8 @@ import { View } from 'react-native'
 import {
   ChevronLeft,
   ChevronRight,
+  Maximize2,
+  Minimize2,
   MonitorUp,
   RefreshCw,
   Server,
@@ -16,6 +18,7 @@ import {
 } from '../../modules/orca-proxied-browser/src'
 import { useMobileTranslation } from '../i18n/use-mobile-translation'
 import type { MobileLocalBrowserNetwork } from '../storage/preferences'
+import type { MobileBrowserViewMode } from './browser-screencast-request'
 import { colors } from '../theme/mobile-theme'
 import { useMobileColorScheme } from '../theme/use-mobile-color-scheme'
 import { displayBrowserUrl, normalizeBrowserUrl } from './browser-url'
@@ -23,6 +26,7 @@ import { buttonColor } from './mobile-browser-frame-state'
 import { mobileBrowserPaneStyles as styles } from './mobile-browser-pane-styles'
 import { MobileBrowserAddressField } from './MobileBrowserAddressField'
 import { MobileBrowserToolbarIconButton } from './MobileBrowserToolbarIconButton'
+import { MobileBrowserViewModeSwitch } from './MobileBrowserViewModeSwitch'
 
 type Props = {
   network: MobileLocalBrowserNetwork
@@ -30,6 +34,11 @@ type Props = {
   proxyKey: string
   storeId: string
   initialUrl: string
+  // Desktop or mobile site layout, as in the streamed browser.
+  viewMode: MobileBrowserViewMode
+  onViewModeChange: (mode: MobileBrowserViewMode) => void
+  // Full screen is a separate view; this button opens or leaves it.
+  fullScreen: { active: boolean; onToggle: () => void } | null
   // Switch this tab back to frames streamed from the host's browser.
   onStreamFromHost: () => void
   onNetworkChange: (network: MobileLocalBrowserNetwork) => void
@@ -59,6 +68,9 @@ export function MobileLocalBrowserPane({
   proxyKey,
   storeId,
   initialUrl,
+  viewMode,
+  onViewModeChange,
+  fullScreen,
   onStreamFromHost,
   onNetworkChange,
   onUrlChange,
@@ -115,6 +127,11 @@ export function MobileLocalBrowserPane({
           loading={navigation.loading}
           loadFailed={navigation.error !== undefined}
         />
+        <MobileBrowserViewModeSwitch
+          disabled={false}
+          value={viewMode}
+          onChange={onViewModeChange}
+        />
         <MobileBrowserToolbarIconButton
           label={t('browser.localPane.streamFromHost', 'Stream from the host instead')}
           onPress={onStreamFromHost}
@@ -133,6 +150,22 @@ export function MobileLocalBrowserPane({
         >
           <Smartphone size={15} color={networkButtonColor(network === 'phone')} />
         </MobileBrowserToolbarIconButton>
+        {fullScreen && (
+          <MobileBrowserToolbarIconButton
+            label={
+              fullScreen.active
+                ? t('browser.localPane.leaveFullScreen', 'Leave full screen')
+                : t('browser.localPane.fullScreen', 'Full screen')
+            }
+            onPress={fullScreen.onToggle}
+          >
+            {fullScreen.active ? (
+              <Minimize2 size={15} color={buttonColor(true)} />
+            ) : (
+              <Maximize2 size={15} color={buttonColor(true)} />
+            )}
+          </MobileBrowserToolbarIconButton>
+        )}
       </View>
       <View style={styles.viewport}>
         {ProxiedBrowserView && (
@@ -143,6 +176,7 @@ export function MobileLocalBrowserPane({
             storeId={storeId}
             url={url}
             direct={network === 'phone'}
+            desktopSite={viewMode === 'web'}
             onNavigationState={(event) => {
               const next = event.nativeEvent
               setNavigation(next)

@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import BrowserSettingsScreen from './browser-settings-screen'
 import { PickerModal } from '../components/PickerModal'
 import {
-  loadLocalBrowserNetwork,
+  loadBrowserDrawing,
   loadTerminalLinkOpenMode,
   saveTerminalLinkOpenMode,
   type MobileTerminalLinkOpenMode
@@ -30,11 +30,11 @@ vi.mock('lucide-react-native', () => ({
 vi.mock('../components/PickerModal', () => ({ PickerModal: () => null }))
 vi.mock('../storage/preferences', () => ({
   DEFAULT_TERMINAL_LINK_OPEN_MODE: 'orca-browser',
-  DEFAULT_LOCAL_BROWSER_NETWORK: 'host',
+  DEFAULT_BROWSER_DRAWING: 'host',
   loadTerminalLinkOpenMode: vi.fn(),
   saveTerminalLinkOpenMode: vi.fn(),
-  loadLocalBrowserNetwork: vi.fn(),
-  saveLocalBrowserNetwork: vi.fn()
+  loadBrowserDrawing: vi.fn(),
+  saveBrowserDrawing: vi.fn()
 }))
 
 function linkPicker() {
@@ -43,7 +43,7 @@ function linkPicker() {
 let renderer: ReactTestRenderer
 
 beforeEach(() => {
-  vi.mocked(loadLocalBrowserNetwork).mockResolvedValue('host')
+  vi.mocked(loadBrowserDrawing).mockResolvedValue('host')
 })
 
 afterEach(() => {

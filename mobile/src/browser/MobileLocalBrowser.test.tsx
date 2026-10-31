@@ -1,12 +1,12 @@
 import { createElement } from 'react'
 import { act, create, type ReactTestRenderer } from 'react-test-renderer'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { loadLocalBrowserNetwork } from '../storage/preferences'
+import { loadBrowserDrawing } from '../storage/preferences'
 import { MobileLocalBrowser } from './MobileLocalBrowser'
 import { MobileLocalBrowserPane } from './MobileLocalBrowserPane'
 import { useMobileBrowserLocalTunnel } from './use-mobile-browser-local-tunnel'
 
-vi.mock('../storage/preferences', () => ({ loadLocalBrowserNetwork: vi.fn() }))
+vi.mock('../storage/preferences', () => ({ loadBrowserDrawing: vi.fn() }))
 vi.mock('./mobile-browser-local-proxy', () => ({
   PHONE_NETWORK_BROWSER_STORE_ID: 'phone-store'
 }))
@@ -32,6 +32,8 @@ async function mount(onHostTunnelFailed = vi.fn()): Promise<void> {
         hostId: 'host-a',
         worktreeId: 'wt-1',
         initialUrl: 'https://example.com/',
+        initialViewMode: 'mobile',
+        fullScreen: null,
         pending: null,
         onStreamFromHost: vi.fn(),
         onHostTunnelFailed,
@@ -51,7 +53,7 @@ function tunnelEnabledCalls(): boolean[] {
 
 describe('MobileLocalBrowser', () => {
   it('opens on the phone network from the setting without starting the host tunnel', async () => {
-    vi.mocked(loadLocalBrowserNetwork).mockResolvedValue('phone')
+    vi.mocked(loadBrowserDrawing).mockResolvedValue('phone')
     vi.mocked(useMobileBrowserLocalTunnel).mockReturnValue({
       status: 'unavailable'
     })
@@ -64,7 +66,7 @@ describe('MobileLocalBrowser', () => {
   })
 
   it('reopens the current page when switching to the host network', async () => {
-    vi.mocked(loadLocalBrowserNetwork).mockResolvedValue('phone')
+    vi.mocked(loadBrowserDrawing).mockResolvedValue('phone')
     vi.mocked(useMobileBrowserLocalTunnel).mockImplementation((_c, _h, _w, enabled) =>
       enabled
         ? { status: 'ready', proxyKey: 'host-a', storeId: 'host-store' }
@@ -81,8 +83,31 @@ describe('MobileLocalBrowser', () => {
     })
   })
 
+  it('draws a tab set to stream through the host when it is asked to draw it', async () => {
+    vi.mocked(loadBrowserDrawing).mockResolvedValue('stream')
+    vi.mocked(useMobileBrowserLocalTunnel).mockReturnValue({
+      status: 'ready',
+      proxyKey: 'host-a',
+      storeId: 'host-store'
+    })
+    await mount()
+    expect(pane().props).toMatchObject({ network: 'host', proxyKey: 'host-a' })
+  })
+
+  it('reopens the current page in the other site layout', async () => {
+    vi.mocked(loadBrowserDrawing).mockResolvedValue('phone')
+    vi.mocked(useMobileBrowserLocalTunnel).mockReturnValue({ status: 'unavailable' })
+    await mount()
+    act(() => pane().props.onUrlChange('https://example.com/next'))
+    act(() => pane().props.onViewModeChange('web'))
+    expect(pane().props).toMatchObject({
+      viewMode: 'web',
+      initialUrl: 'https://example.com/next'
+    })
+  })
+
   it('reports a failed host tunnel', async () => {
-    vi.mocked(loadLocalBrowserNetwork).mockResolvedValue('host')
+    vi.mocked(loadBrowserDrawing).mockResolvedValue('host')
     vi.mocked(useMobileBrowserLocalTunnel).mockReturnValue({
       status: 'failed',
       message: 'denied'

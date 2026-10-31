@@ -51,6 +51,8 @@ export type OrcaProxiedBrowserViewProps = ViewProps & {
   url: string
   /** Read when the view mounts: true loads on the phone's own network and ignores proxyKey. */
   direct?: boolean
+  /** Read when the view mounts: true asks pages for their desktop layout. */
+  desktopSite?: boolean
   onNavigationState?: (event: NativeSyntheticEvent<ProxiedBrowserNavigationState>) => void
 }
 
