@@ -3,6 +3,7 @@ import { View } from 'react-native'
 import { translate } from '../i18n/mobile-i18n'
 import { useShellLocalBrowser } from '../platform/shell-local-browser'
 import { loadBrowserDrawing, type MobileBrowserDrawing } from '../storage/preferences'
+import { isBlankBrowserUrl } from './browser-url'
 import { mobileBrowserPaneStyles } from './mobile-browser-pane-styles'
 import {
   getInitialMobileBrowserViewMode,
@@ -34,6 +35,16 @@ export function MobileBrowserSurface({ hostId, ...paneProps }: Props): React.JSX
   const [fullScreen, setFullScreen] = useState<{ url: string; fromDrawn: boolean } | null>(null)
   // Bumped when full screen hands a page back, so the drawn tab reopens it.
   const [resume, setResume] = useState({ url: tab.url, generation: 0 })
+  // A new tab opens blank and learns its address from the host a moment later; reopen the drawn tab there.
+  useEffect(() => {
+    if (!isBlankBrowserUrl(tab.url)) {
+      setResume((current) =>
+        isBlankBrowserUrl(current.url)
+          ? { url: tab.url, generation: current.generation + 1 }
+          : current
+      )
+    }
+  }, [tab.url])
   // The streamed pane and the drawn tab share the page's desktop or mobile layout.
   const viewMode = (): ReturnType<typeof getInitialMobileBrowserViewMode> =>
     getInitialMobileBrowserViewMode(worktreeId, tab.browserPageId, tab.url)
@@ -115,9 +126,10 @@ export function MobileBrowserSurface({ hostId, ...paneProps }: Props): React.JSX
   if (placed && !streamed) {
     return (
       <MobileBrowserPlacedLocal
+        key={resume.generation}
         placed={placed}
         worktreeId={worktreeId}
-        url={tab.url}
+        url={resume.url}
         viewMode={viewMode()}
         onEnded={(ending) => {
           if (ending !== 'hidden') {
