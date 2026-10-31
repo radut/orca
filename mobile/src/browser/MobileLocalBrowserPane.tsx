@@ -1,6 +1,13 @@
 import { useRef, useState } from 'react'
 import { View } from 'react-native'
-import { ChevronLeft, ChevronRight, MonitorUp, RefreshCw } from 'lucide-react-native'
+import {
+  ChevronLeft,
+  ChevronRight,
+  MonitorUp,
+  RefreshCw,
+  Server,
+  Smartphone
+} from 'lucide-react-native'
 import {
   OrcaProxiedBrowser,
   orcaProxiedBrowserView,
@@ -8,6 +15,8 @@ import {
   type ProxiedBrowserNavigationState
 } from '../../modules/orca-proxied-browser/src'
 import { useMobileTranslation } from '../i18n/use-mobile-translation'
+import type { MobileLocalBrowserNetwork } from '../storage/preferences'
+import { colors } from '../theme/mobile-theme'
 import { useMobileColorScheme } from '../theme/use-mobile-color-scheme'
 import { displayBrowserUrl, normalizeBrowserUrl } from './browser-url'
 import { buttonColor } from './mobile-browser-frame-state'
@@ -16,11 +25,15 @@ import { MobileBrowserAddressField } from './MobileBrowserAddressField'
 import { MobileBrowserToolbarIconButton } from './MobileBrowserToolbarIconButton'
 
 type Props = {
+  network: MobileLocalBrowserNetwork
+  // Unused on the phone's network.
   proxyKey: string
   storeId: string
   initialUrl: string
   // Switch this tab back to frames streamed from the host's browser.
   onStreamFromHost: () => void
+  onNetworkChange: (network: MobileLocalBrowserNetwork) => void
+  onUrlChange: (url: string) => void
   onToast: (message: string, durationMs?: number) => void
 }
 
@@ -36,12 +49,19 @@ const IDLE_STATE: ProxiedBrowserNavigationState = {
   progress: 0
 }
 
-/** Draws the page in a web view on this phone; its traffic goes through the host, so it sees the host's network. */
+function networkButtonColor(active: boolean): string {
+  return active ? colors.accentBlue : buttonColor(true)
+}
+
+/** Draws the page in a web view on this phone, connecting through the host or on the phone's own network. */
 export function MobileLocalBrowserPane({
+  network,
   proxyKey,
   storeId,
   initialUrl,
   onStreamFromHost,
+  onNetworkChange,
+  onUrlChange,
   onToast
 }: Props): React.JSX.Element {
   const t = useMobileTranslation()
@@ -101,6 +121,18 @@ export function MobileLocalBrowserPane({
         >
           <MonitorUp size={15} color={buttonColor(true)} />
         </MobileBrowserToolbarIconButton>
+        <MobileBrowserToolbarIconButton
+          label={t('browser.localPane.throughHost', 'Connect through the host')}
+          onPress={() => onNetworkChange('host')}
+        >
+          <Server size={15} color={networkButtonColor(network === 'host')} />
+        </MobileBrowserToolbarIconButton>
+        <MobileBrowserToolbarIconButton
+          label={t('browser.localPane.phoneNetwork', "Connect on the phone's network")}
+          onPress={() => onNetworkChange('phone')}
+        >
+          <Smartphone size={15} color={networkButtonColor(network === 'phone')} />
+        </MobileBrowserToolbarIconButton>
       </View>
       <View style={styles.viewport}>
         {ProxiedBrowserView && (
@@ -110,11 +142,15 @@ export function MobileLocalBrowserPane({
             proxyKey={proxyKey}
             storeId={storeId}
             url={url}
+            direct={network === 'phone'}
             onNavigationState={(event) => {
               const next = event.nativeEvent
               setNavigation(next)
-              if (!addressFocused && next.url) {
-                setAddressValue(displayBrowserUrl(next.url))
+              if (next.url) {
+                onUrlChange(next.url)
+                if (!addressFocused) {
+                  setAddressValue(displayBrowserUrl(next.url))
+                }
               }
               if (next.error) {
                 onToast(

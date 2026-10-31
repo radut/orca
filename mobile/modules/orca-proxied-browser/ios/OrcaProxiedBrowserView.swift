@@ -2,14 +2,15 @@ import ExpoModulesCore
 import Network
 import WebKit
 
-/// A web view whose every connection goes through one host's loopback SOCKS5 proxy.
-/// It never loads before the proxy is set, so the phone's own network never sees the page.
+/// A web view whose every connection goes through one host's loopback SOCKS5 proxy, or,
+/// when direct, out on the phone's own network. A proxied view never loads before its proxy is set.
 final class OrcaProxiedBrowserView: ExpoView, WKNavigationDelegate, WKUIDelegate {
   let onNavigationState = EventDispatcher()
 
   private var proxyKey: String?
   private var storeId: String?
   private var requestedUrl: String?
+  private var direct = false
   private var loadedUrl: String?
   private var webView: WKWebView?
   private var observations: [NSKeyValueObservation] = []
@@ -22,6 +23,8 @@ final class OrcaProxiedBrowserView: ExpoView, WKNavigationDelegate, WKUIDelegate
   func setProxyKey(_ value: String) { proxyKey = value }
   func setStoreId(_ value: String) { storeId = value }
   func setUrl(_ value: String) { requestedUrl = value }
+  // Read once, when the web view is created; switching networks remounts the view.
+  func setDirect(_ value: Bool) { direct = value }
 
   func propsDidUpdate() {
     if webView == nil {
@@ -44,18 +47,11 @@ final class OrcaProxiedBrowserView: ExpoView, WKNavigationDelegate, WKUIDelegate
   }
 
   private func createWebView() {
-    guard #available(iOS 17.0, *),
-      let proxyKey, let storeId, let identifier = UUID(uuidString: storeId),
-      let server = OrcaProxiedBrowserModule.proxies[proxyKey], server.port != 0,
-      let port = NWEndpoint.Port(rawValue: server.port)
+    guard #available(iOS 17.0, *), let storeId, let identifier = UUID(uuidString: storeId),
+      let proxies = proxyConfigurations()
     else { return }
-    var proxy = ProxyConfiguration(
-      socksv5Proxy: NWEndpoint.hostPort(host: .ipv4(.loopback), port: port))
-    proxy.applyCredential(username: server.username, password: server.password)
-    // Without failover a broken tunnel fails the load instead of going out on the phone's network.
-    proxy.allowFailover = false
     let store = WKWebsiteDataStore(forIdentifier: identifier)
-    store.proxyConfigurations = [proxy]
+    store.proxyConfigurations = proxies
     let configuration = WKWebViewConfiguration()
     configuration.websiteDataStore = store
     configuration.allowsInlineMediaPlayback = true
@@ -73,6 +69,22 @@ final class OrcaProxiedBrowserView: ExpoView, WKNavigationDelegate, WKUIDelegate
       webView.observe(\.canGoForward) { [weak self] _, _ in self?.publishState() },
       webView.observe(\.estimatedProgress) { [weak self] _, _ in self?.publishState() }
     ]
+  }
+
+  @available(iOS 17.0, *)
+  private func proxyConfigurations() -> [ProxyConfiguration]? {
+    if direct {
+      return []
+    }
+    guard let proxyKey, let server = OrcaProxiedBrowserModule.proxies[proxyKey], server.port != 0,
+      let port = NWEndpoint.Port(rawValue: server.port)
+    else { return nil }
+    var proxy = ProxyConfiguration(
+      socksv5Proxy: NWEndpoint.hostPort(host: .ipv4(.loopback), port: port))
+    proxy.applyCredential(username: server.username, password: server.password)
+    // Without failover a broken tunnel fails the load instead of going out on the phone's network.
+    proxy.allowFailover = false
+    return [proxy]
   }
 
   private func publishState(error: String? = nil) {

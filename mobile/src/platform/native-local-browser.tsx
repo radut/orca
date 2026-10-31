@@ -1,11 +1,8 @@
 import { useCallback, useState } from 'react'
 import { Modal, Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { MobileLocalBrowserPane } from '../browser/MobileLocalBrowserPane'
-import {
-  canRenderBrowserLocally,
-  useMobileBrowserLocalTunnel
-} from '../browser/use-mobile-browser-local-tunnel'
+import { MobileLocalBrowser } from '../browser/MobileLocalBrowser'
+import { canRenderBrowserLocally } from '../browser/use-mobile-browser-local-tunnel'
 import { translate } from '../i18n/mobile-i18n'
 import {
   browserLocalParamsSchema,
@@ -65,25 +62,30 @@ function NativeLocalBrowserModal({
   useMobileColorScheme()
   const insets = useSafeAreaInsets()
   const [toast, setToast] = useState<string | null>(null)
-  const local = useMobileBrowserLocalTunnel(client, hostId, request.worktreeId, true)
+  const [failure, setFailure] = useState<string | null>(null)
   return (
     <Modal visible animationType="slide" presentationStyle="fullScreen" onRequestClose={onClose}>
       <View style={[styles.root, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
-        {local.status === 'ready' ? (
-          <MobileLocalBrowserPane
-            proxyKey={local.proxyKey}
-            storeId={local.storeId}
+        {failure === null ? (
+          <MobileLocalBrowser
+            client={client}
+            hostId={hostId}
+            worktreeId={request.worktreeId}
             initialUrl={request.url}
+            pending={
+              <Text style={styles.status} onPress={onClose}>
+                {translate('browser.shellLocal.starting', 'Connecting through the host…')}
+              </Text>
+            }
             onStreamFromHost={onClose}
+            onHostTunnelFailed={setFailure}
             onToast={setToast}
           />
         ) : (
           <Text style={styles.status} onPress={onClose}>
-            {local.status === 'failed'
-              ? translate('browser.shellLocal.failed', 'Could not draw the page here: {{reason}}', {
-                  reason: local.message
-                })
-              : translate('browser.shellLocal.starting', 'Connecting through the host…')}
+            {translate('browser.shellLocal.failed', 'Could not draw the page here: {{reason}}', {
+              reason: failure
+            })}
           </Text>
         )}
         {toast !== null && (

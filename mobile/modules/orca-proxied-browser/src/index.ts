@@ -49,6 +49,8 @@ export type OrcaProxiedBrowserViewProps = ViewProps & {
   /** UUID naming the cookie and storage jar, so sign-ins persist per host. */
   storeId: string
   url: string
+  /** Read when the view mounts: true loads on the phone's own network and ignores proxyKey. */
+  direct?: boolean
   onNavigationState?: (event: NativeSyntheticEvent<ProxiedBrowserNavigationState>) => void
 }
 

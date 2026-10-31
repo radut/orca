@@ -247,6 +247,25 @@ export function saveTerminalLinkOpenMode(mode: MobileTerminalLinkOpenMode): Prom
   return write
 }
 
+// Where pages the phone draws itself connect from: the paired host's network, or the phone's own.
+export type MobileLocalBrowserNetwork = 'host' | 'phone'
+
+const LOCAL_BROWSER_NETWORK_KEY = 'orca:localBrowserNetwork'
+export const DEFAULT_LOCAL_BROWSER_NETWORK: MobileLocalBrowserNetwork = 'host'
+
+export async function loadLocalBrowserNetwork(): Promise<MobileLocalBrowserNetwork> {
+  try {
+    const raw = await AsyncStorage.getItem(LOCAL_BROWSER_NETWORK_KEY)
+    return raw === 'host' || raw === 'phone' ? raw : DEFAULT_LOCAL_BROWSER_NETWORK
+  } catch {
+    return DEFAULT_LOCAL_BROWSER_NETWORK
+  }
+}
+
+export function saveLocalBrowserNetwork(network: MobileLocalBrowserNetwork): Promise<void> {
+  return persistMirrored(LOCAL_BROWSER_NETWORK_KEY, network)
+}
+
 function stringArray(value: unknown): string[] {
   return Array.isArray(value)
     ? value.filter((item): item is string => typeof item === 'string')

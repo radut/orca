@@ -51,7 +51,14 @@
       "linksDescription": "Choose where HTTP(S) links tapped in terminal output open.",
       "loadFailed": "Could not load browser preferences. Try again.",
       "saveFailed": "Could not save browser preferences. Try again.",
-      "openTerminalLinks": "Open terminal links"
+      "openTerminalLinks": "Open terminal links",
+      "phoneDrawnHeading": "PAGES DRAWN ON THE PHONE",
+      "phoneDrawnDescription": "Choose the network a browser tab uses when you open it full screen on the phone.",
+      "connectFrom": "Connect from",
+      "hostNetwork": "Through the host",
+      "hostNetworkDescription": "Traffic goes out from your paired desktop, using its network and proxy settings.",
+      "phoneNetwork": "Phone's network",
+      "phoneNetworkDescription": "Traffic goes out from this phone, like any app on it."
     },
     "menuItems": {
       "appearance": "Appearance",
@@ -1598,7 +1605,9 @@
     },
     "localPane": {
       "streamFromHost": "Stream from the host instead",
-      "loadFailed": "Page did not load: {{error}}"
+      "loadFailed": "Page did not load: {{error}}",
+      "throughHost": "Connect through the host",
+      "phoneNetwork": "Connect on the phone's network"
     },
     "surface": {
       "localFailed": "Streaming from the host: {{reason}}"

@@ -78,7 +78,14 @@ export function bridgeProxiedBrowserToTunnel(
 
 /** A stable UUID v4-shaped id per host, so each host keeps its own cookies and sign-ins on the phone. */
 export function proxiedBrowserStoreId(hostId: string): string {
-  const bytes = sha256(new TextEncoder().encode(`orca-proxied-browser:${hostId}`)).slice(0, 16)
+  return storeIdFromSeed(`orca-proxied-browser:${hostId}`)
+}
+
+// One jar for pages on the phone's own network, kept apart from every host's jar.
+export const PHONE_NETWORK_BROWSER_STORE_ID = storeIdFromSeed('orca-phone-network-browser')
+
+function storeIdFromSeed(seed: string): string {
+  const bytes = sha256(new TextEncoder().encode(seed)).slice(0, 16)
   bytes[6] = (bytes[6]! & 0x0f) | 0x40
   bytes[8] = (bytes[8]! & 0x3f) | 0x80
   const hex = Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('')
