@@ -49,7 +49,11 @@ export function canRenderBrowserLocally(client: RpcClient | null): boolean {
   return !!client?.browserTunnel && OrcaProxiedBrowser?.isSupported() === true
 }
 
-/** Runs this host's proxy and tunnel while a local browser pane is mounted. */
+// Each mounted pane gets its own proxy: proxy events carry only the key, so two bridges on one key would both answer
+// one connection. Cookies stay per host through the store id.
+let lastProxyInstance = 0
+
+/** Runs a proxy and tunnel to this host while a local browser pane is mounted. */
 export function useMobileBrowserLocalTunnel(
   client: RpcClient | null,
   hostId: string,
@@ -67,7 +71,7 @@ export function useMobileBrowserLocalTunnel(
       return
     }
     setState({ status: 'starting' })
-    const proxyKey = hostId
+    const proxyKey = `${hostId}#${++lastProxyInstance}`
     let disposed = false
     let stopBridge = (): void => {}
     const tunnel = new MobileBrowserTunnelClient({
@@ -80,12 +84,14 @@ export function useMobileBrowserLocalTunnel(
           } else if (event) {
             onEvent(event)
           }
-        })
+        }),
+      onClosed: () => setState({ status: 'failed', message: 'the host closed the tunnel' })
     })
     native
       .startProxy(proxyKey)
       .then(() => {
         if (disposed) {
+          void native.stopProxy(proxyKey)
           return
         }
         stopBridge = bridgeProxiedBrowserToTunnel(native, proxyKey, tunnel).stop
@@ -107,6 +113,7 @@ export function useMobileBrowserLocalTunnel(
       disposed = true
       stopBridge()
       tunnel.close()
+      void native.stopProxy(proxyKey)
     }
   }, [client, hostId, workspaceId, supported])
 

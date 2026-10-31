@@ -27,7 +27,7 @@ public class OrcaProxiedBrowserModule: Module, ProxiedBrowserSocksServerDelegate
       return false
     }
 
-    // One proxy per host, so each web view's traffic reaches the host it belongs to.
+    // One proxy per key (each phone-drawn tab), so each web view's traffic reaches the tunnel it belongs to.
     AsyncFunction("startProxy") { (key: String, promise: Promise) in
       self.queue.async {
         if let existing = Self.proxies[key], existing.port != 0 {
@@ -47,6 +47,14 @@ public class OrcaProxiedBrowserModule: Module, ProxiedBrowserSocksServerDelegate
           return Self.lastConnectionId
         }
         server.delegate = self
+        // A listener that fails or is cancelled must not be handed out again; a later server may hold the key.
+        server.onStopped = { [weak server] in
+          Self.lock.lock()
+          defer { Self.lock.unlock() }
+          if let server, Self.servers[key] === server {
+            Self.servers.removeValue(forKey: key)
+          }
+        }
         server.start { result in
           let waiting = self.pendingStarts.removeValue(forKey: key) ?? []
           switch result {

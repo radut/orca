@@ -45,6 +45,8 @@ type MobileBrowserTunnelClientOptions = {
   channel: BrowserTunnelFrameChannel
   // Subscribes to network.mobileBrowserTunnel; the subscription replays on every new socket.
   subscribe: (onEvent: (event: MobileBrowserTunnelEvent) => void) => () => void
+  // The host closed the tunnel and ended the subscription; nothing reopens it on this socket.
+  onClosed?: () => void
 }
 
 /** Carries the phone web view's proxy connections to the host over the tunnel frames desktop uses. */
@@ -56,6 +58,8 @@ export class MobileBrowserTunnelClient {
   private readonly unsubscribe: () => void
   private readonly unlisten: () => void
   private closed = false
+  // Set by the host's closed event until a new socket replays the subscription.
+  private hostClosed = false
 
   constructor(private readonly options: MobileBrowserTunnelClientOptions) {
     this.unlisten = options.channel.onFrame((bytes) => this.handleFrame(bytes))
@@ -75,7 +79,7 @@ export class MobileBrowserTunnelClient {
       endRequested: false,
       halfCloseSent: false
     }
-    if (this.closed) {
+    if (this.closed || this.hostClosed) {
       sink.closed('tunnel_closed')
     } else if (this.streams.size + this.queued.size >= MAX_STREAMS) {
       sink.closed('stream_limit_exceeded')
@@ -116,10 +120,13 @@ export class MobileBrowserTunnelClient {
     if (event.type === 'closed') {
       if (event.tunnelGeneration === this.generation) {
         this.generation = null
+        this.hostClosed = true
         this.endAll('tunnel_closed')
+        this.options.onClosed?.()
       }
       return
     }
+    this.hostClosed = false
     if (this.generation !== null) {
       this.endAll('tunnel_restarted')
     }

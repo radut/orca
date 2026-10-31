@@ -7,7 +7,8 @@ import type {
 } from './mobile-browser-tunnel-client'
 
 type Connection = {
-  stream: MobileBrowserTunnelStream
+  // Null only while tunnel.open runs, which can already close the stream.
+  stream: MobileBrowserTunnelStream | null
   accepted: boolean
 }
 
@@ -24,42 +25,40 @@ export function bridgeProxiedBrowserToTunnel(
         return
       }
       const id = event.connection
-      const connection: Connection = {
-        accepted: false,
-        stream: tunnel.open(
-          { host: event.host, port: event.port },
-          {
-            opened: () => {
-              connection.accepted = true
-              native.proxyAccept(id)
-            },
-            data: (bytes) => native.proxyWrite(id, bytes),
-            end: () => native.proxyEnd(id),
-            closed: () => {
-              if (!connections.delete(id)) {
-                return
-              }
-              if (connection.accepted) {
-                native.proxyClose(id)
-              } else {
-                native.proxyReject(id)
-              }
+      const connection: Connection = { accepted: false, stream: null }
+      connections.set(id, connection)
+      connection.stream = tunnel.open(
+        { host: event.host, port: event.port },
+        {
+          opened: () => {
+            connection.accepted = true
+            native.proxyAccept(id)
+          },
+          data: (bytes) => native.proxyWrite(id, bytes),
+          end: () => native.proxyEnd(id),
+          closed: () => {
+            if (!connections.delete(id)) {
+              return
+            }
+            if (connection.accepted) {
+              native.proxyClose(id)
+            } else {
+              native.proxyReject(id)
             }
           }
-        )
-      }
-      connections.set(id, connection)
+        }
+      )
     }),
     native.addListener('onProxyData', (event) => {
-      connections.get(event.connection)?.stream.write(decodeBase64Bytes(event.data))
+      connections.get(event.connection)?.stream?.write(decodeBase64Bytes(event.data))
     }),
     native.addListener('onProxyEnd', (event) => {
-      connections.get(event.connection)?.stream.end()
+      connections.get(event.connection)?.stream?.end()
     }),
     native.addListener('onProxyClosed', (event) => {
       const connection = connections.get(event.connection)
       connections.delete(event.connection)
-      connection?.stream.close()
+      connection?.stream?.close()
     })
   ]
   return {
@@ -69,7 +68,7 @@ export function bridgeProxiedBrowserToTunnel(
       }
       for (const [id, connection] of connections) {
         connections.delete(id)
-        connection.stream.close()
+        connection.stream?.close()
         native.proxyClose(id)
       }
     }

@@ -18,6 +18,7 @@ type Props = {
 }
 
 let nextPlacementId = 0
+const FOLLOW_INTERVAL_MS = 100
 
 const HIDDEN_FRAME: BridgeBrowserViewFrame = { x: 0, y: 0, width: 0, height: 0 }
 
@@ -84,18 +85,24 @@ export function MobileBrowserPlacedLocal({
         }
       }
     )
-    // The pane moves with the page's layout, keyboard and sidebars, none of which report to it.
-    let request = requestAnimationFrame(function follow() {
+    // The pane moves with the page's layout, keyboard and sidebars, none of which report to it. Resizes answer at
+    // once; a slow poll catches moves and covering sheets without hit-testing every frame.
+    const follow = (): void => {
       const next = measure(element)
       if (!sameFrame(next, frame)) {
         frame = next
         void placed.move(id, next).catch(() => {})
       }
-      request = requestAnimationFrame(follow)
-    })
+    }
+    const poll = setInterval(follow, FOLLOW_INTERVAL_MS)
+    const resizes = new ResizeObserver(follow)
+    resizes.observe(element)
+    window.addEventListener('resize', follow)
     return () => {
       active = false
-      cancelAnimationFrame(request)
+      clearInterval(poll)
+      resizes.disconnect()
+      window.removeEventListener('resize', follow)
       void placed.remove(id).catch(() => {})
     }
   }, [placed, worktreeId])

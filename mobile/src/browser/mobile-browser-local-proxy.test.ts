@@ -128,3 +128,20 @@ describe('proxiedBrowserStoreId', () => {
     expect(proxiedBrowserStoreId('host-b')).not.toBe(first)
   })
 })
+
+describe('a stream the tunnel closes while opening it', () => {
+  it('rejects the proxy connection and forgets it', () => {
+    const native = nativeModule()
+    const stream: MobileBrowserTunnelStream = { write: vi.fn(), end: vi.fn(), close: vi.fn() }
+    bridgeProxiedBrowserToTunnel(native.module, 'host-a', {
+      open: (_target, sink) => {
+        sink.closed('tunnel_closed')
+        return stream
+      }
+    })
+    native.fire.onProxyOpen({ proxy: 'host-a', connection: 7, host: 'example.com', port: 443 })
+    expect(native.module.proxyReject).toHaveBeenCalledWith(7)
+    native.fire.onProxyData({ connection: 7, data: 'AA==' })
+    expect(stream.write).not.toHaveBeenCalled()
+  })
+})

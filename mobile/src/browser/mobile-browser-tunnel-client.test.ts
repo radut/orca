@@ -14,7 +14,7 @@ import {
   type MobileBrowserTunnelStreamSink
 } from './mobile-browser-tunnel-client'
 
-function harness() {
+function harness(onClosed?: () => void) {
   const sent: BrowserNetworkTunnelFrame[] = []
   let deliver: (frame: Uint8Array) => void = () => {}
   let emit: (event: MobileBrowserTunnelEvent) => void = () => {}
@@ -36,7 +36,8 @@ function harness() {
     subscribe: (onEvent) => {
       emit = onEvent
       return unsubscribe
-    }
+    },
+    onClosed
   })
   let generation = 0
   return {
@@ -178,5 +179,24 @@ describe('MobileBrowserTunnelClient', () => {
     tunnel.client.close()
     expect(queued.closed).toHaveBeenCalledWith('tunnel_closed')
     expect(tunnel.unsubscribe).toHaveBeenCalledOnce()
+  })
+})
+
+describe('a tunnel the host closed', () => {
+  it('fails new streams at once and reports the close, until a new socket replays the subscription', () => {
+    const onClosed = vi.fn()
+    const tunnel = harness(onClosed)
+    tunnel.ready(3)
+    tunnel.emit({ type: 'closed', tunnelGeneration: 3 })
+    expect(onClosed).toHaveBeenCalledOnce()
+    const late = sink()
+    tunnel.client.open({ host: 'example.com', port: 443 }, late)
+    expect(late.closed).toHaveBeenCalledWith('tunnel_closed')
+
+    tunnel.ready(4)
+    const replayed = sink()
+    tunnel.client.open({ host: 'example.com', port: 443 }, replayed)
+    expect(replayed.closed).not.toHaveBeenCalled()
+    expect(tunnel.sentOf(BrowserNetworkTunnelOpcode.Open)).toHaveLength(1)
   })
 })

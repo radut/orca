@@ -16,6 +16,9 @@ final class OrcaProxiedBrowserView: ExpoView, WKNavigationDelegate, WKUIDelegate
   private var webView: WKWebView?
   private var observations: [NSKeyValueObservation] = []
 
+  // Pages only: a file or custom-scheme URL from a host tab must not open the phone's own files or apps.
+  private static let loadableSchemes: Set<String> = ["http", "https", "about"]
+
   required init(appContext: AppContext? = nil) {
     super.init(appContext: appContext)
     clipsToBounds = true
@@ -33,7 +36,8 @@ final class OrcaProxiedBrowserView: ExpoView, WKNavigationDelegate, WKUIDelegate
     if webView == nil {
       createWebView()
     }
-    guard let webView, let requestedUrl, requestedUrl != loadedUrl, let url = URL(string: requestedUrl)
+    guard let webView, let requestedUrl, requestedUrl != loadedUrl, let url = URL(string: requestedUrl),
+      Self.loadableSchemes.contains(url.scheme?.lowercased() ?? "")
     else { return }
     loadedUrl = requestedUrl
     webView.load(URLRequest(url: url))

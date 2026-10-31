@@ -21,6 +21,9 @@ final class ProxiedBrowserSocksServer {
   private var connections: [Int: ProxiedBrowserSocksConnection] = [:]
   private let nextConnectionId: () -> Int
   weak var delegate: ProxiedBrowserSocksServerDelegate?
+  // Called once when the listener stops for any reason, so the registry drops this server.
+  var onStopped: (() -> Void)?
+  private var stopped = false
 
   init(proxyKey: String, queue: DispatchQueue, nextConnectionId: @escaping () -> Int) {
     self.proxyKey = proxyKey
@@ -50,6 +53,12 @@ final class ProxiedBrowserSocksServer {
             settled = true
             completion(.failure(error))
           }
+        case .cancelled:
+          self.stop()
+          if !settled {
+            settled = true
+            completion(.failure(CancellationError()))
+          }
         default:
           break
         }
@@ -64,12 +73,17 @@ final class ProxiedBrowserSocksServer {
   }
 
   func stop() {
+    guard !stopped else { return }
+    stopped = true
+    port = 0
     listener?.cancel()
     listener = nil
     for connection in connections.values {
       connection.close()
     }
     connections.removeAll()
+    onStopped?()
+    onStopped = nil
   }
 
   func connection(_ id: Int) -> ProxiedBrowserSocksConnection? {
