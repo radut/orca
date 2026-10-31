@@ -34,6 +34,7 @@ vi.mock('../browser/MobileBrowserPane', () => ({ MobileBrowserPane: () => null }
 vi.mock('./MobileNativeChatOverlay', () => ({ MobileNativeChatOverlay: () => null }))
 vi.mock('./MobileSessionFileReader', () => ({ FileReader: () => null }))
 vi.mock('./MobileSessionMarkdownReader', () => ({ MarkdownReader: () => null }))
+vi.mock('./MobileLinkActionSheet', () => ({ MobileLinkActionSheet: () => null }))
 vi.mock('./mobile-session-styles', () => ({ styles: {} }))
 vi.mock('../transport/use-host-profile', () => ({ useHostProfile: () => null }))
 vi.mock('expo-router', async () => {
