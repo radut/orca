@@ -90,6 +90,22 @@ describe('native.browser.view', () => {
     expect(drawn()).toHaveLength(0)
   })
 
+  it('opens at the place the page moved the pane to while the show was starting', async () => {
+    let finishRead = (_drawing: 'host') => {}
+    vi.mocked(loadBrowserDrawing).mockImplementation(
+      () => new Promise((resolve) => (finishRead = resolve))
+    )
+    const moved = { x: 0, y: 120, width: 390, height: 520 }
+    await act(async () => {
+      void show('a')
+      await shell.serveView({ action: 'move', id: 'a', frame: moved })
+      finishRead('host')
+    })
+    expect(renderer.root.findByType('View').props.style).toContainEqual(
+      expect.objectContaining({ top: 120, height: 520 })
+    )
+  })
+
   it('ignores a late hide from a pane another show replaced', async () => {
     vi.mocked(loadBrowserDrawing).mockResolvedValue('host')
     let first: Promise<unknown> = Promise.resolve()

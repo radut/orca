@@ -55,6 +55,8 @@ export function useNativeLocalBrowser(
   const placedRef = useRef<Placed | null>(null)
   // The show the page wants now; a hide that arrives while its show is starting clears it.
   const wanted = useRef<string | null>(null)
+  // Moves the page sends while that show is starting; the view opens at the latest one.
+  const startingFrame = useRef<BridgeBrowserViewFrame | null>(null)
   // The placed tab's page, layout and network as the user changes them.
   const live = useRef<Tab | null>(null)
   const [pageOrigin, setPageOrigin] = useState({ x: 0, y: 0 })
@@ -113,6 +115,8 @@ export function useNativeLocalBrowser(
       if (parsed.action === 'move') {
         if (current?.id === parsed.id) {
           place({ ...current, frame: parsed.frame })
+        } else if (wanted.current === parsed.id) {
+          startingFrame.current = parsed.frame
         }
         return {}
       }
@@ -127,6 +131,7 @@ export function useNativeLocalBrowser(
       }
       requireLocal()
       wanted.current = parsed.id
+      startingFrame.current = null
       const drawing = await loadBrowserDrawing()
       if (wanted.current !== parsed.id) {
         return { ended: 'hidden' }
@@ -141,7 +146,7 @@ export function useNativeLocalBrowser(
         place({
           ...tab,
           id: parsed.id,
-          frame: parsed.frame,
+          frame: startingFrame.current ?? parsed.frame,
           generation: 0,
           end: (ended) => resolve({ ended })
         })
