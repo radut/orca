@@ -4,6 +4,7 @@ import { translate } from '../i18n/mobile-i18n'
 import type { BridgeBrowserViewEnding } from '../mobile-web-shell/bridge/bridge-native-verbs'
 import { useShellLocalBrowser } from '../platform/shell-local-browser'
 import { loadBrowserDrawing, type MobileBrowserDrawing } from '../storage/preferences'
+import type { MobileBrowserViewMode } from './browser-screencast-request'
 import { isBlankBrowserUrl } from './browser-url'
 import { mobileBrowserPaneStyles } from './mobile-browser-pane-styles'
 import {
@@ -143,7 +144,10 @@ export function MobileBrowserSurface({ hostId, ...paneProps }: Props): React.JSX
   if (placed) {
     if (picked !== 'stream') {
       // The shell draws full screen itself; the page streams there only after the user picks streaming in it.
-      const onEnded = (ending: BridgeBrowserViewEnding): void => {
+      const onEnded = (ending: BridgeBrowserViewEnding, leftIn?: MobileBrowserViewMode): void => {
+        if (leftIn) {
+          saveMobileBrowserViewMode(worktreeId, tab.browserPageId, leftIn)
+        }
         setShellFullScreen(false)
         if (ending !== 'hidden') {
           setPicked('stream')

@@ -23,7 +23,7 @@ import {
   browserLocalResultSchema,
   browserViewResultSchema,
   type BridgeBrowserLocalParams,
-  type BridgeBrowserViewEnding,
+  type BridgeBrowserViewResult,
   type BridgeBrowserViewFrame,
   type BridgeBrowserViewShowParams,
   type BridgeClipboardMime,
@@ -58,7 +58,7 @@ export type NativeVerbs = {
   openLocalBrowser: (params: BridgeBrowserLocalParams) => Promise<void>
   canPlaceLocalBrowser: boolean
   // Resolves when the placed view ends, with why.
-  placeLocalBrowser: (params: BridgeBrowserViewShowParams) => Promise<BridgeBrowserViewEnding>
+  placeLocalBrowser: (params: BridgeBrowserViewShowParams) => Promise<BridgeBrowserViewResult>
   moveLocalBrowser: (id: string, frame: BridgeBrowserViewFrame) => Promise<void>
   removeLocalBrowser: (id: string) => Promise<void>
 }
@@ -183,9 +183,8 @@ export function useNativeVerbs(): NativeVerbs {
         await call('native.browser.local', params, browserLocalResultSchema)
       },
       canPlaceLocalBrowser: has('native.browser.view'),
-      placeLocalBrowser: async (params) =>
-        (await call('native.browser.view', { action: 'show', ...params }, browserViewResultSchema))
-          .ended ?? 'hidden',
+      placeLocalBrowser: (params) =>
+        call('native.browser.view', { action: 'show', ...params }, browserViewResultSchema),
       moveLocalBrowser: async (id, frame) => {
         await call('native.browser.view', { action: 'move', id, frame }, browserViewResultSchema)
       },
