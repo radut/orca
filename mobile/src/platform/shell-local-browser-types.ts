@@ -13,5 +13,6 @@ export type ShellLocalBrowser = {
     show: (params: BridgeBrowserViewShowParams) => Promise<BridgeBrowserViewResult>
     move: (id: string, frame: BridgeBrowserViewFrame) => Promise<void>
     remove: (id: string) => Promise<void>
+    adopt: (id: string, url: string) => Promise<void>
   } | null
 }

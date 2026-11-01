@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { View, type LayoutChangeEvent } from 'react-native'
+import { isBlankBrowserUrl } from '../browser/browser-url'
 import { MobileLocalBrowser } from '../browser/MobileLocalBrowser'
 import { MobileLocalBrowserFullScreen } from '../browser/MobileLocalBrowserFullScreen'
 import { MobileLocalBrowserToast } from '../browser/MobileLocalBrowserToast'
@@ -68,6 +69,8 @@ export function useNativeLocalBrowser(
   const wanted = useRef<string | null>(null)
   // Moves the page sends while that show is starting; the view opens at the latest one.
   const startingFrame = useRef<BridgeBrowserViewFrame | null>(null)
+  // The same for an address the host reports while that show is starting.
+  const startingUrl = useRef<string | null>(null)
   // The placed tab's page, layout and network as the user changes them.
   const live = useRef<Tab | null>(null)
   const [pageOrigin, setPageOrigin] = useState({ x: 0, y: 0 })
@@ -133,6 +136,18 @@ export function useNativeLocalBrowser(
         }
         return {}
       }
+      if (parsed.action === 'adopt') {
+        const tab = live.current
+        if (current?.id === parsed.id && tab && isBlankBrowserUrl(tab.url)) {
+          const next = { ...tab, url: parsed.url }
+          live.current = next
+          place({ ...current, ...next, generation: current.generation + 1 })
+        }
+        if (current?.id !== parsed.id && wanted.current === parsed.id) {
+          startingUrl.current = parsed.url
+        }
+        return {}
+      }
       if (parsed.action === 'hide') {
         if (wanted.current === parsed.id) {
           wanted.current = null
@@ -145,6 +160,7 @@ export function useNativeLocalBrowser(
       requireLocal()
       wanted.current = parsed.id
       startingFrame.current = null
+      startingUrl.current = null
       const drawing = await loadBrowserDrawing()
       if (wanted.current !== parsed.id) {
         return { ended: 'hidden' }
@@ -157,7 +173,7 @@ export function useNativeLocalBrowser(
         (resolve) => {
           const tab = {
             worktreeId: parsed.worktreeId,
-            url: parsed.url,
+            url: startingUrl.current ?? parsed.url,
             viewMode: parsed.viewMode,
             network: parsed.network ?? settingNetwork(drawing)
           }

@@ -61,6 +61,7 @@ export type NativeVerbs = {
   placeLocalBrowser: (params: BridgeBrowserViewShowParams) => Promise<BridgeBrowserViewResult>
   moveLocalBrowser: (id: string, frame: BridgeBrowserViewFrame) => Promise<void>
   removeLocalBrowser: (id: string) => Promise<void>
+  adoptLocalBrowserUrl: (id: string, url: string) => Promise<void>
 }
 
 // Expose stable reason codes, including local ungranted and frame refusals. Unknown newer-shell codes floor to unreported so caller switches remain exhaustive.
@@ -190,6 +191,9 @@ export function useNativeVerbs(): NativeVerbs {
       },
       removeLocalBrowser: async (id) => {
         await call('native.browser.view', { action: 'hide', id }, browserViewResultSchema)
+      },
+      adoptLocalBrowserUrl: async (id, url) => {
+        await call('native.browser.view', { action: 'adopt', id, url }, browserViewResultSchema)
       }
     }
   }, [client])
