@@ -17,7 +17,7 @@ type Props = {
   // Absent: the browser settings pick the network.
   network?: MobileLocalBrowserNetwork
   fullScreen: boolean
-  onEnded: (ending: BridgeBrowserViewEnding) => void
+  onEnded: (ending: BridgeBrowserViewEnding, viewMode?: MobileBrowserViewMode) => void
   onRefused: (error: unknown) => void
 }
 
@@ -86,9 +86,9 @@ export function MobileBrowserPlacedLocal({
     let frame = measure(element)
     const id = `placed-${++nextPlacementId}`
     void placed.show({ id, worktreeId, ...opening.current, frame }).then(
-      (ending) => {
+      ({ ended, viewMode: leftIn }) => {
         if (active) {
-          callbacks.current.onEnded(ending)
+          callbacks.current.onEnded(ended ?? 'hidden', leftIn)
         }
       },
       (error: unknown) => {
