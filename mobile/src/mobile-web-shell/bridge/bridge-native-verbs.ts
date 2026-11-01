@@ -137,7 +137,13 @@ export const browserViewParamsSchema = z.discriminatedUnion('action', [
     id: browserViewIdSchema,
     frame: browserViewFrameSchema
   }),
-  z.strictObject({ action: z.literal('hide'), id: browserViewIdSchema })
+  z.strictObject({ action: z.literal('hide'), id: browserViewIdSchema }),
+  // The host's first address for a new tab; the shell ignores it once the user has gone somewhere.
+  z.strictObject({
+    action: z.literal('adopt'),
+    id: browserViewIdSchema,
+    url: z.string().max(8192)
+  })
 ])
 // streamed: the user chose streaming (streamedFullScreen: from full screen, which stays); setting: the browser
 // settings stream tabs; replaced: another pane took the view; failed: the tunnel through the host failed.

@@ -23,7 +23,7 @@ vi.mock('./use-mobile-browser-local-tunnel', () => ({
 vi.mock('../platform/shell-local-browser', () => ({
   useShellLocalBrowser: () => ({
     openFullScreen: null,
-    placed: { show: vi.fn(), move: vi.fn(), remove: vi.fn() }
+    placed: { show: vi.fn(), move: vi.fn(), remove: vi.fn(), adopt: vi.fn() }
   })
 }))
 vi.mock('./MobileBrowserPane', () => ({ MobileBrowserPane: () => null }))
