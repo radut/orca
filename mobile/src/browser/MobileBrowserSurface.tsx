@@ -63,7 +63,7 @@ export function MobileBrowserSurface({ hostId, ...paneProps }: Props): React.JSX
   const tunnel = useMobileBrowserLocalTunnel(client, hostId, worktreeId, mode === 'host')
   // The streamed pane and the drawn tab share the page's desktop or mobile layout.
   const viewMode = (): ReturnType<typeof getInitialMobileBrowserViewMode> =>
-    getInitialMobileBrowserViewMode(worktreeId, tab.browserPageId, tab.url)
+    getInitialMobileBrowserViewMode(worktreeId, tab.browserPageId)
 
   const choose = (next: MobileBrowserDrawing): void => {
     if (next !== 'stream' && (picked ?? mode) === 'stream') {
