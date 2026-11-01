@@ -79,7 +79,7 @@ describe('native.browser.view', () => {
     })
     expect(drawn()).toHaveLength(1)
     act(() => drawn()[0]!.props.onStreamFromHost())
-    await expect(shown).resolves.toEqual({ ended: 'streamed' })
+    await expect(shown).resolves.toEqual({ ended: 'streamed', viewMode: 'mobile' })
     expect(drawn()).toHaveLength(0)
   })
 
@@ -123,7 +123,7 @@ describe('native.browser.view', () => {
     await act(async () => {
       void show('b')
     })
-    await expect(first).resolves.toEqual({ ended: 'replaced' })
+    await expect(first).resolves.toEqual({ ended: 'replaced', viewMode: 'mobile' })
     await act(async () => {
       await shell.serveView({ action: 'hide', id: 'a' })
     })
@@ -148,7 +148,18 @@ describe('native.browser.view', () => {
     expect(fullScreen()[0]!.props.tunnel).toBe(TUNNEL)
     expect(drawn()[0]!.props.tunnel).toBe(TUNNEL)
     act(() => fullScreen()[0]!.props.onStreamFromHost())
-    await expect(shown).resolves.toEqual({ ended: 'streamedFullScreen' })
+    await expect(shown).resolves.toEqual({ ended: 'streamedFullScreen', viewMode: 'mobile' })
     expect(fullScreen()).toHaveLength(0)
+  })
+
+  it('tells the page the layout the user left the view in, also from full screen', async () => {
+    vi.mocked(loadBrowserDrawing).mockResolvedValue('host')
+    let shown: Promise<unknown> = Promise.resolve()
+    await act(async () => {
+      shown = show('a', { fullScreen: true })
+    })
+    act(() => fullScreen()[0]!.props.onViewModeChange('web'))
+    act(() => fullScreen()[0]!.props.onStreamFromHost())
+    await expect(shown).resolves.toEqual({ ended: 'streamedFullScreen', viewMode: 'web' })
   })
 })

@@ -150,9 +150,12 @@ export const BRIDGE_BROWSER_VIEW_ENDINGS = [
   'failed'
 ] as const
 export const browserViewResultSchema = z.strictObject({
-  ended: z.enum(BRIDGE_BROWSER_VIEW_ENDINGS).optional()
+  ended: z.enum(BRIDGE_BROWSER_VIEW_ENDINGS).optional(),
+  // The layout the user left the view in, which the streamed pane carries on with.
+  viewMode: browserViewModeSchema.optional()
 })
 
+export type BridgeBrowserViewResult = z.infer<typeof browserViewResultSchema>
 export type BridgeBrowserViewParams = z.infer<typeof browserViewParamsSchema>
 export type BridgeBrowserViewShowParams = Omit<
   Extract<BridgeBrowserViewParams, { action: 'show' }>,
