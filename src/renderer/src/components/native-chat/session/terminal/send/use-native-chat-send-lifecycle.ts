@@ -70,6 +70,9 @@ export function useNativeChatSendLifecycle(
   // Card ownership makes a pending Enter an answer; retire it without typing a line-clear under the dialog.
   useLayoutEffect(() => {
     if (inputOwnedByCard) {
+      if (pendingSendHandlesRef.current.size > 0) {
+        console.warn('[native-chat-send] a prompt card retired a pending send before its Enter')
+      }
       settlePendingSends(onPendingSendRetired, true)
     }
   }, [inputOwnedByCard, onPendingSendRetired, settlePendingSends])

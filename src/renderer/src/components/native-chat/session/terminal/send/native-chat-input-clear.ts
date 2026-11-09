@@ -15,6 +15,8 @@ export type NativeChatSendOptions = {
   clearInput?: string | null
   /** For launch-draft replacement, confirm empty input and widen to maximal clearing if residue remains. */
   confirmCleared?: () => boolean
+  /** The user's text on the agent's input line after Enter; text still there means the TUI dropped the Enter. */
+  readInputLineAfterSubmit?: () => string | null | undefined
 }
 
 export function clearUnsubmittedAgentInput(ptyId: string, options?: NativeChatSendOptions): void {
