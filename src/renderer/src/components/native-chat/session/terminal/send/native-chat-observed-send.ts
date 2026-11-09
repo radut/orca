@@ -6,6 +6,12 @@ import {
   clearUnsubmittedAgentInput,
   type NativeChatSendOptions
 } from './native-chat-input-clear'
+import { NATIVE_CHAT_SUBMIT } from '../../../../../../../shared/native-chat/input/native-chat-paste-bytes'
+
+/** How long the TUI gets to take an Enter before the input line is read again. */
+export const NATIVE_CHAT_SUBMIT_CONFIRM_MS = 1000
+/** Enters re-sent while the line still holds the message, before reporting it unsent. */
+const SUBMIT_RETRIES = 1
 
 export function sendNativeChatObservedWrites(
   ptyId: string,
@@ -20,6 +26,9 @@ export function sendNativeChatObservedWrites(
     ptyId,
     writes.reduce((total, write) => total + write.delayBeforeMs, 0) +
       clearConfirmDurationMs(options) +
+      (options.readInputLineAfterSubmit
+        ? NATIVE_CHAT_SUBMIT_CONFIRM_MS * (SUBMIT_RETRIES + 1)
+        : 0) +
       (options.settleDelayMs ?? 0),
     ({ isCancelled, delay, markSubmitted, markWriteStarted }) => {
       let reportedUnconfirmed = false
@@ -34,10 +43,18 @@ export function sendNativeChatObservedWrites(
             options.onDeliverySettled?.(acknowledged)
             markSubmitted(acknowledged ? 'submitted' : 'uncertain')
           }
-          if (options.settleDelayMs) {
-            delay(options.settleDelayMs, finish)
+          const settle = (): void => {
+            if (options.settleDelayMs) {
+              delay(options.settleDelayMs, finish)
+            } else {
+              finish()
+            }
+          }
+          const readInputLine = options.readInputLineAfterSubmit
+          if (readInputLine && acknowledged) {
+            confirmSubmitted(readInputLine, SUBMIT_RETRIES, settle)
           } else {
-            finish()
+            settle()
           }
           return
         }
@@ -82,6 +99,51 @@ export function sendNativeChatObservedWrites(
         } else {
           send()
         }
+      }
+      // A busy or slow TUI can drop the Enter, leaving the message typed but unsent.
+      const confirmSubmitted = (
+        readInputLine: () => string | null | undefined,
+        retriesLeft: number,
+        settle: () => void
+      ): void => {
+        delay(NATIVE_CHAT_SUBMIT_CONFIRM_MS, () => {
+          let held = false
+          try {
+            held = !!readInputLine()
+          } catch {
+            // An unreadable line is no evidence the Enter was dropped.
+          }
+          if (!held) {
+            settle()
+            return
+          }
+          if (retriesLeft === 0) {
+            console.warn('[native-chat-send] Enter not taken; message left on the input line', {
+              ptyId
+            })
+            options.onWriteRejected?.()
+            options.onDeliverySettled?.(false)
+            markSubmitted('not-submitted')
+            return
+          }
+          console.warn('[native-chat-send] Enter not taken; pressing it again', { ptyId })
+          void sendRuntimePtyInputVerified(ptyId, NATIVE_CHAT_SUBMIT, 'driving', writeOptions).then(
+            (accepted) => {
+              if (!isCancelled()) {
+                if (accepted) {
+                  confirmSubmitted(readInputLine, retriesLeft - 1, settle)
+                } else {
+                  settle()
+                }
+              }
+            },
+            () => {
+              if (!isCancelled()) {
+                settle()
+              }
+            }
+          )
+        })
       }
       clearThenWrite(ptyId, options, delay, () => writeAt(0), markSubmitted)
     },
