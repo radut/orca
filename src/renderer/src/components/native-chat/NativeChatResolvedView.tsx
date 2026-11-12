@@ -228,6 +228,7 @@ export function NativeChatResolvedView({
       previewIsToolOutput: hookPreviewIsToolOutput
     })
   }, [messagesWithPending, hookPreview, liveWorking, hookPreviewIsToolOutput])
+  const forkSource = { agent, sessionId, transcriptPath, terminalTabId }
   const sessionWithPending = useMemo<typeof session>(() => {
     if (pending.length === 0 && commandMarkers.length === 0 && !streamingText) {
       return sessionAfterCommandBoundaries
@@ -349,13 +350,7 @@ export function NativeChatResolvedView({
         ) : viewState.kind === 'empty' ? (
           <NativeChatEmptyState kind="empty" agent={agent} />
         ) : (
-          <NativeChatTerminalForkProvider
-            agent={agent}
-            sessionId={sessionId}
-            transcriptPath={transcriptPath}
-            terminalTabId={terminalTabId}
-            messages={session.messages}
-          >
+          <NativeChatTerminalForkProvider {...forkSource} messages={session.messages}>
             <NativeChatMessageList
               ref={messageListRef}
               session={sessionWithPending}
@@ -380,7 +375,11 @@ export function NativeChatResolvedView({
             requiresTerminal={nativeChatAskRequiresTerminal(agent)}
             onAnswerInTerminal={onSwitchToTerminal}
             onDismiss={promptCardPresentation.dismiss}
-            onCollapse={promptCardPresentation.collapse}
+            onCollapse={
+              mountedPromptCard?.kind === 'approval' && mountedPromptCard.approval.startupDialog
+                ? undefined
+                : promptCardPresentation.collapse
+            }
             shouldFocus={shownPromptCard !== null && isVisible && isFocusedGroup}
             answerInputRef={questionAnswerInputRef}
           />
