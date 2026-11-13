@@ -13,7 +13,7 @@ import {
   RUNTIME_TEMP_UPLOAD_MAX_TOTAL_BYTES,
   runtimeTempUploadTotalReason
 } from '../../shared/clipboard-image'
-import { saveClipboardImageBufferInRuntime } from '../window/clipboard-runtime-image-upload'
+import { saveClipboardImageBufferInRuntime } from '../window/clipboard/clipboard-runtime-image-upload'
 import { abortWhenRendererGone } from './renderer-lifetime-abort'
 
 /** Handlers that copy client-local files to the paired server a chat runs on. */
