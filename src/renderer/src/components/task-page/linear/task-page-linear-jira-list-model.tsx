@@ -1,5 +1,5 @@
 import type { LinearIssue } from '../../../../../shared/linear/issue-types'
-import type { GitHubWorkItem } from '../../../../../shared/github/work-item-types'
+import type { GitHubWorkItem } from '../../../../../shared/github/work-items/work-item-types'
 import { getLinearPriorityLabel } from '@/components/task-page/task-page-localized-options'
 import type {
   LinearOrderBy,
@@ -13,7 +13,7 @@ import React from 'react'
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible'
 import { AlertCircle, ChevronDown, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import type { TaskPageGitHubMutationIntent } from '@/components/task-page/github/task-page-github-work-item-mutation-patches'
+import type { TaskPageGitHubMutationIntent } from '@/components/task-page/github/mutations/task-page-github-work-item-mutation-patches'
 import type { TaskSourceContext } from '../../../../../shared/work-items/task-source-context'
 import type { LinearGroupSection } from './task-page-linear-issue-model'
 import { compareNumericLocaleText } from '../../../../../shared/locale-text-collators'
