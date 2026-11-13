@@ -1,6 +1,6 @@
 import type { NewWorkspaceProjectOption } from '@/lib/workspace/creation/new-workspace-project-options'
 import { isNewWorkspaceProjectOptionQueryTooLarge } from '@/lib/workspace/creation/new-workspace-project-options'
-import { matchProjectHostQuery } from '../../../../shared/project-host-query'
+import { matchProjectHostQuery } from '../../../../../shared/project-host-query'
 import { translate } from '@/i18n/i18n'
 import type { Translate } from '@/i18n/use-translate'
 
