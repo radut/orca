@@ -14,6 +14,7 @@ import type { StructuredAgentSessionForkSource } from '../../../../../src/shared
 import type { StructuredAgentSessionHostCapabilityState } from '../../../../../src/shared/agent-session/structured-agent-session-host-capability'
 import type { ChatForkPreset } from '../../chat-fork/chat-fork-selection'
 import { useRegisteredAgent } from './use-mobile-registered-fork-agent'
+import { mobileNativeChatTerminalForkPoints } from './mobile-native-chat-terminal-fork-points'
 import {
   nativeChatForkInventory,
   nativeChatForkSupport,
@@ -137,28 +138,11 @@ export function useMobileNativeChatFork(input: {
     !terminal ||
     (agent === 'claude' &&
       input.hostCapabilities?.includes(AI_VAULT_TERMINAL_FORK_CUT_CAPABILITY) === true)
-  // A terminal chat has no session journal: a reply ends where the next message is yours.
-  const terminalForkPoints = useMemo(() => {
-    const ids = new Set<string>()
-    messages.forEach((message, index) => {
-      const next = messages[index + 1]
-      const last = index === messages.length - 1
-      if (
-        message.role === 'assistant' &&
-        message.source === 'transcript' &&
-        !message.agentStart &&
-        // A queued send waits on the running reply; it ends nothing until the agent is idle.
-        (next
-          ? next.role === 'user' &&
-            (!agentWorking || (!next.queued && next.pendingSend !== 'queued'))
-          : !agentWorking) &&
-        (!last || !agentWorking)
-      ) {
-        ids.add(message.id)
-      }
-    })
-    return ids
-  }, [agentWorking, messages])
+  // A terminal chat has no session journal: a turn ends where the next message is yours.
+  const terminalForkPoints = useMemo(
+    () => mobileNativeChatTerminalForkPoints(messages, agentWorking),
+    [agentWorking, messages]
+  )
   // Reserved at the press, before any await, so a second press never starts a second fork.
   const inFlight = useRef(false)
   const [pending, setPending] = useState(false)
