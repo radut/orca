@@ -13,6 +13,10 @@ import {
   MobileNativeChatMeasuredRows,
   useMobileNativeChatNativeList
 } from './viewport/use-mobile-native-chat-native-list'
+import {
+  MobileNativeChatRowScrollContext,
+  useMobileNativeChatRowScroll
+} from './viewport/mobile-native-chat-row-scroll'
 
 type PageProps = ComponentProps<typeof MobileNativeChatPageList>
 
@@ -38,6 +42,19 @@ type Props = Pick<
 }
 
 export function MobileNativeChatRowList(props: Props): ReactElement {
+  const scrollRow = useMobileNativeChatRowScroll(
+    props.rows,
+    props.rowKeys.keyOf,
+    props.tail.scrollRowToTop
+  )
+  return (
+    <MobileNativeChatRowScrollContext value={scrollRow}>
+      <RowList {...props} />
+    </MobileNativeChatRowScrollContext>
+  )
+}
+
+function RowList(props: Props): ReactElement {
   const { tail, rowKeys, rows, renderItem, contentContainerStyle, onScroll, footer } = props
   const { header, emptyStateView } = props
   if (Platform.OS === 'web') {

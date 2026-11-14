@@ -29,7 +29,7 @@ type CellProps = {
   style?: StyleProp<ViewStyle>
   children?: ReactNode
 }
-type Jump = { index: number; viewOffset: number; tries: number }
+type Jump = { index: number; viewOffset: number; animated: boolean; tries: number }
 
 const MAX_JUMP_TRIES = 4
 const MeasureContext = createContext<Measure | null>(null)
@@ -81,7 +81,7 @@ export function useMobileNativeChatNativeList(
   const scrollToRow = useCallback((next: Jump) => {
     jump.current = next
     list.current?.scrollToIndex({
-      animated: false,
+      animated: next.animated,
       index: next.index,
       viewPosition: 0,
       viewOffset: next.viewOffset
@@ -90,6 +90,8 @@ export function useMobileNativeChatNativeList(
   const [handle] = useState<MobileNativeChatListHandle>(() => ({
     scrollToEnd: (params) => list.current?.scrollToEnd(params),
     scrollToOffset: (params) => list.current?.scrollToOffset(params),
+    scrollToIndex: ({ animated, index }) =>
+      scrollToRow({ index, viewOffset: 0, animated, tries: 0 }),
     readPlace: () => {
       const y = offsetY.current
       for (const row of latest.current.rows) {
@@ -110,7 +112,7 @@ export function useMobileNativeChatNativeList(
       if (index === -1) {
         return 'missing'
       }
-      scrollToRow({ index, viewOffset: -offset, tries: 0 })
+      scrollToRow({ index, viewOffset: -offset, animated: false, tries: 0 })
       return 'restored'
     }
   }))
@@ -124,8 +126,11 @@ export function useMobileNativeChatNativeList(
   // A row past the measured cells: land near it, then aim again once those cells are drawn.
   const onScrollToIndexFailed = useCallback(
     ({ index, averageItemLength }: { index: number; averageItemLength: number }) => {
-      list.current?.scrollToOffset({ animated: false, offset: index * averageItemLength })
       const failed = jump.current
+      list.current?.scrollToOffset({
+        animated: failed?.animated ?? false,
+        offset: index * averageItemLength
+      })
       if (failed && failed.index === index && failed.tries < MAX_JUMP_TRIES) {
         requestAnimationFrame(() => scrollToRow({ ...failed, tries: failed.tries + 1 }))
       }

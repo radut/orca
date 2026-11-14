@@ -6,9 +6,11 @@ import {
   type MobileNativeChatTailFollow
 } from './use-mobile-native-chat-tail-follow'
 
-vi.mock('react-native', () => ({ Platform: { OS: 'web' } }))
+const platform = vi.hoisted(() => ({ OS: 'web' }))
+vi.mock('react-native', () => ({ Platform: platform }))
 
 it('returns to a chat where the reader left it, and to the tail of one left at the tail', () => {
+  platform.OS = 'web'
   let tail: MobileNativeChatTailFollow | null = null
   function Probe({ scopeKey }: { scopeKey: string }) {
     tail = useMobileNativeChatTailFollow({ hasItems: true, scopeKey })
@@ -17,6 +19,7 @@ it('returns to a chat where the reader left it, and to the tail of one left at t
   const list = {
     scrollToEnd: vi.fn(),
     scrollToOffset: vi.fn(),
+    scrollToIndex: vi.fn(),
     readPlace: vi.fn(() => ({ key: 'reply-5', offset: 40 })),
     restorePlace: vi.fn(() => 'restored' as const)
   }
@@ -38,5 +41,33 @@ it('returns to a chat where the reader left it, and to the tail of one left at t
 
   act(() => renderer.update(createElement(Probe, { scopeKey: 'chat-b' })))
   expect(list.scrollToEnd).toHaveBeenCalled()
+  act(() => renderer.unmount())
+})
+
+it('keeps a reply scrolled to its start when new output grows the chat', () => {
+  platform.OS = 'ios'
+  let tail: MobileNativeChatTailFollow | null = null
+  function Probe() {
+    tail = useMobileNativeChatTailFollow({ hasItems: true, scopeKey: 'chat' })
+    return null
+  }
+  const list = {
+    scrollToEnd: vi.fn(),
+    scrollToOffset: vi.fn(),
+    scrollToIndex: vi.fn(),
+    readPlace: vi.fn(() => undefined),
+    restorePlace: vi.fn(() => 'missing' as const)
+  }
+  let renderer!: ReactTestRenderer
+  act(() => {
+    renderer = create(createElement(Probe))
+  })
+  act(() => tail?.listProps.ref(list))
+
+  act(() => tail?.scrollRowToTop(3))
+  act(() => tail?.pinToTailAfterContentResize(0, 900))
+
+  expect(list.scrollToIndex).toHaveBeenCalledWith({ animated: true, index: 3, viewPosition: 0 })
+  expect(list.scrollToOffset).not.toHaveBeenCalled()
   act(() => renderer.unmount())
 })

@@ -20,7 +20,8 @@ type Drawn = {
   rowKeys: Pick<MobileNativeChatRowKeys, 'scope'>
 }
 
-/** The page list's place methods: read the reader's top row, and put a saved place back. */
+/** The page list's place methods: read the reader's top row, put a saved place back, and put a
+ *  row's start at the top. */
 export function mobileNativeChatPagePlaces<S extends MobileNativeChatScrollNode>(
   scroller: () => S | null,
   drawn: () => Drawn,
@@ -29,6 +30,15 @@ export function mobileNativeChatPagePlaces<S extends MobileNativeChatScrollNode>
   notePlace: (scroller: S) => void
 ) {
   return {
+    scrollToIndex: ({ index }: { index: number }) => {
+      const s = scroller()
+      const key = drawn().keys[index]
+      const top = s && key !== undefined ? mobileNativeChatRowTop(s, key) : undefined
+      if (s && top !== undefined) {
+        write(s, s.scrollTop + top - s.getBoundingClientRect().top)
+        notePlace(s)
+      }
+    },
     readPlace: () => {
       const s = scroller()
       return s ? mobileNativeChatTopRow(s) : undefined
