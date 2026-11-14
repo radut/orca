@@ -1,6 +1,6 @@
 import { useContext, useSyncExternalStore } from 'react'
 import { Pressable, View } from 'react-native'
-import { ArrowUp, GitFork } from 'lucide-react-native'
+import { GitFork } from 'lucide-react-native'
 import type { NativeChatMessage } from '../../../../../../src/shared/native-chat/native-chat-types'
 import { MobileSourceCopyButton } from '../../../../components/code-presentation/MobileSourceCopyButton'
 import { colors, radii } from '../../../../theme/mobile-theme'
@@ -12,6 +12,7 @@ import {
   type MobileNativeChatForkOffer
 } from '../../history/use-mobile-native-chat-fork'
 import { MobileNativeChatRowScrollContext } from '../viewport/mobile-native-chat-row-scroll'
+import { MobileNativeChatScrollToStartButton } from './MobileNativeChatScrollToStartButton'
 
 const NO_FORK = { subscribe: () => () => {}, offer: (): MobileNativeChatForkOffer => 'hidden' }
 
@@ -47,17 +48,8 @@ export function MobileNativeChatResponseActions({
       {fork && offer !== 'hidden' ? (
         <ForkButton offer={offer} onFork={() => fork.fork(message)} />
       ) : null}
-      {/* As on desktop: a reply with words can be read again from its start. */}
       {scrollRow && message.role === 'assistant' && copyText.length > 0 ? (
-        <Pressable
-          style={({ pressed }) => [styles.button, pressed && styles.pressed]}
-          hitSlop={10}
-          accessibilityRole="button"
-          accessibilityLabel={t('chat.message.scrollMessageToTop', 'Scroll this message to top')}
-          onPress={() => scrollRow(message)}
-        >
-          <ArrowUp size={14} color={colors.textMuted} />
-        </Pressable>
+        <MobileNativeChatScrollToStartButton onPress={() => scrollRow(message)} />
       ) : null}
     </View>
   )
