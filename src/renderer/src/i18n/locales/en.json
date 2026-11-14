@@ -76,6 +76,14 @@
     "failed": "Failed to open the file."
   },
   "sidebar": {
+    "worktreeCardsUpdateNotice": {
+      "newLabel": "New",
+      "title": "Worktree cards",
+      "exampleChildren": "1 child",
+      "statusCaption": "Title flags agents that need you",
+      "childrenCaption": "Parents sum up child worktrees",
+      "dismiss": "Dismiss"
+    },
     "revealFiltered": {
       "title": "Reveal hidden workspace?",
       "description": "The active workspace is hidden in the sidebar. Revealing it will adjust only the filters hiding it.",
@@ -1003,6 +1011,8 @@
       }
     },
     "agents": {
+      "installedRegion": "Installed agents",
+      "availableRegion": "Agents available to install",
       "permissionsTitle": "Permissions",
       "permissionsChoiceExplanation": "What every agent may do without asking. You can set one agent differently below.",
       "permissionEachOwn": "Each agent's own settings",
@@ -1453,7 +1463,9 @@
       "useExample": "Use this example",
       "description": "Scripts that run in this folder when a workspace is created. Every workspace shares the folder. Local scripts are stored on this machine; `orca.yaml` scripts are shared with your team.",
       "invalidSetup": "The file is present, but Orca could not find a valid setup script.",
-      "supportedKeys": "Define only the supported keys: `scripts` and `setup`."
+      "supportedKeys": "Define only the supported keys: `scripts` and `setup`.",
+      "supportedArchiveKeys": "Define only the supported keys: `scripts`, `setup`, and `archive`.",
+      "invalidArchive": "The file is present, but Orca could not find a valid setup or archive script."
     }
   },
   "menu": {
@@ -18160,7 +18172,8 @@
                     },
                     "extensions": {
                       "intro": {
-                        "title": "Chrome extensions",
+                        "title": "Bring your Chrome extensions",
+                        "everydayTitle": "Your everyday browser tools, in Orca",
                         "body": "Install from the Chrome Web Store and pin them next to the address bar.",
                         "action": "Open Web Store",
                         "secondaryAction": "Got it"
