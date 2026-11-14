@@ -1,7 +1,7 @@
 import { Plus } from 'lucide-react-native'
 import { Fragment, memo, useCallback, useMemo, useState } from 'react'
 import { Pressable, Text, View } from 'react-native'
-import { MobileSearchField } from '../components/MobileSearchField'
+import { MobileSearchField } from '../components/controls/MobileSearchField'
 import { filterHostsByQuery } from '../host-catalog/selection/use-connected-host-picker'
 import { useMobileTranslation } from '../i18n/use-mobile-translation'
 import { colors } from '../theme/mobile-theme'

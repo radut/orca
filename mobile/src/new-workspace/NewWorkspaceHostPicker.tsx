@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'expo-router'
-import { PickerModal } from '../components/PickerModal'
+import { PickerModal } from '../components/sheets/PickerModal'
 import { useMobileTranslation } from '../i18n/use-mobile-translation'
 import {
   hostPickerOptions,
