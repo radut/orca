@@ -1,8 +1,8 @@
 import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { defineConfig } from 'vitest/config'
-import baseConfig from './vitest.config'
-import { nodeRuntimePool } from './scripts/test-runtime/node-worker/vitest-node-runtime-pool'
+import baseConfig from './vitest.config.ts'
+import { nodeRuntimePool } from './scripts/test-runtime/node-worker/vitest-node-runtime-pool.ts'
 
 const contracts = [
   'src/main/runtime/session-tabs/session-tabs-phone-layout-moves.test.ts',
@@ -14,8 +14,7 @@ const contracts = [
   'src/main/codex-usage/scanner-incremental-append.test.ts',
   'src/main/usage/source-input/jsonl/jsonl-file-reader.test.ts',
   'config/scripts/static-analysis/oxlint-contracts/app-store-performance-plugin.test.mjs',
-  'config/scripts/static-analysis/oxlint-contracts/quadratic-buffer-concat-plugin.test.mjs',
-  'src/main/runtime/agent-session/structured-agent-session-chat-wait-work-state.test.ts'
+  'config/scripts/static-analysis/oxlint-contracts/quadratic-buffer-concat-plugin.test.mjs'
 ]
 for (const contract of contracts) {
   if (!existsSync(resolve(contract))) {

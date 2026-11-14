@@ -43,6 +43,7 @@ function restartedServe(session: WorkspaceSessionState = savedServeTabs()) {
         }))
       })),
       getRemoteTabFaviconUrl: () => null,
+      getPageNavigationState: () => null,
       getRegisteredTabs: vi.fn(() => registered()),
       snapshot: vi.fn(async () => ({ snapshot: '' })),
       getActivePageId: vi.fn(() => livePages[0] ?? null),
@@ -126,7 +127,9 @@ describe('a saved browser tab on a host with no window', () => {
             expect.objectContaining({ id: 'page-1', url: 'https://example.com/' })
           ])
         }),
-        expect.any(Number)
+        expect.any(Number),
+        // A navigation republish is an ordinary delivery, not upstream's reconciliation pass (#41489).
+        undefined
       )
     )
     unsubscribe()

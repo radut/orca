@@ -97,6 +97,7 @@ describe('the binary lane is served only to a route granted it', () => {
           'fault',
           'rpcEnvelope',
           'hostCatalogs',
+          'sessionPaneReturn',
           'navigate',
           'storage',
           'native.browser.local',

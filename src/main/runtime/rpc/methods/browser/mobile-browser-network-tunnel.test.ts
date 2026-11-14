@@ -1,4 +1,4 @@
-import '../../unused-default-rpc-methods.test-fixture'
+import '../../dispatch/testing/unused-default-rpc-methods.test-fixture'
 import { createServer, type Server } from 'node:net'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { z } from 'zod'

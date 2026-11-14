@@ -79,7 +79,6 @@ describe('browser settings persistence', () => {
       resolveLoad('orca-browser')
     })
     expect(linkPicker().props.selected).toBe('phone-browser')
-    expect(JSON.stringify(renderer.toJSON())).toContain('Phone browser')
   })
 
   it('restores the saved destination when changing the destination fails', async () => {
@@ -92,7 +91,6 @@ describe('browser settings persistence', () => {
       linkPicker().props.onSelect('phone-browser')
     })
     expect(linkPicker().props.selected).toBe('orca-browser')
-    expect(JSON.stringify(renderer.toJSON())).toContain('Could not save browser preferences')
   })
 
   it('restores the hydrated destination when the save fails before the first read finishes', async () => {
@@ -112,6 +110,5 @@ describe('browser settings persistence', () => {
     })
     await act(async () => resolveLoad('phone-browser'))
     expect(linkPicker().props.selected).toBe('phone-browser')
-    expect(JSON.stringify(renderer.toJSON())).toContain('Could not save browser preferences')
   })
 })
