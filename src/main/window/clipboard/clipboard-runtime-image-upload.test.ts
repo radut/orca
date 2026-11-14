@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const mocks = vi.hoisted(() => ({ callRuntimeEnvironment: vi.fn() }))
 
-vi.mock('../../ipc/runtime-environments/runtime-environment-transport-routing', () => ({
+vi.mock('../../ipc/runtime-environments/requests/runtime-environment-transport-routing', () => ({
   callRuntimeEnvironment: mocks.callRuntimeEnvironment
 }))
 
