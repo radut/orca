@@ -4,7 +4,10 @@ import { Pressable, Text, View } from 'react-native'
 import Animated from 'react-native-reanimated'
 import { PickerModal } from '../../components/PickerModal'
 import { statusDotColor } from '../../components/StatusDot'
-import { hostPickerOptions, useHostPickerSearch } from '../../components/use-connected-host-picker'
+import {
+  hostPickerOptions,
+  useHostPickerSearch
+} from '../../host-catalog/selection/use-connected-host-picker'
 import { useMobileTranslation } from '../../i18n/use-mobile-translation'
 import { colors, radii, spacing } from '../../theme/mobile-theme'
 import { themedStyleSheet } from '../../theme/themed-styles'

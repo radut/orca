@@ -5,13 +5,13 @@ import {
   getMobileSessionTabTitle,
   getMobileTerminalTabHostAgentIdentity,
   resolveMobileTerminalTabAgentId
-} from '../../terminal/session/mobile-terminal-tab-agent'
+} from './mobile-terminal-tab-agent'
 import {
   agentDotState,
   agentRowTimeAt,
   agentStateLabel,
   type AgentDotState
-} from '../../worktree/agent-row-display'
+} from '../../worktree/agent-lineage/agent-row-display'
 import type { MobileSessionTab } from './mobile-session-tabs'
 
 export type MobileSessionTabGroup = 'needs-you' | 'working' | 'other'
