@@ -128,7 +128,10 @@ describe('composerStillHoldsSubmittedText', () => {
   it('treats a collapsed paste label as possibly holding the sent text', () => {
     // Claude folds a multiline paste into a label, so absence of the full text proves nothing.
     expect(
-      composerStillHoldsSubmittedText('[Pasted text #1 +29 lines]', 'line one\nline two\nline three')
+      composerStillHoldsSubmittedText(
+        '[Pasted text #1 +29 lines]',
+        'line one\nline two\nline three'
+      )
     ).toBe(true)
   })
 })
