@@ -9,7 +9,7 @@ import {
   clearUnsubmittedAgentInput,
   type NativeChatSendOptions
 } from './native-chat-input-clear'
-import { NATIVE_CHAT_SUBMIT } from '../../../../../../../shared/native-chat/input/native-chat-paste-bytes'
+import { NATIVE_CHAT_SUBMIT } from '../../../../../../../shared/native-chat/input/composer/native-chat-paste-bytes'
 import { composerShowsCollapsedInput } from '../../../../../../../shared/native-chat/input/collapsed-composer-input'
 
 /** Gap before re-reading the composer to confirm the agent consumed Enter. */
