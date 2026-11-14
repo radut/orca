@@ -75,7 +75,12 @@ function RowList(props: Props): ReactElement {
 function NativeRowList(props: Props): ReactElement {
   const { tail, rowKeys, rows, renderItem, contentContainerStyle, onScroll, footer } = props
   const { header, emptyStateView } = props
-  const native = useMobileNativeChatNativeList(rows, rowKeys.keyOf, tail.listProps.ref)
+  const native = useMobileNativeChatNativeList(
+    rows,
+    rowKeys.keyOf,
+    tail.listProps.ref,
+    tail.listProps.onDrawn
+  )
   return (
     <MobileNativeChatPinchZoom gesture={props.pinchGesture}>
       <MobileNativeChatMeasuredRows measure={native.measure}>
@@ -94,7 +99,10 @@ function NativeRowList(props: Props): ReactElement {
           }}
           CellRendererComponent={MobileNativeChatMeasuredCell}
           onScrollToIndexFailed={native.onScrollToIndexFailed}
-          onScrollBeginDrag={tail.beginUserScroll}
+          onScrollBeginDrag={() => {
+            native.stopJump()
+            tail.beginUserScroll()
+          }}
           onScrollEndDrag={tail.endUserDrag}
           onMomentumScrollBegin={tail.beginMomentum}
           onMomentumScrollEnd={tail.endMomentum}
