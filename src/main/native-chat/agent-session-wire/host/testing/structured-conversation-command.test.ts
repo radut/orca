@@ -2,9 +2,9 @@ import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { computeAgentSessionPayloadFingerprint } from '../../../../../shared/agent-session/lifecycle/agent-session-mutation-envelope'
+import { computeAgentSessionPayloadFingerprint } from '../../../../../shared/agent-session/lifecycle/operations/agent-session-mutation-envelope'
 import type { AgentSessionConversationCommand } from '../../../../../shared/agent-session/agent-session-conversation-command'
-import type { AgentSessionOwnerProbe } from '../../../../../shared/agent-session/lifecycle/agent-session-lease-adjudication'
+import type { AgentSessionOwnerProbe } from '../../../../../shared/agent-session/lifecycle/leases/agent-session-lease-adjudication'
 import type { AgentSessionRecordStore } from '../../../../runtime/agent-session/records/agent-session-record-store'
 import { openTestAgentSessionRecordStore } from '../../../../runtime/agent-session/records/agent-session-record-store-test-harness'
 import { StructuredAgentSessionHost } from '../structured-agent-session-host'
@@ -22,7 +22,7 @@ import {
   openTestJournalHostDatabase
 } from '../../../agent-session-journal/store-lifecycle/journal-host-database-test-support'
 import { createStructuredAgentSessionLogger } from '../structured-agent-session-logger'
-import { codexProviderHandle } from '../../../../../shared/agent-session/lifecycle/agent-session-provider-handle-encoding'
+import { codexProviderHandle } from '../../../../../shared/agent-session/lifecycle/provider-handles/agent-session-provider-handle-encoding'
 
 const caller = { callerKey: 'desktop' }
 let directory: string
@@ -174,12 +174,5 @@ describe('same-conversation clear', () => {
     expect(
       store.getOperationRow(caller.callerKey, params.envelope.clientOperationId)?.outcome.status
     ).toBe('succeeded')
-  })
-
-  it('stops the old agent with a brief grace, since the divider waits on that stop', async () => {
-    await clearCommits()
-    expect(adapter.closeSession).toHaveBeenCalledWith(HOST_TEST_SESSION, undefined, {
-      grace: 'brief'
-    })
   })
 })

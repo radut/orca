@@ -5,7 +5,7 @@ import type { TuiAgent } from '../../../../../shared/agent-launch/catalog/tui-ag
 import { isTuiAgent } from '../../../../../shared/agent-launch/catalog/tui-agent-config'
 import type { NativeChatLaunchSeed } from './native-chat-launch-seed'
 import { composerShowsCollapsedInput } from '../../../../../shared/native-chat/input/collapsed-composer-input'
-import { canMirrorLaunchDraftToNativeChat } from '../../../../../shared/native-chat/input/native-chat-launch-draft-mirrorability'
+import { canMirrorLaunchDraftToNativeChat } from '../../../../../shared/native-chat/input/composer/native-chat-launch-draft-mirrorability'
 
 export type NativeChatTerminalDraftPickup =
   | { kind: 'seed'; draft: NativeChatLaunchDraft }

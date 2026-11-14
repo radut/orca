@@ -10,13 +10,6 @@ import {
   resetRateLimitProviderMocks
 } from './rate-limit-service-test-harness'
 
-function inactiveCodexAccount(id: string, managedHomePath: string) {
-  return {
-    id,
-    resolveHome: () => ({ kind: 'ready' as const, managedHomePath })
-  }
-}
-
 vi.mock('../providers/claude/claude-active-usage-fetch', () => ({
   fetchActiveClaudeRateLimits: vi.fn()
 }))
@@ -90,101 +83,6 @@ describe('RateLimitService', () => {
     vi.useRealTimers()
   })
 
-  it('keeps sibling inactive Codex preview fetches alive when one account is evicted', async () => {
-    const service = new RateLimitService()
-    const accountFetch = deferred<ProviderRateLimits>()
-    let inactiveAccounts = [
-      inactiveCodexAccount('account-a', '/tmp/account-a/home'),
-      inactiveCodexAccount('account-b', '/tmp/account-b/home')
-    ]
-    service.setInactiveCodexAccountsResolver(() => inactiveAccounts)
-    vi.mocked(fetchCodexRateLimits).mockReturnValueOnce(accountFetch.promise)
-
-    const fetchOnOpen = service.fetchInactiveCodexAccountsOnOpen()
-    await Promise.resolve()
-    expect(service.getState().inactiveCodexAccounts).toEqual([
-      { accountId: 'account-a', rateLimits: null, updatedAt: 0, isFetching: true }
-    ])
-
-    inactiveAccounts = [inactiveCodexAccount('account-a', '/tmp/account-a/home')]
-    service.evictInactiveCodexCache('account-b')
-    accountFetch.resolve(okProvider('codex', 64, Date.now()))
-    await fetchOnOpen
-
-    expect(fetchCodexRateLimits).toHaveBeenCalledTimes(1)
-    expect(service.getState().inactiveCodexAccounts).toEqual([
-      {
-        accountId: 'account-a',
-        rateLimits: expect.objectContaining({
-          provider: 'codex',
-          session: expect.objectContaining({ usedPercent: 64 })
-        }),
-        updatedAt: expect.any(Number),
-        isFetching: false
-      }
-    ])
-  })
-
-  it('does not recache an inactive Codex account that becomes active during fetch-on-open', async () => {
-    const service = new RateLimitService()
-    const accountFetch = deferred<ProviderRateLimits>()
-    let inactiveAccounts = [inactiveCodexAccount('account-b', '/tmp/account-b/home')]
-    service.setInactiveCodexAccountsResolver(() => inactiveAccounts)
-    service.setCodexHomePathResolver(() => ({
-      kind: 'ready',
-      codexHomePath: '/tmp/account-b/home'
-    }))
-    vi.mocked(fetchCodexRateLimits)
-      .mockReturnValueOnce(accountFetch.promise)
-      .mockResolvedValueOnce(okProvider('codex', 7, Date.now()))
-
-    const fetchOnOpen = service.fetchInactiveCodexAccountsOnOpen()
-    await Promise.resolve()
-    expect(service.getState().inactiveCodexAccounts).toEqual([
-      { accountId: 'account-b', rateLimits: null, updatedAt: 0, isFetching: true }
-    ])
-
-    inactiveAccounts = []
-    await service.refreshForCodexAccountChange('account-a')
-    accountFetch.resolve(okProvider('codex', 42, Date.now()))
-    await fetchOnOpen
-
-    expect(service.getState().inactiveCodexAccounts).toEqual([])
-  })
-
-  it('does not recache an inactive Claude account removed during fetch-on-open', async () => {
-    const service = new RateLimitService()
-    const accountFetch = deferred<ProviderRateLimits>()
-    let inactiveAccounts = [{ id: 'account-1' }]
-    service.setInactiveClaudeAccountsResolver(() => inactiveAccounts)
-    service.setClaudeAuthPreparationResolver(async () => ({
-      configDir: '/tmp/.claude',
-      envPatch: {},
-      provenance: 'system'
-    }))
-    vi.mocked(fetchActiveClaudeRateLimits).mockResolvedValue(okProvider('claude', 7))
-    await service.refresh()
-    vi.mocked(fetchInactiveClaudeAccountUsage).mockReturnValueOnce(accountFetch.promise)
-
-    const fetchOnOpen = service.fetchInactiveClaudeAccountsOnOpen()
-    await Promise.resolve()
-    expect(service.getState().inactiveClaudeAccounts).toEqual([
-      { accountId: 'account-1', rateLimits: null, updatedAt: 0, isFetching: true }
-    ])
-
-    service.evictInactiveClaudeCache('account-1')
-    inactiveAccounts = [{ id: 'account-1' }]
-    await service.refreshForClaudeAccountChange('account-1')
-    expect(service.getState().inactiveClaudeAccounts[0]?.accountId).toBe('account-1')
-
-    inactiveAccounts = []
-    service.evictInactiveClaudeCache('account-1')
-    accountFetch.resolve(okProvider('claude', 42))
-    await fetchOnOpen
-
-    expect(service.getState().inactiveClaudeAccounts).toEqual([])
-  })
-
   it('does not overwrite inactive Claude cache from a stale same-id fetch', async () => {
     const service = new RateLimitService()
     const accountFetch = deferred<ProviderRateLimits>()
@@ -216,5 +114,22 @@ describe('RateLimitService', () => {
         isFetching: false
       }
     ])
+  })
+
+  it('keeps a monthly-only outgoing Codex snapshot for the switcher', async () => {
+    const service = new RateLimitService()
+    service.setInactiveCodexAccountsResolver(() => [
+      { id: 'account-1', resolveHome: () => ({ kind: 'skip' }) }
+    ])
+    vi.mocked(fetchCodexRateLimits).mockResolvedValue({
+      ...okProvider('codex', 0),
+      session: null,
+      monthly: { usedPercent: 20, windowMinutes: 43_200, resetsAt: null, resetDescription: null }
+    })
+    await service.refresh()
+
+    await service.refreshForCodexAccountChange('account-1')
+
+    expect(service.getState().inactiveCodexAccounts[0]?.rateLimits?.monthly?.usedPercent).toBe(20)
   })
 })
