@@ -34,7 +34,12 @@ function isAtTail(event: NativeScrollEvent): boolean {
 export type MobileNativeChatListHandle = {
   scrollToOffset: (params: { animated: boolean; offset: number }) => void
   scrollToEnd: (params: { animated: boolean }) => void
-  scrollToIndex: (params: { animated: boolean; index: number; viewPosition: number }) => void
+  scrollToIndex: (params: {
+    animated: boolean
+    index: number
+    viewPosition: number
+    viewOffset: number
+  }) => void
   /** The reader's top row and how far into it the view starts; undefined with no row drawn. */
   readPlace: () => MobileNativeChatPlace | undefined
   restorePlace: (place: MobileNativeChatPlace) => MobileNativeChatRestore
@@ -57,8 +62,9 @@ export type MobileNativeChatTailFollow = {
   pinToTail: () => void
   pinToTailAfterContentResize: (_width: number, height: number) => void
   jumpToTail: () => void
-  /** Puts row `index` at the top and stops following the tail, so new output cannot pull it away. */
-  scrollRowToTop: (index: number) => void
+  /** Puts row `index` at the top, `viewOffset` below it, and stops following the tail, so new
+   *  output cannot pull it away. */
+  scrollRowToTop: (target: { index: number; viewOffset: number }) => void
   beginUserScroll: () => void
   endUserDrag: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
   beginMomentum: () => void
@@ -220,12 +226,12 @@ export function useMobileNativeChatTailFollow(args: {
   )
 
   const scrollRowToTop = useCallback(
-    (index: number) => {
+    ({ index, viewOffset }: { index: number; viewOffset: number }) => {
       clearUserScrollSettle()
       userScrollActiveRef.current = false
       restoreRef.current = null
       setFollowing(false)
-      listRef.current?.scrollToIndex({ animated: true, index, viewPosition: 0 })
+      listRef.current?.scrollToIndex({ animated: true, index, viewPosition: 0, viewOffset })
     },
     [clearUserScrollSettle, setFollowing]
   )

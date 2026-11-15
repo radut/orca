@@ -126,9 +126,9 @@ export function useMobileNativeChatNativeList(
       stopJump()
       list.current?.scrollToOffset(params)
     },
-    scrollToIndex: ({ animated, index }) => {
+    scrollToIndex: ({ animated, index, viewOffset }) => {
       stopJump()
-      scrollToRow({ index, viewOffset: 0, animated, tries: 0 })
+      scrollToRow({ index, viewOffset, animated, tries: 0 })
     },
     readPlace: () => {
       const y = offsetY.current

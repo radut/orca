@@ -30,12 +30,16 @@ export function mobileNativeChatPagePlaces<S extends MobileNativeChatScrollNode>
   notePlace: (scroller: S) => void
 ) {
   return {
-    scrollToIndex: ({ index }: { index: number }) => {
+    scrollToIndex: ({ index, viewOffset }: { index: number; viewOffset: number }) => {
       const s = scroller()
-      const key = drawn().keys[index]
-      const top = s && key !== undefined ? mobileNativeChatRowTop(s, key) : undefined
+      const { keys } = drawn()
+      // Folded rows draw nothing; the first drawn row from `index` holds that place.
+      let top: number | undefined
+      for (let at = index; s && top === undefined && at < keys.length; at += 1) {
+        top = mobileNativeChatRowTop(s, keys[at]!)
+      }
       if (s && top !== undefined) {
-        write(s, s.scrollTop + top - s.getBoundingClientRect().top)
+        write(s, s.scrollTop + top - s.getBoundingClientRect().top - viewOffset)
         notePlace(s)
       }
     },
