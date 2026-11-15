@@ -1,7 +1,7 @@
 import {
   assertClipboardImageByteLengthWithinLimit,
   assertNamedTempUploadKeptName
-} from '../../../shared/clipboard-image'
+} from '../../../shared/clipboard/clipboard-image'
 import { callRuntimeEnvironment } from '../../ipc/runtime-environments/requests/runtime-environment-transport-routing'
 
 const CLIPBOARD_IMAGE_UPLOAD_CHUNK_BASE64_CHARS = 512 * 1024
