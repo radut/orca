@@ -1,16 +1,16 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link2, Plus, X } from 'lucide-react'
-import type { Repo } from '../../../../../../shared/repo-types'
+import type { Repo } from '../../../../../../shared/repository/repo-types'
 import { Button } from '../../../ui/button'
 import { Command, CommandEmpty, CommandInput, CommandItem, CommandList } from '../../../ui/command'
 import { Popover, PopoverContent, PopoverTrigger } from '../../../ui/popover'
-import { cn } from '@/lib/utils'
+import { cn } from '@/lib/class-names'
 import { FileTypeIcon, FolderIcon } from '@/components/FileTypeIcon'
 import { SearchableSetting } from '../../section-layout/SearchableSetting'
 import {
   getWorktreeSymlinkPathFilterState,
   type WorktreeSymlinkPathSuggestion
-} from '../../../../lib/directory-path-suggestion-filter'
+} from '../../../../lib/directory-input/directory-path-suggestion-filter'
 import { useTranslate } from '@/i18n/use-translate'
 import {
   getRepoExecutionHostId,
