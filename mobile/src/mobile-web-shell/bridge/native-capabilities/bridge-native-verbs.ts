@@ -18,6 +18,11 @@ import {
   mediaNameResultSchema
 } from './bridge-media-verbs'
 import { imageParamsSchema, imageResultSchema } from './bridge-image-verbs'
+import {
+  BRIDGE_READ_ALOUD_VERB,
+  readAloudParamsSchema,
+  readAloudResultSchema
+} from './bridge-read-aloud-verb'
 import { BRIDGE_SPEECH_VERB, speechParamsSchema, speechResultSchema } from './bridge-speech-verbs'
 import { BRIDGE_STORE_VERB, storeParamsSchema, storeResultSchema } from './bridge-store-verb'
 import {
@@ -47,6 +52,7 @@ export const BRIDGE_NATIVE_VERB_NAMES = [
   'native.pdf.view',
   'native.image.act',
   BRIDGE_SPEECH_VERB,
+  BRIDGE_READ_ALOUD_VERB,
   BRIDGE_STORE_VERB,
   'native.a11y.announce',
   'native.browser.local',
@@ -246,6 +252,10 @@ export const BRIDGE_NATIVE_VERBS: Readonly<Record<BridgeNativeVerb, BridgeNative
   [BRIDGE_SPEECH_VERB]: {
     params: speechParamsSchema,
     result: speechResultSchema
+  },
+  [BRIDGE_READ_ALOUD_VERB]: {
+    params: readAloudParamsSchema,
+    result: readAloudResultSchema
   },
   [BRIDGE_STORE_VERB]: {
     params: storeParamsSchema,
