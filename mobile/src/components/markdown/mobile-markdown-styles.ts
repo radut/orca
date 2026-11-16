@@ -132,7 +132,7 @@ export const styles = themedStyleSheet(() => ({
     alignItems: 'center',
     gap: spacing.xs
   },
-  codeWrapButton: {
+  codeIconButton: {
     width: 24,
     height: 24,
     alignItems: 'center',

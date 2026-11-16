@@ -914,7 +914,9 @@
       "copyCode": "Kodu kopyala",
       "openImage": "Görseli aç",
       "wrapLines": "Satırları kaydır",
-      "disableLineWrap": "Satır kaydırmayı kapat"
+      "disableLineWrap": "Satır kaydırmayı kapat",
+      "codeLabel": "Kod",
+      "expandCode": "Kodu tam ekranda aç"
     },
     "markdownCallout": {
       "note": "Not",

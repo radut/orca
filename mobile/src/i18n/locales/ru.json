@@ -990,7 +990,9 @@
       "copyCode": "Копировать код",
       "openImage": "Открыть изображение",
       "wrapLines": "Переносить строки",
-      "disableLineWrap": "Выключить перенос строк"
+      "disableLineWrap": "Выключить перенос строк",
+      "codeLabel": "Код",
+      "expandCode": "Открыть код на весь экран"
     },
     "markdownCallout": {
       "note": "Заметка",

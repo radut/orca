@@ -952,7 +952,9 @@
       "copyCode": "Copier le code",
       "openImage": "Ouvrir l'image",
       "wrapLines": "Retour à la ligne",
-      "disableLineWrap": "Désactiver le retour à la ligne"
+      "disableLineWrap": "Désactiver le retour à la ligne",
+      "codeLabel": "Code",
+      "expandCode": "Ouvrir le code en plein écran"
     },
     "markdownCallout": {
       "note": "Remarque",

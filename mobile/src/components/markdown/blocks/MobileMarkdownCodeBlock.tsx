@@ -1,5 +1,5 @@
-import { TextWrap } from 'lucide-react-native'
-import { memo, useContext, useMemo } from 'react'
+import { Maximize2, TextWrap } from 'lucide-react-native'
+import { memo, useContext, useMemo, useState } from 'react'
 import { Pressable, ScrollView, Text, View } from 'react-native'
 import { useMobileTranslation } from '../../../i18n/use-mobile-translation'
 import { highlightMobileCode } from '../../../files/session-documents/mobile-file-syntax'
@@ -14,6 +14,7 @@ import { MobileSyntaxSegments } from '../../code-presentation/MobileSyntaxSegmen
 import { MobileSourceCopyButton } from '../../code-presentation/MobileSourceCopyButton'
 import { scaledMarkdownText, styles } from '../mobile-markdown-styles'
 import { MarkdownText } from '../mobile-markdown-text'
+import { MobileMarkdownCodeFullscreen } from './MobileMarkdownCodeFullscreen'
 
 export const MobileMarkdownCodeBlock = memo(function MobileMarkdownCodeBlock({
   code,
@@ -36,6 +37,8 @@ export const MobileMarkdownCodeBlock = memo(function MobileMarkdownCodeBlock({
     rowKey && sourceLine !== undefined ? `code-wrap:${rowKey}:${sourceLine}` : undefined,
     false
   )
+  const [expanded, setExpanded] = useState(false)
+  const label = language || t('components.markdownBlocks.codeLabel', 'Code')
   const segments = useMemo(
     () => (language ? highlightMobileCode(code, language.toLowerCase()).segments : null),
     [code, language]
@@ -60,13 +63,13 @@ export const MobileMarkdownCodeBlock = memo(function MobileMarkdownCodeBlock({
     <View style={styles.codeBlock}>
       <View style={styles.codeHeader}>
         <Text numberOfLines={1} style={styles.codeLanguage}>
-          {language}
+          {label}
         </Text>
         <View style={styles.codeActions}>
           {chat && code ? (
             <Pressable
               style={({ pressed }) => [
-                styles.codeWrapButton,
+                styles.codeIconButton,
                 wrapped && styles.codeWrapButtonOn,
                 pressed && pressedStyle
               ]}
@@ -86,6 +89,20 @@ export const MobileMarkdownCodeBlock = memo(function MobileMarkdownCodeBlock({
               accessibilityLabel={t('components.markdownBlocks.copyCode', 'Copy code')}
             />
           ) : null}
+          {code ? (
+            <Pressable
+              style={({ pressed }) => [styles.codeIconButton, pressed && pressedStyle]}
+              hitSlop={10}
+              accessibilityRole="button"
+              accessibilityLabel={t(
+                'components.markdownBlocks.expandCode',
+                'Open code full screen'
+              )}
+              onPress={() => setExpanded(true)}
+            >
+              <Maximize2 size={14} color={colors.textMuted} />
+            </Pressable>
+          ) : null}
         </View>
       </View>
       <View style={styles.codeBody}>
@@ -104,6 +121,16 @@ export const MobileMarkdownCodeBlock = memo(function MobileMarkdownCodeBlock({
           </ScrollView>
         )}
       </View>
+      {expanded ? (
+        <MobileMarkdownCodeFullscreen
+          label={label}
+          code={code}
+          segments={segments}
+          lineNumbers={lineNumbers}
+          textStyle={metrics}
+          onClose={() => setExpanded(false)}
+        />
+      ) : null}
     </View>
   )
 })
