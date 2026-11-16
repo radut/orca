@@ -2276,7 +2276,8 @@
       "fileExplorer": "Datei-Explorer",
       "sourceControl": "Quellcodeverwaltung",
       "newTab": "Neuen Tab erstellen",
-      "quickCommands": "Schnellbefehle"
+      "quickCommands": "Schnellbefehle",
+      "findInTerminal": "Im Terminal suchen"
     },
     "headerMoreActionsSheet": {
       "agentHistory": "Agentenverlauf",
@@ -2797,6 +2798,13 @@
       "camera": "Kamera",
       "choosePhotos": "Fotos auswählen",
       "recentPhoto": "Aktuelles Foto"
+    },
+    "terminalFind": {
+      "placeholder": "Im Terminal suchen",
+      "noResults": "Keine Ergebnisse",
+      "previous": "Vorheriger Treffer",
+      "next": "Nächster Treffer",
+      "close": "Suche schließen"
     }
   },
   "settings": {
