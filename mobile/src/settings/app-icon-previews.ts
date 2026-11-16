@@ -1,5 +1,5 @@
 import type { ImageSourcePropType } from 'react-native'
-import type { BuiltInAppIconId } from '../../../src/shared/app-icon'
+import type { BuiltInAppIconId } from '../../../src/shared/app-lifecycle/identity/app-icon'
 
 // Keep literal require paths: Metro cannot resolve dynamic asset paths.
 export const APP_ICON_PREVIEWS: Readonly<Record<BuiltInAppIconId, ImageSourcePropType>> = {

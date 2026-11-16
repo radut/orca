@@ -8,7 +8,10 @@ import {
   setAlternateAppIcon,
   supportsAlternateIcons
 } from 'expo-alternate-app-icons'
-import { APP_ICON_OPTIONS, type BuiltInAppIconId } from '../../../src/shared/app-icon'
+import {
+  APP_ICON_OPTIONS,
+  type BuiltInAppIconId
+} from '../../../src/shared/app-lifecycle/identity/app-icon'
 import { useMobileTranslation } from '../i18n/use-mobile-translation'
 import { colors, radii, spacing, typography } from '../theme/mobile-theme'
 import { themedStyleSheet } from '../theme/themed-styles'
