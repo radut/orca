@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, expect, it } from 'vitest'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { NativeChatSessionOptionPickers } from './NativeChatSessionOptionPickers'
@@ -77,7 +77,7 @@ it('exposes the current selection on keyboard focus and follows the chat snapsho
   )
 })
 
-it('keeps a working model-only picker inspectable without allowing changes', async () => {
+function queuedPickFixture() {
   const model: SessionOptionDescriptor = {
     id: 'model',
     label: 'Model',
@@ -85,37 +85,59 @@ it('keeps a working model-only picker inspectable without allowing changes', asy
     transport: 'catalog',
     settable: true,
     valueSource: 'applied',
-    kind: {
-      type: 'select',
-      currentValue: 'chat-model',
-      choices: [{ value: 'chat-model', label: 'Chat model' }]
-    }
+    kind: { type: 'select', currentValue: 'opus', choices: [{ value: 'opus', label: 'Opus' }] }
   }
-  const surface = {
-    getSnapshot: () => [model],
+  const fast: SessionOptionDescriptor = {
+    id: 'fast',
+    label: 'Fast',
+    category: 'model_config',
+    transport: 'catalog',
+    settable: true,
+    valueSource: 'applied',
+    kind: { type: 'boolean', currentValue: false }
+  }
+  const writes: unknown[] = []
+  const surfaceFor = (sessionKey: string) => ({
+    sessionKey,
+    getSnapshot: () => [model, fast],
     subscribe: () => () => {},
-    setOption: async () => ({ snapshot: [model] }),
-    invokeAction: async () => ({ snapshot: [model] })
-  }
-  const picker = (isWorking: boolean) => (
+    setOption: async (id: string, value: unknown) => {
+      writes.push([id, value])
+      return { snapshot: [model, fast] }
+    },
+    invokeAction: async () => ({ snapshot: [model, fast] })
+  })
+  const surfaces = { a: surfaceFor('a'), b: surfaceFor('b') }
+  const view = (isWorking: boolean, session: 'a' | 'b' = 'a') => (
     <TooltipProvider>
-      <NativeChatSessionOptionPickers snapshot={[model]} surface={surface} isWorking={isWorking} />
+      <NativeChatSessionOptionPickers
+        snapshot={[model, fast]}
+        isWorking={isWorking}
+        surface={surfaces[session]}
+      />
     </TooltipProvider>
   )
-  const view = render(picker(true))
-  const informationalTrigger = screen.getByRole('button', { name: 'Model Chat model' })
-  expect(informationalTrigger.getAttribute('aria-disabled')).toBe('true')
-  act(() => informationalTrigger.focus())
-  expect(document.activeElement).toBe(informationalTrigger)
-  expect((await screen.findByRole('tooltip')).textContent).toBe('Chat model')
-  fireEvent.click(informationalTrigger)
-  for (const key of ['Enter', ' ', 'ArrowDown']) {
-    fireEvent.keyDown(informationalTrigger, { key })
-  }
-  expect(screen.queryByRole('dialog')).toBeNull()
-  view.rerender(picker(false))
-  expect(document.activeElement).toBe(informationalTrigger)
-  expect(informationalTrigger.getAttribute('aria-disabled')).toBeNull()
-  fireEvent.click(informationalTrigger)
-  expect(await screen.findByRole('dialog')).not.toBeNull()
+  return { writes, view }
+}
+
+it('lets a queued switch be turned back before the reply finishes, leaving nothing to apply', () => {
+  const { writes, view } = queuedPickFixture()
+  const { rerender } = render(view(true))
+  fireEvent.click(screen.getByRole('button', { name: /Model/ }))
+  fireEvent.click(screen.getByRole('switch'))
+  expect(screen.getByRole('switch').getAttribute('aria-checked')).toBe('true')
+  fireEvent.click(screen.getByRole('switch'))
+  expect(screen.getByRole('switch').getAttribute('aria-checked')).toBe('false')
+  rerender(view(false))
+  expect(writes).toEqual([])
+})
+
+it('drops a pick queued for one session when the pane moves to another', () => {
+  const { writes, view } = queuedPickFixture()
+  const { rerender } = render(view(true))
+  fireEvent.click(screen.getByRole('button', { name: /Model/ }))
+  fireEvent.click(screen.getByRole('switch'))
+  rerender(view(true, 'b'))
+  rerender(view(false, 'b'))
+  expect(writes).toEqual([])
 })
