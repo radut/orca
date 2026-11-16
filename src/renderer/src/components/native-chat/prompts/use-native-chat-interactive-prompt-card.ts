@@ -6,6 +6,7 @@ import { useNativeChatPromptCardPresentation } from './use-native-chat-prompt-ca
 import { useEffect, useMemo, useState } from 'react'
 import { parseTerminalChoicePrompt } from '../../../../../shared/native-chat/input/native-chat-terminal-choice-prompt'
 import { useAppStore } from '../../../store/index'
+import { installWindowVisibilityInterval } from '@/lib/window-activity/window-visibility-interval'
 import type { AskPrompt } from '../../../../../shared/native-chat/input/questions/native-chat-ask-types'
 import type { NativeChatMessage } from '../../../../../shared/native-chat/native-chat-types'
 import { resolveNativeChatInteractivePromptCard } from '../../../../../shared/native-chat/input/native-chat-interactive-prompt'
@@ -62,27 +63,28 @@ function isAgentWaiting(entry: AgentStatusEntry | undefined): boolean {
 
 /** While the agent waits with no prompt of its own, the numbered choice its terminal shows. */
 function useWaitingScreenChoice(readTerminalScreen: (() => string | null) | undefined) {
-  const [choice, setChoice] = useState<ReturnType<typeof parseTerminalChoicePrompt>>(null)
+  const [read, setRead] = useState<{
+    reader: () => string | null
+    choice: ReturnType<typeof parseTerminalChoicePrompt>
+  } | null>(null)
   useEffect(() => {
     if (!readTerminalScreen) {
-      setChoice(null)
       return
     }
     let last = ''
-    const read = (): void => {
-      const parsed = parseTerminalChoicePrompt(readTerminalScreen())
-      const key = JSON.stringify(parsed)
+    const run = (): void => {
+      const choice = parseTerminalChoicePrompt(readTerminalScreen())
+      const key = JSON.stringify(choice)
       if (key !== last) {
         last = key
-        setChoice(parsed)
+        setRead({ reader: readTerminalScreen, choice })
       }
     }
-    read()
     // The screen draws the menu a moment after the waiting status lands, and it can change.
-    const timer = setInterval(read, SCREEN_CHOICE_POLL_MS)
-    return () => clearInterval(timer)
+    return installWindowVisibilityInterval({ run, intervalMs: SCREEN_CHOICE_POLL_MS })
   }, [readTerminalScreen])
-  return choice
+  // A result read through an earlier reader is stale once the reader changes or goes away.
+  return readTerminalScreen && read?.reader === readTerminalScreen ? read.choice : null
 }
 
 export function useNativeChatTerminalPromptCard(args: {
