@@ -2403,7 +2403,8 @@
       "fileExplorer": "Проводник файлов",
       "sourceControl": "Управление исходным кодом",
       "newTab": "Новая вкладка",
-      "quickCommands": "Быстрые команды"
+      "quickCommands": "Быстрые команды",
+      "findInTerminal": "Найти в терминале"
     },
     "headerMoreActionsSheet": {
       "agentHistory": "История агентов",
@@ -2926,6 +2927,13 @@
       "camera": "Камера",
       "choosePhotos": "Выбрать фото",
       "recentPhoto": "Недавнее фото"
+    },
+    "terminalFind": {
+      "placeholder": "Найти в терминале",
+      "noResults": "Нет результатов",
+      "previous": "Предыдущее совпадение",
+      "next": "Следующее совпадение",
+      "close": "Закрыть поиск"
     }
   },
   "settings": {

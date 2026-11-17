@@ -4,7 +4,7 @@ import type { RuntimeMobileTerminalTheme } from '../../../../src/shared/remote-r
 import type { TerminalOscLinkRange } from '../../../../src/shared/terminal/links/terminal-osc-link-ranges'
 import type { StyleProp, ViewStyle } from 'react-native'
 import type { TerminalFitDimensions } from '../viewport/terminal-grid-fit'
-import type { TerminalFrame } from './terminal-webview-messages'
+import type { TerminalFindDirection, TerminalFrame } from './terminal-webview-messages'
 
 type TerminalMouseTrackingMode = 'none' | 'x10' | 'vt200' | 'drag' | 'any'
 
@@ -62,6 +62,9 @@ function toNonNegativeInteger(value: unknown): number {
   return typeof value === 'number' && Number.isFinite(value) && value > 0 ? Math.floor(value) : 0
 }
 
+// xterm reports resultIndex -1 when matches exceed its highlight limit.
+export type TerminalFindResults = { resultIndex: number; resultCount: number }
+
 export type TerminalPointerInput = {
   readonly click: boolean
 }
@@ -84,6 +87,7 @@ export type TerminalSelectionEvents = {
   // Persist snapped text-size presets so Settings and other panes follow terminal pinches.
   onTextScaleChange?: (scale: number) => void
   onCellBoxChange?: () => void
+  onFindResults?: (results: TerminalFindResults) => void
 }
 
 export type TerminalWebViewProps = {
@@ -127,6 +131,9 @@ export type TerminalWebViewHandle = {
   resetZoom: () => void
   cancelSelect: () => void
   doSelectAll: () => void
+  // Highlights every match in the scrollback and scrolls to the next one; results arrive via onFindResults.
+  find: (query: string, direction: TerminalFindDirection, incremental: boolean) => void
+  clearFind: () => void
   // Await the latest init’s ready notification so follow-up fitting uses its post-layout cell box.
   awaitReady: () => Promise<void>
 }

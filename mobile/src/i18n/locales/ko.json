@@ -2261,7 +2261,8 @@
       "fileExplorer": "파일 탐색기",
       "sourceControl": "소스 제어",
       "newTab": "새 탭",
-      "quickCommands": "빠른 명령어"
+      "quickCommands": "빠른 명령어",
+      "findInTerminal": "터미널에서 찾기"
     },
     "headerMoreActionsSheet": {
       "agentHistory": "에이전트 기록",
@@ -2782,6 +2783,13 @@
       "camera": "카메라",
       "choosePhotos": "사진 선택",
       "recentPhoto": "최근 사진"
+    },
+    "terminalFind": {
+      "placeholder": "터미널에서 찾기",
+      "noResults": "결과 없음",
+      "previous": "이전 일치 항목",
+      "next": "다음 일치 항목",
+      "close": "찾기 닫기"
     }
   },
   "settings": {

@@ -2253,7 +2253,8 @@
       "newTab": "New tab",
       "quickCommands": "Quick commands",
       "fileExplorer": "File explorer",
-      "sourceControl": "Source control"
+      "sourceControl": "Source control",
+      "findInTerminal": "Find in terminal"
     },
     "headerMoreActionsSheet": {
       "agentHistory": "Agent History",
@@ -3071,6 +3072,13 @@
       "camera": "Camera",
       "choosePhotos": "Choose photos",
       "recentPhoto": "Recent photo"
+    },
+    "terminalFind": {
+      "placeholder": "Find in terminal",
+      "noResults": "No results",
+      "previous": "Previous match",
+      "next": "Next match",
+      "close": "Close find"
     }
   },
   "chat": {
