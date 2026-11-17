@@ -29,6 +29,11 @@ import { NativeChatModelCombobox } from './NativeChatModelCombobox'
 import { useNativeChatPickerFocusReturn } from '../../../composer/focus/native-chat-picker-focus-return'
 import { NativeChatSessionOptionRows } from './NativeChatSessionOptionRows'
 import { NativeChatSessionOptionWriteGroup } from './NativeChatSessionOptionWriteGroup'
+import {
+  useQueuedSessionOptions,
+  withPendingValue,
+  type PendingPick
+} from './native-chat-session-option-pending-values'
 
 export type NativeChatSessionOptionPickersProps = {
   surface: SessionOptionsSurface | null
@@ -37,35 +42,6 @@ export type NativeChatSessionOptionPickersProps = {
   pickerRequest?: NativeChatOptionPickerRequest | null
   /** Where focus lands after a visit that changed something; see `useNativeChatPickerFocusReturn`. */
   focusComposer?: () => void
-}
-
-/** A descriptor write in flight; its value shows until it settles. */
-type PendingPick = { id: string; value?: SessionOptionValue }
-
-// Show pending picks in place while open; refusal restores the host snapshot.
-function withPendingValue(
-  descriptor: SessionOptionDescriptor,
-  pending: PendingPick | null
-): SessionOptionDescriptor {
-  if (pending?.id !== descriptor.id) {
-    return descriptor
-  }
-  const { kind } = descriptor
-  if (kind.type === 'select' && typeof pending.value === 'string') {
-    return {
-      ...descriptor,
-      valueSource: 'dispatched',
-      kind: { ...kind, currentValue: pending.value }
-    }
-  }
-  if (kind.type === 'boolean' && typeof pending.value === 'boolean') {
-    return {
-      ...descriptor,
-      valueSource: 'dispatched',
-      kind: { ...kind, currentValue: pending.value }
-    }
-  }
-  return descriptor
 }
 
 // Keep visible value text inside the accessible name for voice control (WCAG 2.5.3).
@@ -161,9 +137,8 @@ function SessionOptionPopover(props: {
   const { model, options, pendingIds, demandModelCatalog } = props
   const canOpen = [model, ...options].some(
     (descriptor) =>
-      descriptor.settable &&
-      !pendingIds.has(descriptor.id) &&
-      (!props.isWorking || descriptor.transport === 'agent-session')
+      // While the agent works a choice is queued; a chat session applies it to the next message itself.
+      descriptor.settable && !pendingIds.has(descriptor.id)
   )
   // Why here: this unmounts with the pill, so a picker that went away comes back closed.
   const [open, setOpen] = useState(false)
@@ -208,9 +183,23 @@ function SessionOptionPopover(props: {
       ? nativeChatSessionOptionDisabledReason(options[0]?.disabledReason, say)
       : null
 
+  const { queued, queue, shown } = useQueuedSessionOptions(
+    props.isWorking,
+    [model, ...options],
+    props.onSet
+  )
+  const shownModel = shown(model)
+  // A terminal agent takes neither a change nor a command mid-reply.
+  const heldForReply = (descriptor: SessionOptionDescriptor): boolean =>
+    props.isWorking && descriptor.transport !== 'agent-session'
   // Different descriptors can save together; hold only a repeat of the same pick.
   const set = (descriptor: SessionOptionDescriptor, value: SessionOptionValue): void => {
     if (pendingIds.has(descriptor.id)) {
+      return
+    }
+    if (heldForReply(descriptor)) {
+      focusReturn.notePick()
+      queue(descriptor, value)
       return
     }
     focusReturn.notePick()
@@ -227,7 +216,7 @@ function SessionOptionPopover(props: {
     }
   }
   const act = (descriptor: SessionOptionDescriptor): void => {
-    if (pendingIds.has(descriptor.id)) {
+    if (pendingIds.has(descriptor.id) || heldForReply(descriptor)) {
       return
     }
     // Why: agent-picker opens the TUI, and that picker owns focus.
@@ -300,10 +289,40 @@ function SessionOptionPopover(props: {
           }
         }}
       >
-        {model.kind.type === 'select' && !model.action ? (
+        {props.isWorking && model.transport === 'agent-session' ? (
+          <p className="px-3 pt-2 text-xs text-muted-foreground">
+            {t(
+              'components.native-chat.composer.optionsApplyNext',
+              'The agent is working. Changes apply to your next message.'
+            )}
+          </p>
+        ) : props.isWorking || queued.size > 0 ? (
+          <p className="px-3 pt-2 text-xs text-muted-foreground">
+            {queued.size > 0
+              ? t(
+                  'components.native-chat.composer.optionsQueued',
+                  'Queued: {{choices}}. Applied when this reply finishes.',
+                  {
+                    choices: [...queued.values()]
+                      .map(({ descriptor, value }) =>
+                        descriptor.kind.type === 'select'
+                          ? (descriptor.kind.choices.find((choice) => choice.value === value)
+                              ?.label ?? String(value))
+                          : String(value)
+                      )
+                      .join(', ')
+                  }
+                )
+              : t(
+                  'components.native-chat.composer.optionsQueueHint',
+                  'The agent is working. Your choice is queued and applied when this reply finishes.'
+                )}
+          </p>
+        ) : null}
+        {shownModel.kind.type === 'select' && !model.action ? (
           <NativeChatModelCombobox
-            choices={model.kind.choices}
-            currentValue={model.kind.currentValue}
+            choices={shownModel.kind.choices}
+            currentValue={shownModel.kind.currentValue}
             readOnly={!model.settable}
             readOnlyReason={modelReason}
             busy={pendingIds.has(model.id)}
@@ -321,7 +340,7 @@ function SessionOptionPopover(props: {
               type="button"
               variant="ghost"
               size="xs"
-              disabled={!model.settable}
+              disabled={!model.settable || heldForReply(model)}
               className="w-full justify-start"
               onClick={() => act(model)}
             >
@@ -330,7 +349,7 @@ function SessionOptionPopover(props: {
           </NativeChatSessionOptionWriteGroup>
         )}
         <NativeChatSessionOptionRows
-          options={options}
+          options={options.map(shown)}
           shownReason={model.settable ? null : modelReason}
           pendingIds={pendingIds}
           onSet={set}
@@ -376,6 +395,8 @@ function NativeChatSessionOptionPickersInner({
   return (
     <div className="flex min-w-0 items-center text-chat-foreground-faint">
       <SessionOptionPopover
+        // A terminal pane keeps its composer across sessions; picks queued for one never reach the next.
+        key={surface.sessionKey}
         demandModelCatalog={surface.demandModelCatalog}
         model={model}
         options={options}
