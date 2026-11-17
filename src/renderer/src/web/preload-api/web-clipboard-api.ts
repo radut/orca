@@ -24,7 +24,7 @@ import {
   clipboardImageThumbnailSize,
   type ClipboardImageThumbnail
 } from '../../../../shared/clipboard/clipboard-image'
-import { withSniffedImageExtension } from '../../../../shared/image-file-signature'
+import { withSniffedImageExtension } from '../../../../shared/file-content/image-file-signature'
 import { assertClipboardTextWriteWithinLimitWithYield } from '../../../../shared/clipboard/clipboard-text'
 import { blobToBase64, convertImageBlobToPng } from '@/lib/clipboard/images/image-blob-png'
 import { copyClipboardTextViaExecCommand } from '../web-clipboard-copy-fallback'
