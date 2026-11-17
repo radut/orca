@@ -1,5 +1,5 @@
 import type { Repo } from '../../../../../src/shared/repository/repo-types'
-import { getRepoExecutionHostId } from '../../../../../src/shared/execution-host'
+import { getRepoExecutionHostId } from '../../../../../src/shared/execution-host/execution-host'
 import { getProjectIdentityKey } from '../../../../../src/shared/project/host-setup/project-host-setup-projection'
 import {
   matchProjectHostQuery,

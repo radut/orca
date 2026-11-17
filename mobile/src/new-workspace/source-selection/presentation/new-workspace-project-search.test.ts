@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { getRepoExecutionHostId } from '../../../../../src/shared/execution-host'
+import { getRepoExecutionHostId } from '../../../../../src/shared/execution-host/execution-host'
 import { buildNewWorkspaceProjectOptions } from './new-workspace-project-targets'
 import {
   quickPickNewWorkspaceTargets,
