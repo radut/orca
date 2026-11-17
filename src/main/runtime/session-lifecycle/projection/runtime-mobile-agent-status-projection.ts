@@ -1,3 +1,4 @@
+import { withWaitPrompt } from './agent-status-wait-prompt-fields'
 import type { AgentStatusIpcPayload } from '../../../../shared/agent-status/contracts/agent-status-ipc-payload'
 import {
   workingHookOwnsIdleTitleInterval,
@@ -134,7 +135,8 @@ export function renewRuntimeMobileAgentStatusFromPtyTitle(
   }
   const updatedAt = Math.max(status.updatedAt, titleEvidenceAt)
   if (!richStatusOwnsCurrentState) {
-    return buildTitleOnlyStatus(status.state, ptyStatusEvidenceAt(pty, updatedAt), stateStartedAt)
+    const evidenceAt = ptyStatusEvidenceAt(pty, updatedAt)
+    return withWaitPrompt(buildTitleOnlyStatus(status.state, evidenceAt, stateStartedAt), status)
   }
   return updatedAt === status.updatedAt && stateStartedAt === status.stateStartedAt
     ? status
