@@ -616,7 +616,8 @@
       "attachFailed": "Eklenemedi",
       "disconnected": "Eklenemedi (bağlantı yok)",
       "imageTooLarge": "Görsel eklenemeyecek kadar büyük",
-      "permissionDenied": "Fotoğraf erişim izni reddedildi"
+      "permissionDenied": "Fotoğraf erişim izni reddedildi",
+      "cameraPermissionDenied": "Kamera izni reddedildi"
     },
     "textAttachmentPreview": {
       "unreadableReply": "Ek yanıtı okunamıyor. Tekrar deneyin.",
@@ -2364,10 +2365,9 @@
       "availableSkills": "{{count}} beceri mevcut",
       "commands": "Komutlar",
       "fileTypes": "PDF, metin, kod…",
-      "files": "Dosyalar",
-      "photos": "Fotoğraflar",
       "skills": "Beceriler",
-      "workspaceFile": "Çalışma alanı dosyası"
+      "workspaceFile": "Çalışma alanı dosyası",
+      "addFiles": "Dosya ekle"
     },
     "nativeChatCardHeaderAction": {
       "collapse": "Daralt"
@@ -2564,7 +2564,8 @@
     "terminalInputActions": {
       "attachFileHint": "Fotoğraf yerine dosya eklemek için basılı tutun",
       "attachPhoto": "Fotoğraf ekle",
-      "sendingImage": "Görsel gönderiliyor"
+      "sendingImage": "Görsel gönderiliyor",
+      "takePhoto": "Fotoğraf çek"
     },
     "terminalLiveInputStatus": {
       "listening": "Dinliyor",
@@ -2649,7 +2650,8 @@
       "attachFailed": "Eklenemedi",
       "disconnected": "Eklenemedi (bağlantı kesildi)",
       "imageTooLarge": "Görsel eklenemeyecek kadar büyük",
-      "permissionDenied": "Fotoğraflara erişim izni reddedildi"
+      "permissionDenied": "Fotoğraflara erişim izni reddedildi",
+      "cameraPermissionDenied": "Kamera izni reddedildi"
     },
     "useMarkdownActions": {
       "copyFailed": "Kopyalanamadı",
@@ -2850,6 +2852,14 @@
     "structuredOpen": {
       "worktreeDeleted": "Çalışma ağacı silindi.",
       "folderWorkspaceRemoved": "Klasör çalışma alanı kaldırıldı."
+    },
+    "nativeChatAddContext": {
+      "title": "Bağlam ekle",
+      "photos": "Fotoğraflar",
+      "attachSelected": "Ekle ({{count}})",
+      "camera": "Kamera",
+      "choosePhotos": "Fotoğraf seç",
+      "recentPhoto": "Son fotoğraf"
     },
     "nativeChatView": {
       "linkedMessageMissing": "Bu mesaj bulunamadı."
