@@ -1,4 +1,5 @@
 import { getNativeChatAgentProfile } from '../../../../../src/shared/native-chat/input/commands/native-chat-agent-profiles'
+import type { MobileComposerImagePick } from '../../../platform/media-picking/media-picker-contract'
 import type { NativeChatSendFollowUp } from '../../../../../src/shared/native-chat/input/composer/native-chat-follow-up-behavior'
 import { recordMobileNativeChatSkillPick } from './drafts/mobile-native-chat-draft-store'
 import { useMobileNativeChatComposerDictation } from './dictation/use-mobile-native-chat-composer-dictation'
@@ -80,7 +81,8 @@ export type MobileNativeChatComposerProps = MobileNativeChatMicProps & {
   sessionOptions?: MobileNativeChatSessionOptionPickersProps | null
   /** A structured chat's context-window readout; null hides the ring. */
   contextUsage?: NativeChatContextUsageSummary | null
-  onAttachImage?: () => void
+  /** Photos, Camera and recent photos from the Add context sheet. */
+  onAttachImages?: (pick: MobileComposerImagePick) => void
   /** Images pasted into the field attach like a Photos pick. */
   onPasteImages?: (paste: MobilePastedImages) => void
   attachments?: PendingNativeChatImage[]
@@ -123,7 +125,7 @@ export function MobileNativeChatComposer({
   structured = null,
   sessionOptions,
   contextUsage = null,
-  onAttachImage,
+  onAttachImages,
   onPasteImages,
   attachments = NO_ATTACHMENTS,
   onRemoveAttachment,
@@ -350,7 +352,7 @@ export function MobileNativeChatComposer({
               {...{ micActive, micStarting, micProcessing, cancelRef, trailing: contextRing.ring }}
             >
               <MobileNativeChatComposerAttachButton
-                onAttachImage={onAttachImage}
+                onAttachImages={onAttachImages}
                 onAttachFiles={structured?.onAttachFiles}
                 structured={structured !== null}
                 isAttaching={isAttaching}
