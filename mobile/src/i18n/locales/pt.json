@@ -2731,7 +2731,8 @@
       "fileExplorer": "Explorador de arquivos",
       "sourceControl": "Controle de código-fonte",
       "newTab": "Nova aba",
-      "quickCommands": "Comandos rápidos"
+      "quickCommands": "Comandos rápidos",
+      "findInTerminal": "Buscar no terminal"
     },
     "headerMoreActionsSheet": {
       "agentHistory": "Histórico de Agentes",
@@ -3292,6 +3293,13 @@
       "camera": "Câmera",
       "choosePhotos": "Escolher fotos",
       "recentPhoto": "Foto recente"
+    },
+    "terminalFind": {
+      "placeholder": "Buscar no terminal",
+      "noResults": "Nenhum resultado",
+      "previous": "Correspondência anterior",
+      "next": "Próxima correspondência",
+      "close": "Fechar busca"
     }
   },
   "settings": {

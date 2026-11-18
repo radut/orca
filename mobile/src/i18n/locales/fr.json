@@ -2362,7 +2362,8 @@
       "fileExplorer": "Explorateur de fichiers",
       "sourceControl": "Contrôle de code source",
       "newTab": "Nouvel onglet",
-      "quickCommands": "Commandes rapides"
+      "quickCommands": "Commandes rapides",
+      "findInTerminal": "Rechercher dans le terminal"
     },
     "headerMoreActionsSheet": {
       "agentHistory": "Historique des agents",
@@ -2881,6 +2882,13 @@
       "camera": "Appareil photo",
       "choosePhotos": "Choisir des photos",
       "recentPhoto": "Photo récente"
+    },
+    "terminalFind": {
+      "placeholder": "Rechercher dans le terminal",
+      "noResults": "Aucun résultat",
+      "previous": "Résultat précédent",
+      "next": "Résultat suivant",
+      "close": "Fermer la recherche"
     },
     "nativeChatView": {
       "linkedMessageMissing": "Ce message est introuvable."
