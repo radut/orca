@@ -2338,7 +2338,8 @@
       "sourceControl": "ソース管理",
       "newTab": "新規タブ",
       "quickCommands": "クイックコマンド",
-      "items": "アイテム"
+      "items": "アイテム",
+      "findInTerminal": "ターミナル内を検索"
     },
     "headerMoreActionsSheet": {
       "agentHistory": "Agent の履歴",
@@ -2856,6 +2857,13 @@
       "camera": "カメラ",
       "choosePhotos": "写真を選択",
       "recentPhoto": "最近の写真"
+    },
+    "terminalFind": {
+      "placeholder": "ターミナル内を検索",
+      "noResults": "結果なし",
+      "previous": "前の一致",
+      "next": "次の一致",
+      "close": "検索を閉じる"
     },
     "nativeChatView": {
       "linkedMessageMissing": "そのメッセージが見つかりませんでした。"

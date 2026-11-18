@@ -2743,7 +2743,8 @@
       "sourceControl": "源代码管理",
       "newTab": "新标签页",
       "quickCommands": "快捷命令",
-      "items": "条目"
+      "items": "条目",
+      "findInTerminal": "在终端中查找"
     },
     "headerMoreActionsSheet": {
       "agentHistory": "智能体历史记录",
@@ -3275,6 +3276,13 @@
       "camera": "相机",
       "choosePhotos": "选择照片",
       "recentPhoto": "最近的照片"
+    },
+    "terminalFind": {
+      "placeholder": "在终端中查找",
+      "noResults": "无结果",
+      "previous": "上一个匹配项",
+      "next": "下一个匹配项",
+      "close": "关闭查找"
     },
     "nativeChatView": {
       "linkedMessageMissing": "找不到该消息。",
