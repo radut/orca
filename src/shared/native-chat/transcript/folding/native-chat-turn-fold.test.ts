@@ -205,6 +205,18 @@ describe('replies a settled turn keeps visible', () => {
     expect(answersAndFolded(messages)).toEqual({ answers: [1, 5], folded: [2, 3, 4] })
   })
 
+  it('keeps a reply that shows a picture visible after later work in the turn', () => {
+    const picture = message(
+      'picture',
+      'assistant',
+      'Here is the screenshot: ![page](/tmp/shot.png)'
+    )
+    expect(answersAndFolded([PROMPT, picture, WORK, ANSWER])).toEqual({
+      answers: [3],
+      folded: [2]
+    })
+  })
+
   it.each([
     ['a generation whose preview moved into the answer', 'Generated image', 'generated-image'],
     ['an image view', 'Viewed image', 'image-operation']

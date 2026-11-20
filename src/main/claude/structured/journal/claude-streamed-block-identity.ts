@@ -46,15 +46,26 @@ function scopeKey(sessionId: string, parentToolUseId: string | null): string {
 export function createClaudeStreamedBlockRegistry(
   blockType: 'text' | 'thinking' = 'text'
 ): ClaudeStreamedBlockRegistry {
-  const messages = new Map<string, StreamedMessage>()
+  // Per stream, oldest first: a new message_start must not drop blocks still awaiting their final frame.
+  const messages = new Map<string, StreamedMessage[]>()
 
   const messageFor = (scope: string): StreamedMessage => {
-    let streamed = messages.get(scope)
+    const list = messages.get(scope) ?? []
+    let streamed = list.at(-1)
     if (!streamed) {
       streamed = { messageId: null, stopped: false, blocks: new Map(), awaitingFinal: [] }
-      messages.set(scope, streamed)
+      messages.set(scope, [...list, streamed])
     }
     return streamed
+  }
+
+  const drop = (scope: string, streamed: StreamedMessage): void => {
+    const rest = (messages.get(scope) ?? []).filter((candidate) => candidate !== streamed)
+    if (rest.length > 0) {
+      messages.set(scope, rest)
+    } else {
+      messages.delete(scope)
+    }
   }
 
   const mint = (
@@ -86,20 +97,26 @@ export function createClaudeStreamedBlockRegistry(
       const parentToolUseId = claudeText(frame.parent_tool_use_id)
       const scope = scopeKey(sessionId, parentToolUseId)
       if (event.type === 'message_start') {
-        messages.set(scope, {
-          messageId: claudeText(claudeRecord(event.message)?.id),
-          stopped: false,
-          blocks: new Map(),
-          awaitingFinal: []
-        })
+        const awaiting = (messages.get(scope) ?? []).filter(
+          (streamed) => streamed.awaitingFinal.length > 0
+        )
+        messages.set(scope, [
+          ...awaiting,
+          {
+            messageId: claudeText(claudeRecord(event.message)?.id),
+            stopped: false,
+            blocks: new Map(),
+            awaitingFinal: []
+          }
+        ])
         return null
       }
       if (event.type === 'message_stop') {
-        const streamed = messages.get(scope)
+        const streamed = messages.get(scope)?.at(-1)
         if (streamed) {
           streamed.stopped = true
           if (streamed.awaitingFinal.length === 0) {
-            messages.delete(scope)
+            drop(scope, streamed)
           }
         }
         return null
@@ -129,11 +146,13 @@ export function createClaudeStreamedBlockRegistry(
     },
     reconcile: (frame) => {
       const scope = scopeKey(frame.sessionId, frame.parentToolUseId)
-      const streamed = messages.get(scope)
-      if (
-        !streamed ||
-        (frame.messageId && streamed.messageId && frame.messageId !== streamed.messageId)
-      ) {
+      const list = messages.get(scope) ?? []
+      // A final frame joins the stream of its own message; an id-less one, the oldest still awaiting.
+      const streamed = frame.messageId
+        ? (list.find((candidate) => candidate.messageId === frame.messageId) ??
+          list.find((candidate) => candidate.messageId === null))
+        : list.find((candidate) => candidate.awaitingFinal.length > 0)
+      if (!streamed) {
         return null
       }
       const block = streamed.awaitingFinal.shift() ?? null
@@ -141,7 +160,7 @@ export function createClaudeStreamedBlockRegistry(
         streamed.awaitingFinal.length === 0 &&
         (streamed.messageId === null || streamed.stopped)
       ) {
-        messages.delete(scope)
+        drop(scope, streamed)
       }
       return block
     },

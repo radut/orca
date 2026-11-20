@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import type { AgentJournalRenderItem } from '../journal/agent-session-journal-types'
+import type {
+  AgentJournalRenderItem,
+  AgentJournalSubmission
+} from '../journal/agent-session-journal-types'
+import { mergeSubmissions } from './structured-agent-session-item-retention'
 import type { AgentSessionHistoryPage } from '../agent-session-wire'
 import {
   EMPTY_STRUCTURED_AGENT_SESSION,
@@ -89,5 +93,28 @@ describe('structured agent session item retention', () => {
     expect(older.items.find((entry) => entry.sequence === 50)?.revision).toBe(2)
     expect(oldestStructuredAgentSessionCursor(older)?.sequence).toBe(50)
     expect(older.hasOlder).toBe(false)
+  })
+})
+
+describe('mergeSubmissions', () => {
+  const pending: AgentJournalSubmission = {
+    clientMessageId: 'send-1',
+    fence: 3,
+    payloadFingerprint: 'fp',
+    dispatchState: 'pending',
+    providerItemId: null,
+    reason: null,
+    submittedAt: 10,
+    resolvedAt: null
+  }
+  const accepted: AgentJournalSubmission = {
+    ...pending,
+    dispatchState: 'accepted',
+    providerItemId: 'provider-1',
+    resolvedAt: 20
+  }
+
+  it('keeps an accepted send when an older page carries its pending copy', () => {
+    expect(mergeSubmissions([accepted], [pending], [])).toEqual([accepted])
   })
 })

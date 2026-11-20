@@ -63,6 +63,20 @@ function isFailedHookBlock(block: NativeChatBlock): boolean {
   )
 }
 
+const MARKDOWN_IMAGE = /!\[[^\]]*\]\(\s*<?[^\s)>]+/
+
+/** A picture the agent put in its reply is a result: later work in the turn must not fold it away. */
+function showsAgentPicture(message: NativeChatMessage): boolean {
+  if (message.role !== 'assistant' || message.blocks.some(isImageOperation)) {
+    return false
+  }
+  return message.blocks.some(
+    (block) =>
+      block.type === 'image-ref' ||
+      (block.type === 'text' && block.presentation === undefined && MARKDOWN_IMAGE.test(block.text))
+  )
+}
+
 /** How the fold reads a transcript row, with the same derivation the row renders from. */
 export function nativeChatTurnFoldRow(
   message: NativeChatMessage,
@@ -126,7 +140,8 @@ function deriveTurnFoldRow(
             block.presentation === NATIVE_CHAT_GOAL_CHECK_SUMMARY)
       ) ||
       (message.blocks.some(isGeneratedImageOperation) &&
-        message.blocks.some((block) => block.type === 'image-ref')),
+        message.blocks.some((block) => block.type === 'image-ref')) ||
+      showsAgentPicture(message),
     // Another agent's message and an orphaned tool result are work inside the turn, not a person's boundary.
     endsAnswer:
       (message.role === 'user' && message.from === undefined && content.tools.length === 0) ||

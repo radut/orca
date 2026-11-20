@@ -52,6 +52,17 @@ function retainedStart(
 
 const MAX_RETAINED_SUBMISSIONS = 256
 
+/** An older page can carry a copy from before the send resolved; it must not put the row back to pending. */
+function isStaleSubmission(
+  incoming: AgentJournalSubmission,
+  known: AgentJournalSubmission
+): boolean {
+  if (incoming.fence !== known.fence) {
+    return incoming.fence < known.fence
+  }
+  return incoming.resolvedAt === null && known.resolvedAt !== null
+}
+
 export function mergeSubmissions(
   current: readonly AgentJournalSubmission[],
   incoming: readonly AgentJournalSubmission[],
@@ -59,7 +70,10 @@ export function mergeSubmissions(
 ): AgentJournalSubmission[] {
   const byId = new Map(current.map((submission) => [submission.clientMessageId, submission]))
   for (const submission of incoming) {
-    byId.set(submission.clientMessageId, submission)
+    const known = byId.get(submission.clientMessageId)
+    if (!known || !isStaleSubmission(submission, known)) {
+      byId.set(submission.clientMessageId, submission)
+    }
   }
   const sorted = [...byId.values()].sort((left, right) => left.submittedAt - right.submittedAt)
   const itemIds = new Set(
