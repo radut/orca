@@ -4347,6 +4347,7 @@
             "terminalListNeedsServerUpdate": "更新此服务器上的 Orca 以列出终端智能体",
             "terminalListFailed": "无法列出此工作区的终端智能体",
             "chatNotInstalled": "未安装",
+            "chatInstallRequired": "需要安装",
             "startChat": "与 {{value0}} 开始聊天",
             "chatUnavailableAfterSelection": "无法启动 {{value0}} 聊天",
             "chatCheckFailed": "无法检查聊天可用性",
@@ -16255,7 +16256,6 @@
           },
           "useEmulatorScreenKeyboard": {
             "pasteTooLarge": "模拟器键盘输入的粘贴内容过大",
-            "unsupportedPasteText": "模拟器键盘粘贴仅支持美式键盘文本",
             "pasteTargetUnavailable": "模拟器键盘粘贴失败，因为设备尚未就绪"
           }
         }
@@ -18405,10 +18405,6 @@
           "standaloneTerminal": "独立终端"
         },
         "ActivityThreadHoverCard": {
-          "pathCopied": "路径已复制到剪贴板",
-          "copyPathFailed": "复制路径失败",
-          "workspace": "工作区",
-          "copyPath": "复制路径",
           "jumpToWorkspace": "跳转到工作区"
         },
         "ActivityThreadContextMenu": {
@@ -19257,7 +19253,6 @@
         "stoppedUpdate_other": "Orca 更新时有 {{count}} 个聊天已停止。",
         "stoppedRestart_other": "Orca 关闭时有 {{count}} 个聊天已停止。",
         "promptsNotResent": "恢复不会重新发送你的提示。",
-        "promptsNotSent": "你的提示没有被重新发送。",
         "resume": "恢复",
         "details": "详情",
         "close": "关闭",
@@ -25507,7 +25502,7 @@
       "browse": "浏览模板"
     },
     "new": {
-      "fromTemplate": "使用模板"
+      "fromTemplate": "模板"
     },
     "googleSetup": {
       "otherAccount": "切换账号"

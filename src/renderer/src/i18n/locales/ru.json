@@ -4430,6 +4430,7 @@
             "terminalListNeedsServerUpdate": "Обновите Orca на этом сервере, чтобы увидеть терминальных агентов",
             "terminalListFailed": "Не удалось получить список терминальных агентов этого рабочего пространства",
             "chatNotInstalled": "Не установлено",
+            "chatInstallRequired": "Требуется установка",
             "chatNotOverSsh": "Чат недоступен по SSH",
             "chatNotInWsl": "Чат недоступен в WSL",
             "chatNotInSubfolder": "Чат недоступен во вложенной папке",
@@ -16493,7 +16494,6 @@
           },
           "useEmulatorScreenKeyboard": {
             "pasteTooLarge": "Вставляемый текст слишком велик для ввода с клавиатуры эмулятора.",
-            "unsupportedPasteText": "В эмулятор можно вставлять только символы американской раскладки клавиатуры.",
             "pasteTargetUnavailable": "Не удалось вставить текст с клавиатуры эмулятора: устройство не готово."
           }
         }
@@ -18662,10 +18662,6 @@
           "hideOtherClients": "Скрывать агентов других клиентов"
         },
         "ActivityThreadHoverCard": {
-          "pathCopied": "Путь скопирован в буфер обмена",
-          "copyPathFailed": "Не удалось скопировать путь",
-          "workspace": "Рабочее пространство",
-          "copyPath": "Скопировать путь",
           "jumpToWorkspace": "Перейти к рабочему пространству"
         },
         "ActivityThreadRow": {
@@ -19500,7 +19496,6 @@
         "stoppedRestart_many": "{{count}} чатов остановлено при закрытии Orca.",
         "stoppedRestart_other": "{{count}} чата остановлено при закрытии Orca.",
         "promptsNotResent": "Ваши промпты не будут отправлены повторно.",
-        "promptsNotSent": "Ваши промпты не отправлялись повторно.",
         "resume": "Возобновить",
         "details": "Подробнее",
         "close": "Закрыть",
@@ -24431,7 +24426,7 @@
       "browse": "Просмотреть шаблоны"
     },
     "new": {
-      "fromTemplate": "Использовать шаблон"
+      "fromTemplate": "Шаблон"
     },
     "apps": {
       "paste": {

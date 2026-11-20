@@ -198,6 +198,7 @@ export const EXECUTION_HOST_METHODS = [
   'host.wsl.listDistros',
   'preflight.check',
   'preflight.detectAgents',
+  'preflight.installedAgents',
   'preflight.detectRemoteAgents',
   'preflight.refreshAgents',
   'hostedReview.create',
