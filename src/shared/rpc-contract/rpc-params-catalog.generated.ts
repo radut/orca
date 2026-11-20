@@ -44,7 +44,8 @@ import { OrcadMigrationBlobChunkRequestSchema } from '../orcad-migration/orcad-m
 import { OrcadMigrationSnapshotChunkRequestSchema } from '../orcad-migration/orcad-migration-scrollback'
 import {
   CrewSubscribeParams,
-  WorkerApprovalsSubscribeParams
+  WorkerApprovalsSubscribeParams,
+  WorkerApprovalsUnsubscribeParams
 } from '../orchestration/orchestration-crew'
 import { PeerRunCancelParams } from '../orchestration/remote-owned-wire'
 import {
@@ -240,7 +241,7 @@ import {
   BotToolsList
 } from './bots-tools-params'
 import { BotWorkForget, BotWorkList } from './bots-work-params'
-import { CertificateProceed } from './browser/browser-core-params'
+import { CertificateProceed, PageZoom, Reload } from './browser/browser-core-params'
 import { ExtensionList, ExtensionReload } from './browser/browser-extension-params'
 import { MouseClick } from './browser/browser-extras-params'
 import { BrowserIdentitySet, ProfileCreate } from './browser/browser-identity-params'
@@ -523,7 +524,10 @@ import {
   GmailModifyParams,
   GmailSendParams
 } from './google-write-params'
-import { AgentCliUpdateRunParams } from './host-management/agent-cli-update-params'
+import {
+  AgentCliUpdateCheckParams,
+  AgentCliUpdateRunParams
+} from './host-management/agent-cli-update-params'
 import { EnvironmentDoctorParams } from './host-management/environment-doctor-params'
 import {
   ManagedRuntimeAgentParams,
@@ -1087,7 +1091,7 @@ export const RPC_PARAMS_BY_METHOD = {
   'agent.show': AgentShowParams,
   'agentActivity.clear': AgentActivityClearParams,
   'agentActivity.setRead': AgentActivitySetReadParams,
-  'agentCliUpdate.check': null,
+  'agentCliUpdate.check': AgentCliUpdateCheckParams,
   'agentCliUpdate.run': AgentCliUpdateRunParams,
   'agentHooks.prepareCodexForWslPane': PrepareCodexForWslPaneParams,
   'agentSession.accountUsage': OptionsParams,
@@ -1381,7 +1385,7 @@ export const RPC_PARAMS_BY_METHOD = {
   'browser.profileDetectBrowsers': null,
   'browser.profileImportFromBrowser': ProfileImportFromBrowser,
   'browser.profileList': null,
-  'browser.reload': ExpectUrlBrowserTarget,
+  'browser.reload': Reload,
   'browser.screencast': Screencast,
   'browser.screencast.ack': ScreencastAck,
   'browser.screencast.unsubscribe': ScreencastUnsubscribe,
@@ -1396,6 +1400,7 @@ export const RPC_PARAMS_BY_METHOD = {
   'browser.setMedia': SetMedia,
   'browser.setOffline': SetOffline,
   'browser.snapshot': Snapshot,
+  'browser.stop': BrowserTarget,
   'browser.storage.local.clear': ExpectUrlBrowserTarget,
   'browser.storage.local.get': StorageKey,
   'browser.storage.local.set': StorageKeyValue,
@@ -1416,6 +1421,7 @@ export const RPC_PARAMS_BY_METHOD = {
   'browser.upload': Upload,
   'browser.viewport': Viewport,
   'browser.wait': Wait,
+  'browser.zoom': PageZoom,
   'clipboard.abortImageUpload': AbortImageUpload,
   'clipboard.appendImageUploadChunk': AppendImageUploadChunk,
   'clipboard.commitImageUpload': CommitImageUpload,
@@ -1864,6 +1870,7 @@ export const RPC_PARAMS_BY_METHOD = {
   'orchestration.taskList': TaskListParams,
   'orchestration.workerAbandon': WorkerDispatchParams,
   'orchestration.workerApprovalsSubscribe': WorkerApprovalsSubscribeParams,
+  'orchestration.workerApprovalsUnsubscribe': WorkerApprovalsUnsubscribeParams,
   'orchestration.workerAutoClose': OrchestrationWorkerSubjectParams,
   'orchestration.workerChatTouch': OrchestrationWorkerSubjectParams,
   'orchestration.workerKeepOpen': OrchestrationWorkerKeepOpenParams,
