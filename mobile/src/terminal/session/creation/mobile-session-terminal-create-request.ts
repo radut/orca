@@ -36,6 +36,7 @@ export function requestMobileSessionTerminalCreate(args: {
   sourceChatFork?: { sessionId: string; throughEntryId?: string }
   /** A fork's session name, for CLIs that take one. */
   forkName?: string
+  viewMode?: 'chat'
 }) {
   const {
     client,
@@ -46,7 +47,8 @@ export function requestMobileSessionTerminalCreate(args: {
     options,
     shell,
     sourceChatFork,
-    forkName
+    forkName,
+    viewMode
   } = args
   const params = {
     worktree: `id:${worktreeId}`,
@@ -61,6 +63,7 @@ export function requestMobileSessionTerminalCreate(args: {
     ...(shell ? { shell } : {}),
     ...(sourceChatFork ? { sourceChatFork } : {}),
     ...(sourceChatFork && forkName ? { forkName } : {}),
+    ...(viewMode ? { viewMode } : {}),
     activate: false,
     select: true,
     navigation: 'caller' as const
