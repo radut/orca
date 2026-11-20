@@ -231,14 +231,14 @@ export function SidebarBotsSection({
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <DropdownMenuTrigger asChild>
+                      {/* Filled like the phone's New workspace so adding a bot is easy to find. */}
                       <Button
                         type="button"
-                        variant="ghost"
-                        size="icon-xs"
+                        size="icon-xs-round"
                         className="shrink-0"
                         aria-label={newLabel}
                       >
-                        <Plus className="size-3" />
+                        <Plus className="size-3.5" strokeWidth={2.5} />
                       </Button>
                     </DropdownMenuTrigger>
                   </TooltipTrigger>

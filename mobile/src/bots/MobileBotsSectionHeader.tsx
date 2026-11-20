@@ -112,7 +112,9 @@ export function MobileBotsSectionHeader({
           hitSlop={spacing.sm}
           style={({ pressed }) => [styles.add, pressed && pressedStyle]}
         >
-          <Plus size={16} color={colors.textSecondary} />
+          <View style={styles.addFill}>
+            <Plus size={18} color={colors.onCreateActionFill} strokeWidth={2.4} />
+          </View>
         </Pressable>
       ) : null}
     </View>
@@ -196,10 +198,20 @@ const styles = themedStyleSheet(() => ({
   count: { alignSelf: 'flex-start', fontSize: 13, color: colors.textMuted },
   // The section header's vertical padding puts + on the title's line; 44 pt wide from the edge.
   add: {
-    paddingTop: spacing.lg,
-    paddingBottom: 6,
+    // The filled circle is 4 pt taller than the old glyph, so it starts that much higher.
+    paddingTop: spacing.lg - 4,
+    paddingBottom: 2,
     paddingLeft: spacing.md,
     paddingRight: spacing.lg
+  },
+  // Filled like New workspace's button so adding a bot is easy to find.
+  addFill: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.createActionFill
   },
   end: { paddingHorizontal: spacing.lg, paddingVertical: spacing.sm, gap: spacing.md },
   // A bot row's picture (32) and its gap.
