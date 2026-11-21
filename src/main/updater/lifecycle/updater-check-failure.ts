@@ -3,8 +3,22 @@ import { ReleaseFeedPreflightError } from './updater-state'
 import type { CheckFailureSource } from './updater-state'
 import { UpdaterReleaseFeed } from '../releases/updater-release-feed'
 import { updaterCodedMessage } from '../../../shared/updater/updater-failure-copy'
+import { pinPrivateUpdateFeed } from '../releases/updater-private-feed'
+import type { UpdateCheckVariant } from './updater-types'
 
 export abstract class UpdaterCheckFailure extends UpdaterReleaseFeed {
+  // A build with its own feed (set when packaging) never looks at GitHub releases.
+  protected override async pinDefaultReleaseFeed(
+    variant: UpdateCheckVariant = 'default'
+  ): Promise<'ready' | 'not-available'> {
+    const attemptId = this.activeUpdateCheckAttemptId
+    const privateFeed = await pinPrivateUpdateFeed(
+      this.getAutoUpdater(),
+      () => attemptId !== null && this.isActiveUpdateCheckAttempt(attemptId)
+    )
+    return privateFeed ?? super.pinDefaultReleaseFeed(variant)
+  }
+
   protected isRetryableReleaseFeedPreflightFailure(sourceError: unknown): boolean {
     return (
       sourceError instanceof ReleaseFeedPreflightError &&
