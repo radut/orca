@@ -19,7 +19,7 @@ type SheetHeaderProps = {
   onBack?: { label: string; onPress: () => void }
   /** "Done" or the sheet's commit, in bold. */
   trailing?: SheetTextAction
-  /** A close button instead of a text action, for sheets that only show things. */
+  /** A close button instead of a text action, for sheets that only show things; it moves to the leading side beside a trailing action. */
   onClose?: () => void
   /** Up to two NavBarButtons instead of a trailing text action, for a sheet whose actions are icons. */
   trailingButtons?: ReactNode
@@ -37,7 +37,6 @@ export function SheetHeader({
   titleAboveActions
 }: SheetHeaderProps) {
   useMobileColorScheme()
-  const t = useMobileTranslation()
   return (
     <View>
       {titleAboveActions ? (
@@ -63,6 +62,7 @@ export function SheetHeader({
               onPress={onBack.onPress}
             />
           ) : null}
+          {onClose && trailing && !leading && !onBack ? <CloseButton onClose={onClose} /> : null}
         </View>
         {!titleAboveActions ? (
           <View style={styles.center}>
@@ -82,16 +82,21 @@ export function SheetHeader({
         )}
         <View style={[styles.side, styles.trailing]}>
           {trailing ? <TextAction action={trailing} emphasis /> : (trailingButtons ?? null)}
-          {onClose && !trailing && !trailingButtons ? (
-            <NavBarButton
-              icon={X}
-              accessibilityLabel={t('components.sheetHeader.close', 'Close')}
-              onPress={onClose}
-            />
-          ) : null}
+          {onClose && !trailing && !trailingButtons ? <CloseButton onClose={onClose} /> : null}
         </View>
       </View>
     </View>
+  )
+}
+
+function CloseButton({ onClose }: { onClose: () => void }) {
+  const t = useMobileTranslation()
+  return (
+    <NavBarButton
+      icon={X}
+      accessibilityLabel={t('components.sheetHeader.close', 'Close')}
+      onPress={onClose}
+    />
   )
 }
 
