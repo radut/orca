@@ -6,11 +6,23 @@ import { sessionTabCreateTerminal } from '../../../session/tabs/mobile-session-t
 export type MobileSessionTerminalCreateOptions = MobileQuickCommandLaunch['options'] & {
   onPromptSent?: () => void
   errorToast?: string
-  sourceChatFork?: { sessionId: string; agent: string }
+  /** With throughEntryId, a terminal Claude chat's fork cut at that transcript entry. */
+  sourceChatFork?: { sessionId: string; agent: string; throughEntryId?: string; name?: string }
   /** Show the tab as a terminal even when the agent it runs would open as a chat. */
   terminalView?: boolean
   /** One of desktop's Windows shell entries; only sent to hosts that take a shell pick. */
   shell?: string
+}
+
+/** The fork source the host reads: the session, and the transcript cut only when one was picked. */
+export function chatForkRequestSource(fork: { sessionId: string; throughEntryId?: string }): {
+  sessionId: string
+  throughEntryId?: string
+} {
+  return {
+    sessionId: fork.sessionId,
+    ...(fork.throughEntryId ? { throughEntryId: fork.throughEntryId } : {})
+  }
 }
 
 export function requestMobileSessionTerminalCreate(args: {
@@ -21,7 +33,9 @@ export function requestMobileSessionTerminalCreate(args: {
   agent?: MobileNewTabAgentOption['agent']
   options?: MobileQuickCommandLaunch['options']
   shell?: string
-  sourceChatFork?: { sessionId: string }
+  sourceChatFork?: { sessionId: string; throughEntryId?: string }
+  /** A fork's session name, for CLIs that take one. */
+  forkName?: string
   viewMode?: 'chat'
 }) {
   const {
@@ -33,6 +47,7 @@ export function requestMobileSessionTerminalCreate(args: {
     options,
     shell,
     sourceChatFork,
+    forkName,
     viewMode
   } = args
   const params = {
@@ -47,6 +62,7 @@ export function requestMobileSessionTerminalCreate(args: {
     ...(agent ? { agent } : {}),
     ...(shell ? { shell } : {}),
     ...(sourceChatFork ? { sourceChatFork } : {}),
+    ...(sourceChatFork && forkName ? { forkName } : {}),
     ...(viewMode ? { viewMode } : {}),
     activate: false,
     select: true,
