@@ -286,7 +286,6 @@ export function MobileBotGroupRoom({
         sessionOptions={
           chosen
             ? {
-                isWorking: chosen.isWorking,
                 controller: {
                   snapshot: chosen.optionSnapshot,
                   optionSurface: chosen.optionSurface,
