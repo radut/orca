@@ -283,14 +283,14 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
                     tabId={props.tabId}
                   />
                 ) : (
-                  <NativeChatRowActionsProvider pane={props} chat={controller} forks={forks}>
-                    <NativeChatUsageLimitActionsProvider
-                      recovery={controller}
-                      pane={props}
-                      directory={fileLinkContext}
-                      messages={controller.messages}
-                      view={continuation.view}
-                    >
+                  <NativeChatUsageLimitActionsProvider
+                    recovery={controller}
+                    pane={props}
+                    directory={fileLinkContext}
+                    messages={controller.messages}
+                    view={continuation.view}
+                  >
+                    <NativeChatRowActionsProvider pane={props} chat={controller} forks={forks}>
                       <NativeChatHostSetupContext.Provider value={setup}>
                         <NativeChatWorkerApprovalTimeline
                           party={workerApprovalParty}
@@ -327,8 +327,8 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
                           )}
                         </NativeChatWorkerApprovalTimeline>
                       </NativeChatHostSetupContext.Provider>
-                    </NativeChatUsageLimitActionsProvider>
-                  </NativeChatRowActionsProvider>
+                    </NativeChatRowActionsProvider>
+                  </NativeChatUsageLimitActionsProvider>
                 )}
               </NativeChatContextClearFade>
             </NativeChatDockTranscript>
