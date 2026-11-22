@@ -129,7 +129,8 @@ export function registerPtyConnectionCommandFinishedCleanupTests(): void {
       }
       expect(mockStoreState.paneForegroundAgentByPaneKey[paneKey]).toEqual({
         agent: null,
-        shellForeground: true
+        shellForeground: true,
+        exitCode: 0
       })
     })
 

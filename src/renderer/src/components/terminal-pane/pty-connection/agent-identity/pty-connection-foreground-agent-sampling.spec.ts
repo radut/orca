@@ -561,7 +561,8 @@ export function registerPtyConnectionForegroundAgentSamplingTests(): void {
 
         expect(mockStoreState.setPaneForegroundAgent).toHaveBeenCalledWith(cacheKey, {
           agent: null,
-          shellForeground: true
+          shellForeground: true,
+          exitCode: 0
         })
         expect(foregroundReadCallsFor(ptyId)).toHaveLength(0)
       })

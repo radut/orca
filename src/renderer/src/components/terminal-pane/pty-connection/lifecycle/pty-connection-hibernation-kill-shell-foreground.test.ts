@@ -228,7 +228,8 @@ describe('shell showing through a hibernation kill', () => {
 
     expect(mockStoreState.paneForegroundAgentByPaneKey[pane.paneKey]).toEqual({
       agent: null,
-      shellForeground: true
+      shellForeground: true,
+      exitCode: 0
     })
     expect(mockStoreState.clearSleepingAgentSession).not.toHaveBeenCalled()
     expect(mockStoreState.sleepingAgentSessionsByPaneKey[pane.paneKey]).toMatchObject({
