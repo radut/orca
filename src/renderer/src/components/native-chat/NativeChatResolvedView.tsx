@@ -51,6 +51,7 @@ import { useNativeChatFileLinkContext } from './links/actions/use-native-chat-fi
 import { useRecheckNativeChatFileLinksWhenTurnEnds } from './links/actions/use-native-chat-file-link-existence'
 import { useNativeChatLocalCommandAnswer } from './session/options/terminal/use-native-chat-local-command-answer'
 import { useNativeChatImageRuntimeContext } from './media/images/native-chat-image-runtime-context'
+import { useNativeChatAgentPresenceStatus } from './session/status/use-native-chat-agent-presence'
 
 export function NativeChatResolvedView({
   paneKey,
@@ -84,8 +85,14 @@ export function NativeChatResolvedView({
   const paneLaunchPrompt = launchPrompt?.agent === agent ? launchPrompt : null
   // Adopt the TUI’s unsent launch context into the GUI composer.
   const launchDraftSignal = useNativeChatLaunchDraftSignal({ terminalTabId, agent, session })
-  // Use the live session’s reconciled lifecycle for every working-state consumer.
-  const liveWorking = session.status === 'working'
+  const agentPresence = useNativeChatAgentPresenceStatus({
+    paneKey,
+    agent,
+    sessionId,
+    onShowTerminal: onSwitchToTerminal
+  })
+  // Use the live session’s reconciled lifecycle for every working-state consumer; an exited agent works on nothing.
+  const liveWorking = session.status === 'working' && !agentPresence.exited
   // Preview the in-progress hook reply before its completed transcript turn arrives.
   const hookPreview = useAgentStatus(paneKey)?.lastAssistantMessage
   // Tool stdout/errors ride the same field for status-card previews; they are not the reply.
@@ -239,7 +246,7 @@ export function NativeChatResolvedView({
   const { isWorking, turnActive, awaitingInput } = resolveNativeChatTerminalTurn({
     isConversation,
     working: liveWorking,
-    hookAwaitingInput: session.hookAwaitingInput === true,
+    hookAwaitingInput: session.hookAwaitingInput === true && !agentPresence.exited,
     interrupted: workingInterrupted,
     hasPromptCard: promptCard !== null
   })
@@ -358,6 +365,8 @@ export function NativeChatResolvedView({
           answerCommandLocally={answerLocally}
           onSwitchToTerminal={onSwitchToTerminal}
           readTerminalScreen={readTerminalScreen}
+          notices={agentPresence.notices}
+          sendBlocked={agentPresence.exited}
           launchSeed={{ ...launchDraftSignal, ownsTabWideLaunchDraft, readTerminalDraft }}
           recallSource={{ messages: sessionWithPending.messages, commands: commandMarkers }}
         />

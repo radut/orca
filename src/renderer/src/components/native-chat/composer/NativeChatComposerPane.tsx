@@ -63,6 +63,7 @@ export const NativeChatComposerPane = forwardRef<ComposerHandle, C.NativeChatCom
       recallSource,
       inputOwnedByCard = false,
       notices: chatNotices,
+      sendBlocked = false,
       workspacePending: pending = false,
       launchPrompt
     },
@@ -266,7 +267,7 @@ export const NativeChatComposerPane = forwardRef<ComposerHandle, C.NativeChatCom
       caret,
       imageAttachments,
       disabled,
-      held: mentions.sendHeld,
+      held: mentions.sendHeld || sendBlocked,
       sendPty,
       sendStructured,
       submitEmpty: launchPrompt?.onEmptySubmit,
@@ -289,7 +290,7 @@ export const NativeChatComposerPane = forwardRef<ComposerHandle, C.NativeChatCom
       canStop: hasPty && onStop !== undefined,
       orcaCommand: !pending && !launchPrompt && orcaCommands.matchesDraft(draft),
       goalMode: goalMode.active,
-      mentionHold: mentions.sendHeld
+      mentionHold: mentions.sendHeld || sendBlocked
     })
 
     const { send, chooseEditItem, fieldOverrides, dispatchPickerCommand } =
