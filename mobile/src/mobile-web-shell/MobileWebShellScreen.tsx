@@ -21,13 +21,13 @@ import { playPageHaptic } from './native-capabilities/page-haptics'
 import { useMobileWebShellBridge } from './page-document/use-mobile-web-shell-bridge'
 import type { MobileWebShellRuntime } from './session/mobile-web-shell-runtime'
 import { useKeyboardOcclusion } from '../platform/keyboard/keyboard-occlusion'
-import { useNativeDeviceVerbs } from '../platform/use-native-device-verbs'
 import { useNativePdfViewer } from '../platform/pdf-viewing/native-pdf-view'
 import { useNativeImageActions } from '../platform/image-actions/native-image-actions'
 import { useNativeLocalBrowser } from '../platform/native-local-browser'
 import { processDeviceStore } from '../device-store/device-store'
 import { serveDeviceStoreVerb } from './native-capabilities/device-store-verb-server'
 import { BRIDGE_STORE_VERB } from './bridge/native-capabilities/bridge-store-verb'
+import { useShellDeviceVerbs } from './native-capabilities/use-shell-chat-fork-sheet'
 import { useShellPageBack } from './routing/use-shell-page-back'
 import { openUrlForPage } from './routing/open-url-for-page'
 import { useShellStackPop } from './routing/use-shell-stack-pop'
@@ -164,7 +164,7 @@ export function MobileWebShellScreen({
     readWorkspaceKey
   } = usePageHostSnapshot(hostId, route.pathname, ownsHostArea)
   // Create the media registry before the bridge; staged files belong to this page session.
-  const serveDeviceVerb = useNativeDeviceVerbs(readySessionId)
+  const { serve: serveDeviceVerb, sheet: forkSheet } = useShellDeviceVerbs(hostId, readySessionId)
   const servePdfView = useNativePdfViewer(hostId, readySessionId)
   const localBrowser = useNativeLocalBrowser(hostId, readySessionId)
   const serveImageAction = useNativeImageActions(readySessionId)
@@ -428,6 +428,7 @@ export function MobileWebShellScreen({
       )}
       {localBrowser.overlay}
       <ShellDevFacts state={state} droppedBinaryFrames={droppedBinaryFrames} />
+      {forkSheet}
     </View>
   )
 }
