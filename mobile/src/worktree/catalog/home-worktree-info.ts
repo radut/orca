@@ -29,12 +29,21 @@ export type HomeAgentEntry = Readonly<{
   bot?: HomeAgentBot
 }>
 
+/** A listed workspace, so search can find one with no agent. */
+export type HomeWorkspaceEntry = Readonly<{
+  worktreeId: string
+  workspaceName: string
+  repo: string
+  branch: string
+}>
 export type HomeAgentBot = Readonly<{ name: string; avatar: string | null }>
 
 export type HostWorktreeInfo = {
   hostId: string
   totalWorktrees: number
   activeCount: number
+  /** Every unarchived workspace from this connection's latest list read. */
+  workspaces?: readonly HomeWorkspaceEntry[]
   /** Every agent from this connection's latest list read. */
   agents?: readonly HomeAgentEntry[]
   /** This connection's unread rows, by worktree id. */
@@ -46,6 +55,18 @@ export type HostWorktreeInfo = {
   staleCounts?: boolean
   // Epoch ms of the last proven counts.
   countsProvenAt?: number
+}
+
+/** One entry per listed workspace, named the way its rows show it. */
+export function homeWorkspaceEntries(
+  worktrees: readonly HomeWorktreeSummary[]
+): HomeWorkspaceEntry[] {
+  return worktrees.map((worktree) => ({
+    worktreeId: worktree.worktreeId,
+    workspaceName: worktree.displayName || worktree.repo,
+    repo: worktree.repo,
+    branch: worktree.branch
+  }))
 }
 
 export function homeAgentEntries(
@@ -75,6 +96,7 @@ export type HomeWorktreeRead = {
         totalWorktrees: number
         activeCount: number
         agents: readonly HomeAgentEntry[]
+        workspaces?: readonly HomeWorkspaceEntry[]
         unreadWorktreeIds?: readonly string[]
       }
     | undefined
@@ -106,6 +128,8 @@ export function homeWorktreeInfo(
     totalWorktrees: data.totalWorktrees,
     activeCount: data.activeCount,
     ...(live ? { agents: data.agents } : agents ? { lastSeenAgents: agents } : {}),
+    // Only a live read's workspaces can be opened from search.
+    ...(live && data.workspaces ? { workspaces: data.workspaces } : {}),
     ...(live && data.unreadWorktreeIds ? { unreadWorktreeIds: data.unreadWorktreeIds } : {}),
     ...(failed ? { catalogUnavailable: true, staleCounts: true } : {}),
     countsProvenAt: read.dataUpdatedAt
