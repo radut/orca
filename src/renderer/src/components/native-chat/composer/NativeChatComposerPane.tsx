@@ -62,6 +62,7 @@ export const NativeChatComposerPane = forwardRef<ComposerHandle, C.NativeChatCom
       recallSource,
       inputOwnedByCard = false,
       notices: chatNotices,
+      sendBlocked = false,
       workspacePending: pending = false,
       launchPrompt
     },
@@ -91,11 +92,13 @@ export const NativeChatComposerPane = forwardRef<ComposerHandle, C.NativeChatCom
       source: recallSource,
       inputRef: textareaRef
     })
+    // An exited agent retires delayed writes too, or the shell would run them.
+    const writesRetired = inputOwnedByCard || sendBlocked
     const { cancelPendingSends, trackPendingSend } = useNativeChatSendLifecycle(
       terminalTabId,
       targetPtyId,
       onOptimisticSendCanceled,
-      { inputOwnedByCard, onPendingSendRetired: optimisticSendOutcome?.reject }
+      { inputOwnedByCard: writesRetired, onPendingSendRetired: optimisticSendOutcome?.reject }
     )
 
     // Why inputOwnedByCard: the hidden field can still hold keyboard focus for a frame.
@@ -169,7 +172,8 @@ export const NativeChatComposerPane = forwardRef<ComposerHandle, C.NativeChatCom
     const localHandle = useRef<C.NativeChatComposerHandle>(null)
     const root = useRef<HTMLDivElement>(null)
     const handlePasteEvent = useNativeChatComposerHandle(localHandle, {
-      resend: (text, imagePaths) => !structuredTransport && sendPty({ text, imagePaths }),
+      resend: (text, imagePaths) =>
+        !structuredTransport && !sendBlocked && sendPty({ text, imagePaths }),
       attachmentScopeKey: draftScopeKey,
       textareaRef,
       isComposing: imeEnterGesture.isComposing,
@@ -264,7 +268,7 @@ export const NativeChatComposerPane = forwardRef<ComposerHandle, C.NativeChatCom
       caret,
       imageAttachments,
       disabled,
-      held: mentions.sendHeld,
+      held: mentions.sendHeld || sendBlocked,
       sendPty,
       sendStructured,
       submitEmpty: launchPrompt?.onEmptySubmit,
@@ -287,7 +291,7 @@ export const NativeChatComposerPane = forwardRef<ComposerHandle, C.NativeChatCom
       canStop: hasPty && onStop !== undefined,
       orcaCommand: !pending && !launchPrompt && orcaCommands.matchesDraft(draft),
       goalMode: goalMode.active,
-      mentionHold: mentions.sendHeld
+      mentionHold: mentions.sendHeld || sendBlocked
     })
 
     const { send, chooseEditItem, fieldOverrides, dispatchPickerCommand } =
