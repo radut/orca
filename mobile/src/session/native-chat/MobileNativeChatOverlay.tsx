@@ -29,7 +29,7 @@ import type { MobileNativeChatHostOutage } from './status/mobile-native-chat-hos
 import { MobileMarkdownLinksContext } from '../../components/markdown/links/mobile-markdown-links-context'
 import type { ConnectionState } from '../../transport/connection/connection-state'
 import { useMobileTranslation } from '../../i18n/use-mobile-translation'
-import { useStopReadAloudWithChat } from '../../platform/read-aloud/read-aloud-turn'
+import { useChatOverlayStatus } from './status/use-mobile-chat-overlay-status'
 
 type Props = {
   controller: MobileNativeChatController
@@ -121,6 +121,7 @@ function MobileNativeChatOverlayContent({
 }: Props): React.JSX.Element {
   const session = controller.nativeChatSession
   const agent = controller.nativeChatAgent ?? ''
+  const agentNotice = useChatOverlayStatus(controller, activeSessionTabId, sessionId, sendSurfaceId)
   const fullContent = useMobileNativeChatMessageDetail(
     session.messages,
     controller.nativeChatItemSource
@@ -161,7 +162,6 @@ function MobileNativeChatOverlayContent({
   })
   const visuals = useMobileNativeChatVisualRenderer(controller.nativeChatVisualSource)
   const replyReveals = useMobileNativeChatReplyReveals(folded, streaming !== null, sendSurfaceId)
-  useStopReadAloudWithChat(sendSurfaceId)
   const itemSource = controller.nativeChatItemSource
   const committedDetail = useMemo(
     () => ({ current: fullContent.detail }),
@@ -373,6 +373,7 @@ function MobileNativeChatOverlayContent({
                       onMicPressOut={onMicPressOut}
                       inputLockReason={inputLockReason}
                       hostOutage={hostOutage}
+                      agentNotice={agentNotice}
                       sendErrorMessage={
                         continueFailed
                           ? t(
