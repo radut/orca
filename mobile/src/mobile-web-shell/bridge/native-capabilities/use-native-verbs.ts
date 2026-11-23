@@ -33,6 +33,12 @@ import {
 } from './bridge-native-verbs'
 import { imageResultSchema, type BridgeImageRunParams } from './bridge-image-verbs'
 import {
+  BRIDGE_CHAT_FORK_VERB,
+  chatForkResultSchema,
+  type BridgeChatForkParams,
+  type BridgeChatForkResult
+} from './bridge-chat-fork-verb'
+import {
   BRIDGE_SPEECH_VERB,
   speechCancelResultSchema,
   speechFinishResultSchema,
@@ -90,6 +96,10 @@ export type NativeVerbs = {
   canAnnounce: boolean
   // True when the shell spoke it.
   announce: (message: string) => Promise<boolean>
+  // Older shells lack it; the page's own Fork sheet then offers only this host.
+  canForkChat: boolean
+  // Settles when the person cancels the shell's sheet or the fork it ran ends.
+  forkChat: (params: BridgeChatForkParams) => Promise<BridgeChatForkResult>
 }
 
 // Expose stable reason codes, including local ungranted and frame refusals. Unknown newer-shell codes floor to unreported so caller switches remain exhaustive.
@@ -243,7 +253,9 @@ export function useNativeVerbs(): NativeVerbs {
       },
       canAnnounce: has('native.a11y.announce'),
       announce: async (message) =>
-        (await call('native.a11y.announce', { message }, a11yAnnounceResultSchema)).announced
+        (await call('native.a11y.announce', { message }, a11yAnnounceResultSchema)).announced,
+      canForkChat: has(BRIDGE_CHAT_FORK_VERB),
+      forkChat: (params) => call(BRIDGE_CHAT_FORK_VERB, params, chatForkResultSchema)
     }
   }, [client])
 }
