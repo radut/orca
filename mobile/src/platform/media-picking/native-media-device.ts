@@ -7,6 +7,8 @@ import type { MediaHandleRegistry } from '../../mobile-web-shell/native-capabili
 import { BridgeNativeVerbRefusedError } from '../../mobile-web-shell/host-bridge/bridge-host-errors'
 import type { NativeMediaDeps } from './native-media'
 import { nativeRecentPhotoDevice } from './native-recent-photos-device'
+import { CLIPBOARD_IMAGE_MAX_SOURCE_BYTES } from '../../../../src/shared/clipboard/clipboard-image'
+import { AGENT_SESSION_ATTACHMENT_CHUNK_BYTES as STAGING_COPY_CHUNK_BYTES } from '../../../../src/shared/agent-session/agent-session-attachments'
 
 // Isolate native imports so handlers can be tested with injected device calls.
 // Android may return an uncopied content: URI; copy it into cache before minting a handle whose release deletes the file.
@@ -39,11 +41,44 @@ export function discardUnreturnedMediaFile(file: FsFile): void {
 }
 
 // Use bytesSync(): Expo copy/open/stream paths require javaFile and reject content: URIs. The caller must weigh first because this read holds the whole file in memory.
+// Files may be as large as an upload; copying them whole would hold the file in JS memory.
+function copyFileInChunks(source: FsFile, destination: FsFile): void {
+  const reader = source.open()
+  try {
+    const writer = destination.open()
+    try {
+      for (;;) {
+        const bytes = reader.readBytesSync(STAGING_COPY_CHUNK_BYTES)
+        if (bytes.byteLength === 0) {
+          return
+        }
+        writer.writeBytesSync(bytes)
+      }
+    } finally {
+      writer.close()
+    }
+  } finally {
+    reader.close()
+  }
+}
+
 export function copyPickedMediaIntoCache(uri: string): string {
   const destination = stagedMediaFile('bin')
   destination.create({ overwrite: true })
   try {
-    destination.writeSync(new FsFile(uri).bytesSync())
+    const source = new FsFile(uri)
+    if (uri.startsWith('file:')) {
+      copyFileInChunks(source, destination)
+    } else {
+      // Expo reads provider URIs only whole, so those stay within the in-memory image ceiling.
+      if (source.size > CLIPBOARD_IMAGE_MAX_SOURCE_BYTES) {
+        throw new BridgeNativeVerbRefusedError(
+          'native_media_too_large',
+          `a provider item is ${source.size} bytes, over the ${CLIPBOARD_IMAGE_MAX_SOURCE_BYTES} read whole`
+        )
+      }
+      destination.writeSync(source.bytesSync())
+    }
   } catch (error) {
     // Remove the failed destination because callers never receive its URI.
     discardUnreturnedMediaFile(destination)
