@@ -212,6 +212,8 @@ export const EXECUTION_HOST_METHODS = [
   'orchestration.workerApprovalsSubscribe',
   'orchestration.workerApprovalsUnsubscribe',
   'orchestration.approvalAnswer',
+  // Pages drawn on the phone reach the network of the workspace's host.
+  'network.mobileBrowserTunnel',
   // Asks from agents on paired servers wait on this computer for its person, as on its phone.
   'pairedServerAsks.list',
   'pairedServerAsks.decide',
