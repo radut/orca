@@ -10,6 +10,7 @@ import { useMobilePendingControl } from '../../../../components/controls/use-mob
 import { MobileNativeChatMarkdown } from '../../transcript/message-content/MobileNativeChatMarkdown'
 import { styles as markdownStyles } from '../../../../components/markdown/mobile-markdown-styles'
 import { colors, pressedStyle, spacing, typography } from '../../../../theme/mobile-theme'
+import { MobileCodeBlockRunContext } from '../../../../components/markdown/blocks/mobile-code-block-run'
 import { themedStyleSheet } from '../../../../theme/themed-styles'
 import { useMobileColorScheme } from '../../../../theme/use-mobile-color-scheme'
 import { useMobileTranslation } from '../../../../i18n/use-mobile-translation'
@@ -212,7 +213,10 @@ function MobileNativeChatPermissionContext({
       ) : null}
       {isPlanApprovalSubject(permission.subject) ? (
         <View>
-          <MobileNativeChatMarkdown content={permission.subject.text} />
+          {/* A plan under approval never runs from here: approving it is the only way. */}
+          <MobileCodeBlockRunContext.Provider value={null}>
+            <MobileNativeChatMarkdown content={permission.subject.text} />
+          </MobileCodeBlockRunContext.Provider>
           {permission.subject.filePath ? (
             <Text style={styles.planFile}>
               {t('chat.permission.planFile', 'Plan file: {{filePath}}', {
