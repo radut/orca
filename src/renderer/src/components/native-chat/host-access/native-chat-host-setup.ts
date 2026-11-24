@@ -80,6 +80,8 @@ type NativeChatInstall = {
 export type NativeChatHostSetup = {
   signIn: NativeChatSignIn | null
   install: NativeChatInstall | null
+  /** Runs a code block's script in a new terminal on the chat's host; absent without a workspace. */
+  runScript?: (script: string) => void
   /** The user's own CLI update on the chat's host; null for agents Orca can't update. */
   update?: AgentCliUpdateView | null
   /** The chat's host, so setup links open Settings on it. */
@@ -326,9 +328,10 @@ export function useNativeChatHostSetup(input: NativeChatHostSetupInput): NativeC
       signIn,
       install,
       update,
+      runScript: terminal ? (script: string) => void terminal.open(script) : undefined,
       host: target,
       unresolvedFailureRows
     }),
-    [signIn, install, update, target, unresolvedFailureRows]
+    [signIn, install, update, terminal, target, unresolvedFailureRows]
   )
 }
