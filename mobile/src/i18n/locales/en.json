@@ -1600,7 +1600,8 @@
       "openImage": "Open image",
       "wrapLines": "Wrap lines",
       "disableLineWrap": "Disable line wrap",
-      "codeLabel": "Code"
+      "codeLabel": "Code",
+      "pasteInTerminal": "Paste in a new terminal"
     },
     "markdownCallout": {
       "note": "Note",
@@ -3304,6 +3305,9 @@
     },
     "orcaCommands": {
       "desktopOnly": "Available in the desktop app"
+    },
+    "codeBlockRun": {
+      "pasted": "Pasted. Press Enter to run it."
     }
   },
   "chat": {
