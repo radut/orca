@@ -146,6 +146,13 @@ export const styles = themedStyleSheet(() => ({
     justifyContent: 'center',
     borderRadius: radii.control
   },
+  codeRunButton: {
+    width: 32,
+    height: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: radii.control
+  },
   codeWrapButtonOn: {
     backgroundColor: colors.translucentFill
   },
