@@ -1,4 +1,4 @@
-import { TextWrap } from 'lucide-react-native'
+import { SquareTerminal, TextWrap } from 'lucide-react-native'
 import { memo, useContext, useMemo } from 'react'
 import { Pressable, ScrollView, Text, View } from 'react-native'
 import { useMobileTranslation } from '../../../i18n/use-mobile-translation'
@@ -14,6 +14,11 @@ import { MobileSyntaxSegments } from '../../code-presentation/MobileSyntaxSegmen
 import { MobileSourceCopyButton } from '../../code-presentation/MobileSourceCopyButton'
 import { scaledMarkdownText, styles } from '../mobile-markdown-styles'
 import { MarkdownText } from '../mobile-markdown-text'
+import {
+  codeBlockTerminalText,
+  isRunnableCodeBlock,
+  MobileCodeBlockRunContext
+} from './mobile-code-block-run'
 
 export const MobileMarkdownCodeBlock = memo(function MobileMarkdownCodeBlock({
   code,
@@ -32,6 +37,7 @@ export const MobileMarkdownCodeBlock = memo(function MobileMarkdownCodeBlock({
   // Only chat code offers wrap, as on desktop; the transcript keeps the choice, never persisted.
   const chat = useContext(MobileNativeChatDisclosureContext) !== null
   const rowKey = useContext(MobileNativeChatMarkdownRowKeyContext)
+  const run = useContext(MobileCodeBlockRunContext)
   const [wrapped, setWrapped] = useMobileNativeChatDisclosure(
     rowKey && sourceLine !== undefined ? `code-wrap:${rowKey}:${sourceLine}` : undefined,
     false
@@ -78,6 +84,20 @@ export const MobileMarkdownCodeBlock = memo(function MobileMarkdownCodeBlock({
               onPress={() => setWrapped(!wrapped)}
             >
               <TextWrap size={14} color={wrapped ? colors.textPrimary : colors.textMuted} />
+            </Pressable>
+          ) : null}
+          {run && code.trim() && isRunnableCodeBlock(language) ? (
+            <Pressable
+              style={({ pressed }) => [styles.codeWrapButton, pressed && pressedStyle]}
+              hitSlop={10}
+              accessibilityRole="button"
+              accessibilityLabel={t(
+                'components.markdownBlocks.pasteInTerminal',
+                'Paste in a new terminal'
+              )}
+              onPress={() => run(codeBlockTerminalText(code))}
+            >
+              <SquareTerminal size={14} color={colors.textMuted} />
             </Pressable>
           ) : null}
           {code ? (
