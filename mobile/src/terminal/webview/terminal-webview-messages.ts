@@ -6,6 +6,7 @@ export type TerminalFrame = { width: number; height: number }
 
 // Desktop terminal settings the phone follows; scrollback is capped for phone memory.
 export type TerminalHostSettings = { scrollbackRows: number; wordSeparator: string }
+export type TerminalFindDirection = 'next' | 'previous'
 
 export type TerminalWebViewCommand =
   | { type: 'set-interaction-active'; active: boolean }
@@ -36,5 +37,13 @@ export type TerminalWebViewCommand =
   | { type: 'reset-zoom'; id?: number }
   | { type: 'cancel-select'; id?: number }
   | { type: 'do-select-all'; id?: number }
+  | {
+      type: 'find'
+      id?: number
+      query: string
+      direction: TerminalFindDirection
+      incremental: boolean
+    }
+  | { type: 'clear-find'; id?: number }
   | { type: 'set-theme'; id?: number; terminalTheme?: RuntimeMobileTerminalTheme }
   | ({ type: 'set-host-settings'; id?: number } & TerminalHostSettings)
