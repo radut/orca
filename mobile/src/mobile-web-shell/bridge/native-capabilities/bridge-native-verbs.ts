@@ -25,6 +25,11 @@ import {
   chatForkParamsSchema,
   chatForkResultSchema
 } from './bridge-chat-fork-verb'
+import {
+  BRIDGE_ADD_CONTEXT_VERB,
+  addContextParamsSchema,
+  addContextResultSchema
+} from './bridge-add-context-verbs'
 import { PAGE_STORAGE_MAX_KEY_CHARS } from '../../page-storage/page-storage-keys'
 import { mobileFileMediaMime, PDF_MIME_TYPE } from '../../../files/media/mobile-file-media'
 
@@ -39,6 +44,7 @@ export const BRIDGE_NATIVE_VERB_NAMES = [
   'native.media.read',
   'native.media.release',
   'native.media.name',
+  BRIDGE_ADD_CONTEXT_VERB,
   'native.audio.start',
   'native.audio.read',
   'native.audio.stop',
@@ -218,6 +224,10 @@ export const BRIDGE_NATIVE_VERBS: Readonly<Record<BridgeNativeVerb, BridgeNative
   'native.media.name': {
     params: mediaNameParamsSchema,
     result: mediaNameResultSchema
+  },
+  [BRIDGE_ADD_CONTEXT_VERB]: {
+    params: addContextParamsSchema,
+    result: addContextResultSchema
   },
   'native.audio.start': {
     params: audioStartParamsSchema,
