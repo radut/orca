@@ -12,8 +12,10 @@ import {
 import { defineHostQuery } from '../../query/host-query'
 import {
   homeAgentEntries,
+  homeWorkspaceEntries,
   type HomeAgentBot,
   type HomeAgentEntry,
+  type HomeWorkspaceEntry,
   type HomeWorktreeSummary
 } from './home-worktree-info'
 import { isWorktreeActive } from '../workspace-list/workspace-row-filtering'
@@ -30,6 +32,8 @@ export type HomeWorktreeCounts = {
   totalWorktrees: number
   activeCount: number
   agents: readonly HomeAgentEntry[]
+  // Unarchived workspaces for the Agents search; never stored, like agents.
+  workspaces?: readonly HomeWorkspaceEntry[]
   /** Unread rows' ids, for the rows Home draws over a hidden home (a group room). */
   unreadWorktreeIds?: readonly string[]
   // The rows this launch read: the next read's delta base, and the wide layout's host list seed. Never stored.
@@ -56,6 +60,7 @@ export const homeWorktreeCountsQuery = defineHostQuery<
       activeCount: listed.filter(isWorktreeActive).length,
       // A bot's chats stay agents: one waiting on the user reaches Active and the badge.
       agents: homeAgentEntries(unarchived, botByHomeId),
+      workspaces: homeWorkspaceEntries(listed),
       unreadWorktreeIds: unarchived.flatMap((w) => (w.unread === true ? [w.worktreeId] : [])),
       catalog
     }
