@@ -56,10 +56,11 @@ export const bottomDrawerStyles = themedStyleSheet(() => ({
     backgroundColor: colors.textMuted,
     opacity: 0.5
   },
+  // Tall enough to grab with a thumb: the bar alone is a 5 pt target.
   handleHitArea: {
     alignItems: 'center',
-    paddingTop: spacing.sm,
-    paddingBottom: spacing.md
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.lg
   },
   // Gives up height to the sheet's cap so a list the sheet scrolls itself shrinks instead of clipping.
   staticContent: {
