@@ -1,6 +1,6 @@
 // @protected-copy: preserve code controls used by approval prompts.
-import React, { useContext } from 'react'
-import { WrapText } from 'lucide-react'
+import React, { useContext, useMemo } from 'react'
+import { Play, WrapText } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { useTranslate } from '@/i18n/use-translate'
 import { cn } from '@/lib/class-names'
@@ -9,6 +9,8 @@ import { NativeChatCopyButton } from '../../messages/actions/NativeChatCopyButto
 import { NativeChatMarkdownRowKeyContext } from '../native-chat-markdown-row-identity'
 import { useNativeChatDisclosure } from '../../messages/disclosure/native-chat-disclosure-store'
 import { NativeChatHighlightedCode } from './NativeChatHighlightedCode'
+import { useNativeChatHostSetupView } from '../../host-access/native-chat-host-setup'
+import { codeBlockTerminalScript } from '../../../../../../shared/code-block-terminal-script'
 
 /** Code fences need their own copy target rather than the whole chat message. */
 export function NativeChatCodeBlock({
@@ -32,8 +34,14 @@ export function NativeChatCodeBlock({
       : `code-wrap:${rowKey}:${sourceLine}`,
     false
   )
+  const runScript = useNativeChatHostSetupView()?.runScript
+  const script = useMemo(
+    () => (runScript ? codeBlockTerminalScript(code, language) : null),
+    [runScript, code, language]
+  )
   const actions = code ? (
     <>
+      {runScript && script ? <NativeChatCodeRunButton onRun={() => runScript(script)} /> : null}
       <NativeChatCodeWrapButton wrapped={wrapped} onToggle={() => setWrapped(!wrapped)} />
       <NativeChatCopyButton text={code} label={t('components.native-chat.copyCode', 'Copy code')} />
     </>
@@ -102,6 +110,28 @@ function NativeChatCodeWrapButton({
           className="flex size-6 shrink-0 items-center justify-center rounded-md text-chat-foreground-faint transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring aria-pressed:bg-accent aria-pressed:text-accent-foreground"
         >
           <WrapText className="size-3.5" />
+        </button>
+      </TooltipTrigger>
+      <TooltipContent side="top" sideOffset={4}>
+        {label}
+      </TooltipContent>
+    </Tooltip>
+  )
+}
+
+function NativeChatCodeRunButton({ onRun }: { onRun: () => void }): React.JSX.Element {
+  const t = useTranslate()
+  const label = t('components.native-chat.runInTerminal', 'Run in a new terminal')
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button
+          type="button"
+          onClick={onRun}
+          aria-label={label}
+          className="flex size-6 shrink-0 items-center justify-center rounded-md text-chat-foreground-faint transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          <Play className="size-3.5" />
         </button>
       </TooltipTrigger>
       <TooltipContent side="top" sideOffset={4}>
