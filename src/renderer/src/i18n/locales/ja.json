@@ -24219,6 +24219,9 @@
     "setupTrust": {
       "createdBranchSkipped": "セットアップは実行されませんでした。このワークスペースのブランチにある orca.yaml のセットアップコマンドが、承認済みのものと異なります。",
       "runFailed": "セットアップを開始できませんでした。",
+      "runReplyLabel": "コマンドに応答",
+      "runReplyPlaceholder": "応答を入力し、Enter で送信",
+      "runStop": "停止",
       "changedAgain": "セットアップは実行されませんでした。確認した後に、このワークスペースの orca.yaml が再度変更されています。",
       "hostUnsupported": "承認しました。既存のワークスペースでセットアップを実行するには、ワークスペースのホストの Orca を更新してください。",
       "reviewAction": "セットアップを確認",
