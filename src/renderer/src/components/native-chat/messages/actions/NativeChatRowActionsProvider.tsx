@@ -1,3 +1,4 @@
+import type { NativeChatMessage } from '../../../../../../shared/native-chat/native-chat-types'
 import { useMemo } from 'react'
 import { useAppStoreWithHostStatuses } from '@/store/slices/runtime-status/views/use-runtime-status-view'
 import { selectNativeChatForkSourceOpenable } from './native-chat-fork-source-openable'
@@ -15,7 +16,6 @@ import type { NativeChatRewindSurface } from '@/components/native-chat/messages/
 import type { NativeChatPaneForks } from '@/components/native-chat/messages/actions/use-native-chat-fork'
 import { useAppStore } from '@/store'
 import { isTuiAgent } from '../../../../../../shared/agent-launch/catalog/tui-agent-config'
-import type { NativeChatMessage } from '../../../../../../shared/native-chat/native-chat-types'
 import { NativeChatForkWindowHost } from './fork-window/NativeChatForkWindow'
 import { useNativeChatOrcaStopView } from '../notices/native-chat-orca-stop-context'
 import { nativeChatWorktreeForkSourceBranch } from './native-chat-worktree-fork'
@@ -37,22 +37,31 @@ function openChatWorkspaceId(sessionId: string, fallback: string): string {
       ?.worktreeId ?? fallback
   )
 }
+import {
+  NativeChatWaitingAgentMailContext,
+  NativeChatWaitingAgentMailRowsContext,
+  type NativeChatWaitingAgentMail
+} from '@/components/native-chat/queue/NativeChatWaitingAgentMailActions'
 
-/** What the pane's transcript rows offer: rewind on prompts, fork on responses, and the chat a
- *  "Forked from" divider opens. */
+/** What the pane's transcript rows offer: rewind on prompts, fork on responses, the chat a
+ *  "Forked from" divider opens, and Steer and Delete on other agents' waiting mail. */
 export function NativeChatRowActionsProvider({
   pane,
   chat,
   forks,
+  messages,
   children
 }: {
   pane: Pick<NativeChatStructuredViewProps, 'tabId' | 'agent' | 'target' | 'sessionId'>
   chat: {
     rewind: { surface: NativeChatRewindSurface | undefined }
-    messages: readonly NativeChatMessage[]
+    waitingAgentMail: NativeChatWaitingAgentMail
+    waitingAgentRows: readonly NativeChatMessage[]
   }
   /** The session's fork, shared with its `/fork` and `/btw` commands. */
   forks: NativeChatPaneForks
+  /** The transcript a Fork window cuts from. */
+  messages: readonly NativeChatMessage[]
   children: React.ReactNode
 }): React.JSX.Element {
   const worktreeId = useNativeChatTabOwnerWorktreeId(pane.tabId)
@@ -79,7 +88,7 @@ export function NativeChatRowActionsProvider({
                 },
                 agent
               },
-              target
+              { target, retry: 'open' }
             )
         : undefined,
     [agent, target, worktreeId, sourceOpenable]
@@ -90,7 +99,11 @@ export function NativeChatRowActionsProvider({
         <NativeChatSideChatForkPointContext.Provider value={forks.sideChat?.reportForkPoint}>
           <NativeChatForkedFromContext.Provider value={openSource}>
             <NativeChatForkSlotContext.Provider value>
-              {children}
+              <NativeChatWaitingAgentMailContext.Provider value={chat.waitingAgentMail}>
+                <NativeChatWaitingAgentMailRowsContext.Provider value={chat.waitingAgentRows}>
+                  {children}
+                </NativeChatWaitingAgentMailRowsContext.Provider>
+              </NativeChatWaitingAgentMailContext.Provider>
               {forks.fork?.worktreeForkDialog && worktreeId && isTuiAgent(agent) ? (
                 <NativeChatForkWindowHost
                   dialog={forks.fork.worktreeForkDialog}
@@ -108,7 +121,7 @@ export function NativeChatRowActionsProvider({
                       forks.fork.worktreeForkOffered === true &&
                       nativeChatWorktreeForkSourceBranch(worktreeId) !== null,
                     destinationOffered: forks.fork.worktreeForkOffered === true,
-                    messages: () => chat.messages,
+                    messages: () => messages,
                     cutThrough: (throughItemId) => throughItemId,
                     request: forks.fork.request
                   }}
