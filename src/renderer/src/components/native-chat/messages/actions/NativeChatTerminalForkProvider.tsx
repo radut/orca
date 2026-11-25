@@ -1,4 +1,4 @@
-import { NativeChatForkContext, NativeChatForkSlotContext } from './native-chat-fork-context'
+import { NativeChatForkContext } from './native-chat-fork-context'
 import { NativeChatForkWindowHost } from './fork-window/NativeChatForkWindow'
 import { terminalForkTurnEnd } from '../../../../../../shared/native-chat/terminal-fork-point'
 import { useNativeChatWorktreeForkRequest } from './native-chat-worktree-fork-requests'
@@ -46,36 +46,32 @@ export function NativeChatTerminalForkProvider({
   useNativeChatWorktreeForkRequest(terminalTabId, fork?.openWorktreeForkLatest)
   return (
     <NativeChatForkContext.Provider value={fork}>
-      <NativeChatForkSlotContext.Provider value={fork !== undefined}>
-        {children}
-        {fork?.worktreeForkDialog && worktreeId && isTuiAgent(agent) ? (
-          <NativeChatForkWindowHost
-            dialog={fork.worktreeForkDialog}
-            source={{
-              kind: 'terminal',
-              agent,
-              // Only a Claude chat's history can be copied exactly.
-              sessionId: agent === 'claude' && sessionId ? sessionId : '',
-              cutsHere:
-                agent === 'claude' &&
-                Boolean(sessionId && transcriptPath) &&
-                cutHost === 'supported',
-              worktreeId,
-              target: target ?? { kind: 'local' },
-              label: agent,
-              // A terminal chat shows no usage-limit stop, so the window keeps its agent.
-              usageLimited: false,
-              subagentOffered: false,
-              newWorktreeOffered: fork.worktreeForkOffered === true,
-              destinationOffered: fork.worktreeForkOffered === true,
-              messages: () => messages,
-              cutThrough: (throughItemId) =>
-                terminalForkTurnEnd(messages, throughItemId) ?? throughItemId,
-              request: fork.request
-            }}
-          />
-        ) : null}
-      </NativeChatForkSlotContext.Provider>
+      {children}
+      {fork?.worktreeForkDialog && worktreeId && isTuiAgent(agent) ? (
+        <NativeChatForkWindowHost
+          dialog={fork.worktreeForkDialog}
+          source={{
+            kind: 'terminal',
+            agent,
+            // Only a Claude chat's history can be copied exactly.
+            sessionId: agent === 'claude' && sessionId ? sessionId : '',
+            cutsHere:
+              agent === 'claude' && Boolean(sessionId && transcriptPath) && cutHost === 'supported',
+            worktreeId,
+            target: target ?? { kind: 'local' },
+            label: agent,
+            // A terminal chat shows no usage-limit stop, so the window keeps its agent.
+            usageLimited: false,
+            subagentOffered: false,
+            newWorktreeOffered: fork.worktreeForkOffered === true,
+            destinationOffered: fork.worktreeForkOffered === true,
+            messages: () => messages,
+            cutThrough: (throughItemId) =>
+              terminalForkTurnEnd(messages, throughItemId) ?? throughItemId,
+            request: fork.request
+          }}
+        />
+      ) : null}
     </NativeChatForkContext.Provider>
   )
 }

@@ -6,7 +6,6 @@ import { openDesktopStructuredSession } from '@/lib/agent-session/open/activate-
 import {
   NativeChatForkContext,
   NativeChatForkedFromContext,
-  NativeChatForkSlotContext,
   NativeChatSideChatForkPointContext
 } from '@/components/native-chat/messages/actions/native-chat-fork-context'
 import { NativeChatRewindContext } from '@/components/native-chat/messages/actions/native-chat-rewind-context'
@@ -98,36 +97,34 @@ export function NativeChatRowActionsProvider({
       <NativeChatForkContext.Provider value={forks.fork}>
         <NativeChatSideChatForkPointContext.Provider value={forks.sideChat?.reportForkPoint}>
           <NativeChatForkedFromContext.Provider value={openSource}>
-            <NativeChatForkSlotContext.Provider value>
-              <NativeChatWaitingAgentMailContext.Provider value={chat.waitingAgentMail}>
-                <NativeChatWaitingAgentMailRowsContext.Provider value={chat.waitingAgentRows}>
-                  {children}
-                </NativeChatWaitingAgentMailRowsContext.Provider>
-              </NativeChatWaitingAgentMailContext.Provider>
-              {forks.fork?.worktreeForkDialog && worktreeId && isTuiAgent(agent) ? (
-                <NativeChatForkWindowHost
-                  dialog={forks.fork.worktreeForkDialog}
-                  source={{
-                    kind: 'structured',
-                    agent,
-                    sessionId: pane.sessionId,
-                    cutsHere: true,
-                    worktreeId,
-                    target,
-                    label: chatTabLabel(pane.tabId, worktreeId) ?? agent,
-                    usageLimited,
-                    subagentOffered: forks.fork.subagentOffered !== false,
-                    newWorktreeOffered:
-                      forks.fork.worktreeForkOffered === true &&
-                      nativeChatWorktreeForkSourceBranch(worktreeId) !== null,
-                    destinationOffered: forks.fork.worktreeForkOffered === true,
-                    messages: () => messages,
-                    cutThrough: (throughItemId) => throughItemId,
-                    request: forks.fork.request
-                  }}
-                />
-              ) : null}
-            </NativeChatForkSlotContext.Provider>
+            <NativeChatWaitingAgentMailContext.Provider value={chat.waitingAgentMail}>
+              <NativeChatWaitingAgentMailRowsContext.Provider value={chat.waitingAgentRows}>
+                {children}
+              </NativeChatWaitingAgentMailRowsContext.Provider>
+            </NativeChatWaitingAgentMailContext.Provider>
+            {forks.fork?.worktreeForkDialog && worktreeId && isTuiAgent(agent) ? (
+              <NativeChatForkWindowHost
+                dialog={forks.fork.worktreeForkDialog}
+                source={{
+                  kind: 'structured',
+                  agent,
+                  sessionId: pane.sessionId,
+                  cutsHere: true,
+                  worktreeId,
+                  target,
+                  label: chatTabLabel(pane.tabId, worktreeId) ?? agent,
+                  usageLimited,
+                  subagentOffered: forks.fork.subagentOffered !== false,
+                  newWorktreeOffered:
+                    forks.fork.worktreeForkOffered === true &&
+                    nativeChatWorktreeForkSourceBranch(worktreeId) !== null,
+                  destinationOffered: forks.fork.worktreeForkOffered === true,
+                  messages: () => messages,
+                  cutThrough: (throughItemId) => throughItemId,
+                  request: forks.fork.request
+                }}
+              />
+            ) : null}
           </NativeChatForkedFromContext.Provider>
         </NativeChatSideChatForkPointContext.Provider>
       </NativeChatForkContext.Provider>

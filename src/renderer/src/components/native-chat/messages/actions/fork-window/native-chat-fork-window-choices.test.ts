@@ -43,10 +43,10 @@ describe('defaultNativeChatForkAgent', () => {
       defaultNativeChatForkAgent({
         sourceAgent: 'claude',
         usageLimited: true,
-        available: ['claude', 'claude-agent-teams', 'codex', 'gemini'],
-        preferred: 'gemini'
+        available: ['claude', 'claude-agent-teams', 'codex', 'opencode'],
+        preferred: 'opencode'
       })
-    ).toBe('gemini')
+    ).toBe('opencode')
     expect(
       defaultNativeChatForkAgent({
         sourceAgent: 'claude',
