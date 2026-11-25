@@ -17,6 +17,10 @@ import { WorkspaceServerContext } from '../worktree/execution-hosts/workspace-se
 import { useSessionTitleCard } from './tabs/use-session-title-card'
 import { useDetailCardScope } from '../components/detail-cards/use-detail-card-scope'
 import { useShellSideRail } from '../layout/use-shell-side-rail'
+import {
+  MobileCodeBlockRunContext,
+  useMobileCodeBlockRunner
+} from '../components/markdown/blocks/mobile-code-block-run'
 
 export function MobileSessionSurface({ controller }: { controller: MobileSessionController }) {
   useMobileColorScheme()
@@ -91,39 +95,43 @@ export function MobileSessionSurface({ controller }: { controller: MobileSession
       ),
     [homeChatId, sessionTabs, activeSessionTabId, switchSessionTab, openNativeSession, worktreeId]
   )
+  // Play runs a block in this workspace on a background terminal and shows its output under the block.
+  const runCodeBlock = useMobileCodeBlockRunner(controller.client, worktreeId)
   useDetailCardScope({ ...details, obscured })
   // Only a proven local record belongs to this route's desktop or server.
   const hostName =
     controller.worktreeHostId === 'local' ? (server ? server.name : controller.hostName) : null
   return (
-    <View ref={setMobileSessionRootRef} style={styles.container}>
-      <View style={styles.kavInner}>
-        <MobileSessionHeader controller={controller} details={details} />
-        <MobileWorkerAutoCloseStrip controller={controller} />
-        {/* A chat's item chips open the item's page in the bot panel. */}
-        <BotItemOpenContext.Provider value={openItem}>
-          <BotChatOpenContext.Provider value={openChat}>
-            <BotPanelOpenContext.Provider value={panelOpener}>
-              <MobileSessionContentRow controller={controller} />
-            </BotPanelOpenContext.Provider>
-          </BotChatOpenContext.Provider>
-        </BotItemOpenContext.Provider>
+    <MobileCodeBlockRunContext.Provider value={runCodeBlock}>
+      <View ref={setMobileSessionRootRef} style={styles.container}>
+        <View style={styles.kavInner}>
+          <MobileSessionHeader controller={controller} details={details} />
+          <MobileWorkerAutoCloseStrip controller={controller} />
+          {/* A chat's item chips open the item's page in the bot panel. */}
+          <BotItemOpenContext.Provider value={openItem}>
+            <BotChatOpenContext.Provider value={openChat}>
+              <BotPanelOpenContext.Provider value={panelOpener}>
+                <MobileSessionContentRow controller={controller} />
+              </BotPanelOpenContext.Provider>
+            </BotChatOpenContext.Provider>
+          </BotItemOpenContext.Provider>
+        </View>
+        <AnchoredDetailCardLayer
+          card={details}
+          obscured={obscured}
+          title={controller.worktreeName || t('session.header.terminalTitle', 'Terminal')}
+          detail={controller.worktreePath}
+          footer={
+            hostName ? (
+              <>
+                <StatusDot state={controller.connState} />
+                <Text style={styles.sessionMetaText}>{hostName}</Text>
+              </>
+            ) : null
+          }
+        />
+        <MobileSessionSheets controller={controller} />
       </View>
-      <AnchoredDetailCardLayer
-        card={details}
-        obscured={obscured}
-        title={controller.worktreeName || t('session.header.terminalTitle', 'Terminal')}
-        detail={controller.worktreePath}
-        footer={
-          hostName ? (
-            <>
-              <StatusDot state={controller.connState} />
-              <Text style={styles.sessionMetaText}>{hostName}</Text>
-            </>
-          ) : null
-        }
-      />
-      <MobileSessionSheets controller={controller} />
-    </View>
+    </MobileCodeBlockRunContext.Provider>
   )
 }
