@@ -2344,7 +2344,8 @@
       "sourceControl": "Kaynak kontrolü",
       "newTab": "Yeni sekme",
       "quickCommands": "Hızlı komutlar",
-      "items": "Öğeler"
+      "items": "Öğeler",
+      "findInTerminal": "Terminalde bul"
     },
     "headerMoreActionsSheet": {
       "agentHistory": "Ajan Geçmişi",
@@ -2862,6 +2863,13 @@
       "camera": "Kamera",
       "choosePhotos": "Fotoğraf seç",
       "recentPhoto": "Son fotoğraf"
+    },
+    "terminalFind": {
+      "placeholder": "Terminalde bul",
+      "noResults": "Sonuç yok",
+      "previous": "Önceki eşleşme",
+      "next": "Sonraki eşleşme",
+      "close": "Aramayı kapat"
     },
     "nativeChatView": {
       "linkedMessageMissing": "Bu mesaj bulunamadı."

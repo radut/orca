@@ -2338,7 +2338,8 @@
       "sourceControl": "原始碼控制",
       "newTab": "新分頁",
       "quickCommands": "快速命令",
-      "items": "項目"
+      "items": "項目",
+      "findInTerminal": "在終端機中尋找"
     },
     "headerMoreActionsSheet": {
       "agentHistory": "代理程式歷史紀錄",
@@ -2856,6 +2857,13 @@
       "camera": "相機",
       "choosePhotos": "選擇照片",
       "recentPhoto": "最近的照片"
+    },
+    "terminalFind": {
+      "placeholder": "在終端機中尋找",
+      "noResults": "沒有結果",
+      "previous": "上一個相符項目",
+      "next": "下一個相符項目",
+      "close": "關閉尋找"
     },
     "nativeChatView": {
       "linkedMessageMissing": "找不到該訊息。"
