@@ -1004,6 +1004,7 @@ import {
 } from './terminal/terminal-unary-params'
 import { TerminalGetAutoRestoreFitParams } from './terminal/terminal-viewport-methods-params'
 import {
+  TerminalRestartAgent,
   TerminalSetAutoRestoreFit,
   TerminalSetDisplayMode,
   TerminalUnsubscribe,
@@ -2187,6 +2188,7 @@ export const RPC_PARAMS_BY_METHOD = {
   'terminal.resolveActive': TerminalResolveActive,
   'terminal.resolveIdentity': TerminalHandle,
   'terminal.resolvePane': TerminalResolvePane,
+  'terminal.restartAgent': TerminalRestartAgent,
   'terminal.restoreFit': TerminalHandle,
   'terminal.reveal': TerminalReveal,
   'terminal.send': TerminalSend,
