@@ -1,5 +1,5 @@
 /* oxlint-disable react-doctor/no-adjust-state-on-prop-change -- Why: mobile browser state mirrors a remote desktop screencast session and CDP dialogs, which are external systems that cannot be derived during render. */
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
 import { AppState, type HostInstance } from 'react-native'
 import type { MobileBrowserTab } from '../session/tabs/mobile-session-tabs'
 import { translate } from '../i18n/mobile-i18n'
@@ -37,10 +37,14 @@ import type { MobileBrowserStreamedDrawing } from './MobileBrowserDrawingButtons
 import { MobileBrowserPaneView } from './pane-view/MobileBrowserPaneView'
 import { useMobileBrowserInteractions } from './page-interaction/use-mobile-browser-interactions'
 import { useMobileBrowserStream } from './screencast/use-mobile-browser-stream'
+import { useMobileBrowserPagePrompts } from './page-interaction/use-mobile-browser-page-prompts'
 import { useBrowserBinaryScreencastGrant } from './screencast/use-browser-binary-screencast-grant'
 import type { MobileBrowserHostSupport } from './mobile-browser-host-support'
 import { useRouteRelaysCapability } from '../worktree/execution-hosts/workspace-server-context'
-import { BROWSER_MOBILE_STOP_RUNTIME_CAPABILITY } from '../../../src/shared/browser/runtime/browser-runtime-capabilities'
+import {
+  BROWSER_MOBILE_STOP_RUNTIME_CAPABILITY,
+  BROWSER_PAGE_PROMPTS_RUNTIME_CAPABILITY
+} from '../../../src/shared/browser/runtime/browser-runtime-capabilities'
 
 type MobileBrowserPaneProps = {
   client: RpcClient | null
@@ -53,6 +57,8 @@ type MobileBrowserPaneProps = {
   onToast: (message: string, durationMs?: number) => void
   // Offered when this phone can draw the page itself instead of streaming it.
   drawing?: MobileBrowserStreamedDrawing
+  bare?: boolean
+  pageOverlay?: ReactNode
 }
 
 type PanGesture = {
@@ -73,7 +79,9 @@ export function MobileBrowserPane({
   keyboardLift,
   bottomInset,
   onToast,
-  drawing
+  drawing,
+  bare,
+  pageOverlay
 }: MobileBrowserPaneProps) {
   useMobileTranslation()
   const [browserViewMode, setBrowserViewMode] = useState<MobileBrowserViewMode>(() =>
@@ -94,6 +102,8 @@ export function MobileBrowserPane({
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [dialog, setDialog] = useState<BrowserDialogState | null>(null)
+  const pagePrompts = useMobileBrowserPagePrompts({ client, onToast })
+  const relaysPagePrompts = useRouteRelaysCapability(BROWSER_PAGE_PROMPTS_RUNTIME_CAPABILITY)
   const [pointerModifiers, setPointerModifiers] = useState<BrowserPointerModifier[]>([])
   const [zoom, setZoom] = useState<BrowserZoomState>(DEFAULT_ZOOM)
   const [layout, setLayout] = useState<BrowserTouchLayout | null>(null)
@@ -108,7 +118,8 @@ export function MobileBrowserPane({
     cachedInitialFrame?.metadata ?? null
   )
   const busyRef = useRef(false)
-  const dialogRef = useRef<BrowserDialogState | null>(null)
+  const pageCoveredRef = useRef(false)
+  const gestureCancelledRef = useRef(false)
   const lastStreamCacheKeyRef = useRef<string | null>(cacheKey)
   const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const startPointRef = useRef<{ x: number; y: number; t: number } | null>(null)
@@ -135,15 +146,19 @@ export function MobileBrowserPane({
     [clearLongPressTimer]
   )
 
-  const resetBrowserZoomState = useCallback(() => {
+  const cancelPageGesture = useCallback(() => {
     clearLongPressTimer()
     pinchRef.current = null
     panRef.current = null
     scrollingRef.current = false
     startPointRef.current = null
+  }, [clearLongPressTimer])
+
+  const resetBrowserZoomState = useCallback(() => {
+    cancelPageGesture()
     zoomRef.current = DEFAULT_ZOOM
     setZoom(DEFAULT_ZOOM)
-  }, [clearLongPressTimer])
+  }, [cancelPageGesture])
 
   useEffect(() => {
     const subscription = AppState.addEventListener('change', (nextState) => {
@@ -176,9 +191,15 @@ export function MobileBrowserPane({
     // Publish committed gesture/stream refs before passive effects without leaking uncommitted render values.
     frameMetadataRef.current = frameMetadata
     layoutRef.current = layout
-    dialogRef.current = dialog
+    const pageCovered = dialog !== null || pagePrompts.prompt !== null
+    // A touch already down when a card opens must not land its tap or long-press right-click under it.
+    if (pageCovered && !pageCoveredRef.current) {
+      cancelPageGesture()
+      gestureCancelledRef.current = true
+    }
+    pageCoveredRef.current = pageCovered
     zoomRef.current = zoom
-  }, [dialog, frameMetadata, layout, zoom])
+  }, [cancelPageGesture, dialog, frameMetadata, layout, pagePrompts.prompt, zoom])
 
   useEffect(() => {
     lastZoomResetUrlRef.current = tab.url || 'about:blank'
@@ -201,6 +222,10 @@ export function MobileBrowserPane({
     streamStopped
   } = useMobileBrowserStream({
     binaryScreencastGranted,
+    // A desktop relaying to a server must also forward the answers.
+    pagePromptsSupported: hostSupport.pagePrompts && relaysPagePrompts,
+    handlePageEvent: pagePrompts.handlePageEvent,
+    clearPagePrompt: pagePrompts.clearPrompt,
     browserViewMode,
     busyRef,
     cacheKey,
@@ -255,7 +280,8 @@ export function MobileBrowserPane({
     useMobileBrowserInteractions({
       clearLongPressTimer,
       client,
-      dialogRef,
+      pageCoveredRef,
+      gestureCancelledRef,
       frameGeometry,
       frameMetadataRef,
       keyboardValue,
@@ -352,6 +378,8 @@ export function MobileBrowserPane({
 
   return (
     <MobileBrowserPaneView
+      bare={bare}
+      pageOverlay={pageOverlay}
       addressFocused={addressFocused}
       addressValue={addressValue}
       bottomInset={bottomInset}
@@ -360,6 +388,8 @@ export function MobileBrowserPane({
       certificateTrustSupported={hostSupport.certificateTrust}
       controlsDisabled={controlsDisabled}
       dialog={dialog}
+      pagePrompt={pagePrompts.prompt}
+      answerPagePrompt={pagePrompts.answer}
       error={error}
       frameGeometry={frameGeometry}
       frameLayers={frameLayers}

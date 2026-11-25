@@ -1,4 +1,4 @@
-import type { Dispatch, RefObject, SetStateAction } from 'react'
+import type { Dispatch, ReactNode, RefObject, SetStateAction } from 'react'
 import {
   ActivityIndicator,
   Image,
@@ -20,6 +20,8 @@ import {
   type MobileBrowserStreamedDrawing
 } from '../MobileBrowserDrawingButtons'
 import { MobileBrowserJavaScriptDialog } from './MobileBrowserJavaScriptDialog'
+import { MobileBrowserPagePrompt } from './MobileBrowserPagePrompt'
+import type { MobileBrowserPagePromptState } from '../page-interaction/use-mobile-browser-page-prompts'
 import { MobileBrowserKeyRow } from './MobileBrowserKeyRow'
 import { MobileBrowserLoadFailure } from './MobileBrowserLoadFailure'
 import {
@@ -49,6 +51,10 @@ const FRAME_LAYER_STYLES: [StyleProp<ViewStyle>, StyleProp<ViewStyle>] = [
 ]
 
 type MobileBrowserPaneViewProps = {
+  /** Just the page and typing, for a sign-in: no address bar, page buttons or modifier keys. */
+  bare?: boolean
+  /** Drawn over the page's foot, e.g. a sheet's own toast where the screen's would sit under it. */
+  pageOverlay?: ReactNode
   addressFocused: boolean
   addressValue: string
   bottomInset: number
@@ -57,6 +63,8 @@ type MobileBrowserPaneViewProps = {
   certificateTrustSupported: boolean
   controlsDisabled: boolean
   dialog: BrowserDialogState | null
+  pagePrompt: MobileBrowserPagePromptState | null
+  answerPagePrompt: (value: unknown) => Promise<void>
   error: string | null
   frameGeometry: BrowserFrameGeometry | null
   frameLayers: readonly [BrowserFrameLayerBinding, BrowserFrameLayerBinding]
@@ -101,6 +109,8 @@ export function MobileBrowserPaneView(props: MobileBrowserPaneViewProps) {
   const t = useMobileTranslation()
   useMobileColorScheme()
   const {
+    bare = false,
+    pageOverlay,
     addressFocused,
     addressValue,
     bottomInset,
@@ -109,6 +119,8 @@ export function MobileBrowserPaneView(props: MobileBrowserPaneViewProps) {
     certificateTrustSupported,
     controlsDisabled,
     dialog,
+    pagePrompt,
+    answerPagePrompt,
     error,
     frameGeometry,
     frameLayers,
@@ -144,58 +156,60 @@ export function MobileBrowserPaneView(props: MobileBrowserPaneViewProps) {
   } = props
   return (
     <View ref={setRootViewRef} style={styles.root}>
-      <View style={styles.toolbar}>
-        <MobileBrowserToolbarIconButton
-          disabled={controlsDisabled || !tab.canGoBack}
-          label={t('common.back', 'Back')}
-          onPress={goBack}
-        >
-          <ChevronLeft size={15} color={buttonColor(!controlsDisabled && tab.canGoBack)} />
-        </MobileBrowserToolbarIconButton>
-        <MobileBrowserToolbarIconButton
-          disabled={controlsDisabled || !tab.canGoForward}
-          label={t('browser.paneView.forward', 'Forward')}
-          onPress={goForward}
-        >
-          <ChevronRight size={15} color={buttonColor(!controlsDisabled && tab.canGoForward)} />
-        </MobileBrowserToolbarIconButton>
-        <MobileBrowserToolbarIconButton
-          disabled={controlsDisabled}
-          label={
-            showStop ? t('browser.paneView.stop', 'Stop') : t('browser.paneView.reload', 'Reload')
-          }
-          onPress={showStop ? stopPage : reloadPage}
-        >
-          {showStop ? (
-            <X size={15} color={buttonColor(!controlsDisabled)} />
-          ) : (
-            <RefreshCw size={15} color={buttonColor(!controlsDisabled)} />
-          )}
-        </MobileBrowserToolbarIconButton>
-        <MobileBrowserAddressField
-          value={addressValue}
-          onChangeText={setAddressValue}
-          onFocus={() => setAddressFocused(true)}
-          onBlur={() => setAddressFocused(false)}
-          onSubmit={() => void navigateToAddress()}
-          focused={addressFocused}
-          disabled={controlsDisabled}
-          loading={tab.loading}
-          loadFailed={tab.loadError != null}
-        />
-        <MobileBrowserViewModeSwitch
-          disabled={controlsDisabled}
-          value={browserViewMode}
-          onChange={selectBrowserViewMode}
-        />
-        {drawing && (
-          <MobileBrowserDrawingButtons
-            drawing="stream"
-            onDrawingChange={drawing.onDrawingChange}
-            fullScreen={drawing.fullScreen}
+      {bare ? null : (
+        <View style={styles.toolbar}>
+          <MobileBrowserToolbarIconButton
+            disabled={controlsDisabled || !tab.canGoBack}
+            label={t('common.back', 'Back')}
+            onPress={goBack}
+          >
+            <ChevronLeft size={15} color={buttonColor(!controlsDisabled && tab.canGoBack)} />
+          </MobileBrowserToolbarIconButton>
+          <MobileBrowserToolbarIconButton
+            disabled={controlsDisabled || !tab.canGoForward}
+            label={t('browser.paneView.forward', 'Forward')}
+            onPress={goForward}
+          >
+            <ChevronRight size={15} color={buttonColor(!controlsDisabled && tab.canGoForward)} />
+          </MobileBrowserToolbarIconButton>
+          <MobileBrowserToolbarIconButton
+            disabled={controlsDisabled}
+            label={
+              showStop ? t('browser.paneView.stop', 'Stop') : t('browser.paneView.reload', 'Reload')
+            }
+            onPress={showStop ? stopPage : reloadPage}
+          >
+            {showStop ? (
+              <X size={15} color={buttonColor(!controlsDisabled)} />
+            ) : (
+              <RefreshCw size={15} color={buttonColor(!controlsDisabled)} />
+            )}
+          </MobileBrowserToolbarIconButton>
+          <MobileBrowserAddressField
+            value={addressValue}
+            onChangeText={setAddressValue}
+            onFocus={() => setAddressFocused(true)}
+            onBlur={() => setAddressFocused(false)}
+            onSubmit={() => void navigateToAddress()}
+            focused={addressFocused}
+            disabled={controlsDisabled}
+            loading={tab.loading}
+            loadFailed={tab.loadError != null}
           />
-        )}
-      </View>
+          <MobileBrowserViewModeSwitch
+            disabled={controlsDisabled}
+            value={browserViewMode}
+            onChange={selectBrowserViewMode}
+          />
+          {drawing && (
+            <MobileBrowserDrawingButtons
+              drawing="stream"
+              onDrawingChange={drawing.onDrawingChange}
+              fullScreen={drawing.fullScreen}
+            />
+          )}
+        </View>
+      )}
 
       <View
         style={styles.viewport}
@@ -338,7 +352,15 @@ export function MobileBrowserPaneView(props: MobileBrowserPaneViewProps) {
             keyboardLift={keyboardLift}
             sendDialogCommand={sendDialogCommand}
           />
+        ) : pagePrompt ? (
+          <MobileBrowserPagePrompt
+            key={pagePrompt.request.requestId}
+            prompt={pagePrompt}
+            keyboardLift={keyboardLift}
+            answer={answerPagePrompt}
+          />
         ) : null}
+        {pageOverlay}
       </View>
 
       <View
@@ -347,11 +369,13 @@ export function MobileBrowserPaneView(props: MobileBrowserPaneViewProps) {
           { paddingBottom: bottomInset, transform: [{ translateY: -keyboardLift }] }
         ]}
       >
-        <MobileBrowserPointerModifiers
-          disabled={controlsDisabled}
-          selectedModifiers={pointerModifiers}
-          onToggle={togglePointerModifier}
-        />
+        {bare ? null : (
+          <MobileBrowserPointerModifiers
+            disabled={controlsDisabled}
+            selectedModifiers={pointerModifiers}
+            onToggle={togglePointerModifier}
+          />
+        )}
         <MobileBrowserKeyRow
           disabled={controlsDisabled}
           onKeypress={(key) => void sendKeypress(key)}

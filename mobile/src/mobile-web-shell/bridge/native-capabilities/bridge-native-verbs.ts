@@ -22,6 +22,7 @@ import { BRIDGE_SPEECH_VERB, speechParamsSchema, speechResultSchema } from './br
 import { BRIDGE_STORE_VERB, storeParamsSchema, storeResultSchema } from './bridge-store-verb'
 import { PAGE_STORAGE_MAX_KEY_CHARS } from '../../page-storage/page-storage-keys'
 import { mobileFileMediaMime, PDF_MIME_TYPE } from '../../../files/media/mobile-file-media'
+import { BRIDGE_MAX_EXTERNAL_LINK_CHARS } from '../protocol/bridge-caps'
 
 // Fence native-prefixed requests on-device; desktop allowlist refusal alone would hide leaked forwarding and depend on desktop version.
 // Native replies use existing frames/in-flight caps without runtime _meta; adding a verb needs a table row and handler, never a new frame kind.
@@ -44,7 +45,8 @@ export const BRIDGE_NATIVE_VERB_NAMES = [
   'native.browser.view',
   BRIDGE_SPEECH_VERB,
   BRIDGE_STORE_VERB,
-  'native.a11y.announce'
+  'native.a11y.announce',
+  'native.link.open'
 ] as const
 
 export type BridgeNativeVerb = (typeof BRIDGE_NATIVE_VERB_NAMES)[number]
@@ -188,6 +190,12 @@ export type BridgeBrowserViewShowParams = Omit<
 >
 export type BridgeBrowserViewEnding = (typeof BRIDGE_BROWSER_VIEW_ENDINGS)[number]
 
+// The externalLink notify has no reply; this says whether an app on the phone took the link.
+export const linkOpenParamsSchema = z.strictObject({
+  url: z.string().min(1).max(BRIDGE_MAX_EXTERNAL_LINK_CHARS)
+})
+export const linkOpenResultSchema = z.strictObject({ opened: z.boolean() })
+
 export const BRIDGE_NATIVE_VERBS: Readonly<Record<BridgeNativeVerb, BridgeNativeVerbSpec>> = {
   'native.clipboard.write': {
     params: clipboardWriteParamsSchema,
@@ -257,6 +265,10 @@ export const BRIDGE_NATIVE_VERBS: Readonly<Record<BridgeNativeVerb, BridgeNative
   'native.a11y.announce': {
     params: a11yAnnounceParamsSchema,
     result: a11yAnnounceResultSchema
+  },
+  'native.link.open': {
+    params: linkOpenParamsSchema,
+    result: linkOpenResultSchema
   }
 }
 
