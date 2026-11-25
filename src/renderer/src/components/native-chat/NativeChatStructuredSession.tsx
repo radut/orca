@@ -254,6 +254,8 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
   const { colorScheme } = surface.appearance
   const paneHeader = nativeChatPaneHeader(props, ownerWorktreeId, colorScheme, handOff)
   const findBar = <NativeChatSurfaceFindBar surface={surface} isVisible={props.isVisible} />
+  const usageLimits = { recovery: controller, pane: props, directory: fileLinkContext }
+  const rowActions = { pane: props, chat: submits.rows, forks, messages: controller.messages }
   return (
     <NativeChatAntigravityAuthProvider target={install.antigravityAuth}>
       <NativeChatSlackMirrorContext.Provider value={slackMirror}>
@@ -288,18 +290,11 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
                     />
                   ) : (
                     <NativeChatUsageLimitActionsProvider
-                      recovery={controller}
-                      pane={props}
-                      directory={fileLinkContext}
+                      {...usageLimits}
                       messages={controller.messages}
                       view={continuation.view}
                     >
-                      <NativeChatRowActionsProvider
-                        pane={props}
-                        chat={submits.rows}
-                        forks={forks}
-                        messages={controller.messages}
-                      >
+                      <NativeChatRowActionsProvider {...rowActions}>
                         <NativeChatHostSetupContext.Provider value={setup}>
                           <NativeChatWorkerApprovalTimeline
                             party={workerApprovalParty}
