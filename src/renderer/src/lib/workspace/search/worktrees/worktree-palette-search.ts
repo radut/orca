@@ -1,5 +1,10 @@
 import { isWorktreeRetiredByRemoval } from '../../../../../../shared/worktree/removal/removal-visibility'
 import { matchPaletteDocument } from '../../../../../../shared/palette-match/match-document'
+import {
+  matchPaletteDocumentCompactQuery,
+  matchPaletteDocumentTypoQuery,
+  prepareCompactPaletteQuery
+} from '../../../../../../shared/palette-match/compact-query-match'
 import { preparePaletteQuery } from '../../../../../../shared/palette-match/palette-query'
 import type { MatchRange } from '../../../../../../shared/palette-match/normalized-text'
 import type { PaletteResultQualityClass } from '../../../../../../shared/palette-match/match-quality'
@@ -225,6 +230,15 @@ export function searchWorktreeDocuments(args: WorktreePaletteSearchArgs): Palett
   }
 
   const taskSourceUrl = parseCmdJTaskSourceUrl(args.query.trim())
+  const compactQuery = prepareCompactPaletteQuery(prepared.normalized)
+  const toResult = (worktree: Worktree, match: PaletteDocumentMatch): PaletteSearchResult =>
+    toWorktreePaletteSearchResult(
+      worktree.id,
+      match,
+      getPaletteWorktreeExecutionHostId(worktree),
+      context,
+      lastActiveAt(worktree)
+    )
   const results: PaletteSearchResult[] = []
   for (const worktree of args.worktrees) {
     if (taskSourceUrl) {
@@ -249,22 +263,26 @@ export function searchWorktreeDocuments(args: WorktreePaletteSearchArgs): Palett
     if (!document) {
       continue
     }
-    const match = matchPaletteDocument({
-      document,
-      tokens: prepared.tokens,
-      normalizedQuery: prepared.normalized,
-      tokenCountBeforeDeduplication: prepared.tokenCountBeforeDeduplication
-    })
+    const match =
+      matchPaletteDocument({
+        document,
+        tokens: prepared.tokens,
+        normalizedQuery: prepared.normalized,
+        tokenCountBeforeDeduplication: prepared.tokenCountBeforeDeduplication
+      }) ?? (compactQuery ? matchPaletteDocumentCompactQuery(document, compactQuery) : null)
     if (match) {
-      results.push(
-        toWorktreePaletteSearchResult(
-          worktree.id,
-          match,
-          getPaletteWorktreeExecutionHostId(worktree),
-          context,
-          lastActiveAt(worktree)
-        )
-      )
+      results.push(toResult(worktree, match))
+    }
+  }
+  if (results.length || taskSourceUrl || !compactQuery) {
+    return results
+  }
+  // Typo recovery runs only when nothing matched, so near-misses never crowd real hits.
+  for (const worktree of args.worktrees) {
+    const document = args.documents.get(getPaletteWorktreeIdentity(worktree))
+    const match = document ? matchPaletteDocumentTypoQuery(document, compactQuery) : null
+    if (match) {
+      results.push(toResult(worktree, match))
     }
   }
   return results
