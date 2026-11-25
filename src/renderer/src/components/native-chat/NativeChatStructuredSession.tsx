@@ -3,7 +3,6 @@ import {
   NativeChatCrewContext,
   useNativeChatCrewSource
 } from '../orchestration-crew/use-native-chat-crew'
-import { NativeChatUsageLimitActionsProvider } from './usage/NativeChatUsageLimitActions'
 import { useNativeChatHandOff } from './pane/actions/use-native-chat-hand-off'
 import { useNativeChatStructuredPaneNotices } from '@/components/native-chat/messages/notices/use-native-chat-structured-pane-notices'
 import { useRef, useState } from 'react'
@@ -51,7 +50,7 @@ import {
 import { useNativeChatComposerError } from './composer/controls/use-native-chat-composer-notice'
 import { useNativeChatProvisionalLaunch } from './host-access/use-native-chat-provisional-launch'
 import { useNativeChatRewindHost } from './messages/actions/use-native-chat-rewind-host'
-import { NativeChatRowActionsProvider } from './messages/actions/NativeChatRowActionsProvider'
+import { NativeChatStructuredRowProviders } from './messages/actions/NativeChatStructuredRowProviders'
 import { NativeChatQueuedMessageList } from './queue/NativeChatQueuedMessageList'
 import { cancelStructuredPrompt } from './session/structured/writes/native-chat-structured-stop-controls'
 import { useNativeChatBotHome } from './NativeChatBotHomeScope'
@@ -74,7 +73,6 @@ import { BotServerOutageCard } from '@/components/bots/BotServerOutageCard'
 import { useNativeChatHostSendGate } from '@/components/native-chat/host-access/use-native-chat-host-send-gate'
 import { useStructuredAgentSessionStartFailureFacts } from '@/components/native-chat/messages/notices/use-structured-agent-session-start-failure-facts'
 import { pendingPromptsAllUnanswerableHere } from '../../../../shared/agent-session/requests/prompts/agent-session-approval-subject'
-import { NativeChatHostSetupContext } from '@/components/native-chat/host-access/native-chat-host-setup'
 import type { NativeChatComposerHandle } from './composer/native-chat-composer-types'
 import {
   NativeChatWorkerApprovalTimeline,
@@ -287,57 +285,51 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
                       tabId={props.tabId}
                     />
                   ) : (
-                    <NativeChatUsageLimitActionsProvider
+                    <NativeChatStructuredRowProviders
                       recovery={controller}
                       pane={props}
                       directory={fileLinkContext}
                       messages={controller.messages}
                       view={continuation.view}
+                      chat={submits.rows}
+                      forks={forks}
+                      setup={setup}
                     >
-                      <NativeChatRowActionsProvider
-                        pane={props}
-                        chat={submits.rows}
-                        forks={forks}
-                        messages={controller.messages}
+                      <NativeChatWorkerApprovalTimeline
+                        party={workerApprovalParty}
+                        target={props.target}
                       >
-                        <NativeChatHostSetupContext.Provider value={setup}>
-                          <NativeChatWorkerApprovalTimeline
-                            party={workerApprovalParty}
-                            target={props.target}
-                          >
-                            {(timedRows) => (
-                              <NativeChatSubagentTranscripts
-                                find={surface.find}
-                                // A rewind or a /clear replaces the conversation; nothing the old one held carries over.
-                                key={`${controller.epoch}:${controller.contextClear.clears}`}
-                                paneKey={paneKey}
-                                ref={submits.messageListRef}
-                                session={session}
-                                journalItems={controller.journalItems}
-                                journalSubmissions={controller.submissions}
-                                journalLatestTurn={controller.latestTurn}
-                                journalHostWork={controller.hostWork}
-                                subagentRoster={controller.subagentRoster}
-                                railOutline={controller.railOutline}
-                                isVisible={props.isVisible}
-                                isWorking={controller.isWorking}
-                                expandSignal={false}
-                                workingStartedAt={controller.workingStartedAt}
-                                settledTurns={controller.settledTurns}
-                                awaitingInput={prompt === null ? null : 'shown'}
-                                turnActivity={controller.turnActivity}
-                                stopping={bot.stopControls.stopping}
-                                structuredAttachments
-                                runtimeContext={imageRuntimeContext}
-                                deliveryNotices={deliveryNotices}
-                                {...{ turnBot, botHome: bot.kickoff }}
-                                timedRows={timedRows}
-                              />
-                            )}
-                          </NativeChatWorkerApprovalTimeline>
-                        </NativeChatHostSetupContext.Provider>
-                      </NativeChatRowActionsProvider>
-                    </NativeChatUsageLimitActionsProvider>
+                        {(timedRows) => (
+                          <NativeChatSubagentTranscripts
+                            find={surface.find}
+                            // A rewind or a /clear replaces the conversation; nothing the old one held carries over.
+                            key={`${controller.epoch}:${controller.contextClear.clears}`}
+                            paneKey={paneKey}
+                            ref={submits.messageListRef}
+                            session={session}
+                            journalItems={controller.journalItems}
+                            journalSubmissions={controller.submissions}
+                            journalLatestTurn={controller.latestTurn}
+                            journalHostWork={controller.hostWork}
+                            subagentRoster={controller.subagentRoster}
+                            railOutline={controller.railOutline}
+                            isVisible={props.isVisible}
+                            isWorking={controller.isWorking}
+                            expandSignal={false}
+                            workingStartedAt={controller.workingStartedAt}
+                            settledTurns={controller.settledTurns}
+                            awaitingInput={prompt === null ? null : 'shown'}
+                            turnActivity={controller.turnActivity}
+                            stopping={bot.stopControls.stopping}
+                            structuredAttachments
+                            runtimeContext={imageRuntimeContext}
+                            deliveryNotices={deliveryNotices}
+                            {...{ turnBot, botHome: bot.kickoff }}
+                            timedRows={timedRows}
+                          />
+                        )}
+                      </NativeChatWorkerApprovalTimeline>
+                    </NativeChatStructuredRowProviders>
                   )}
                 </NativeChatContextClearFade>
               </NativeChatDockTranscript>
