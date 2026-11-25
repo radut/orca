@@ -16,9 +16,13 @@ import {
   createGithubReleaseUpdateSource,
   RETIRED_ANDROID_RELEASE_TAG_PREFIX
 } from './github-release-update-source'
+import { createUpdateFeedSource, feedBuildIdentity, readUpdateFeedUrl } from './update-feed-source'
 
 // expoConfig is embedded binary manifest because app does not use expo-updates; SDK 55 removed nativeAppVersion. Revisit version source if adopting OTA updates.
 export const installedAppVersion: string | null = Constants.expoConfig?.version ?? null
+
+/** A private build's own feed (Expo `extra.appUpdateFeedUrl`), checked in place of the App Store. */
+const updateFeedUrl = Platform.OS === 'ios' ? readUpdateFeedUrl(Constants.expoConfig?.extra) : null
 
 /** The GitHub APK's package. Orca moved to Google Play as dev.orca.app, so this app gets no more updates. */
 export const isRetiredGithubAndroidApp =
@@ -40,7 +44,9 @@ function resolveAppUpdateSource(): AppUpdateSource | null {
     )
   }
   if (Platform.OS === 'ios') {
-    return appStoreUpdateSource
+    return updateFeedUrl
+      ? createUpdateFeedSource(updateFeedUrl, (input, init) => fetch(input, init))
+      : appStoreUpdateSource
   }
   return null
 }
@@ -52,7 +58,10 @@ export const canCheckForAppUpdates = appUpdateSource !== null
 
 export const appUpdateChecker = createAppUpdateChecker({
   source: appUpdateSource,
-  installedVersion: installedAppVersion,
+  installedVersion:
+    updateFeedUrl && installedAppVersion
+      ? feedBuildIdentity(installedAppVersion, Constants.expoConfig?.ios?.buildNumber)
+      : installedAppVersion,
   now: () => Date.now(),
   setTimer: (run, delayMs) => setTimeout(run, delayMs),
   clearTimer: (handle) => clearTimeout(handle),
@@ -73,7 +82,7 @@ export function useAppUpdateState(): AppUpdateState {
   return useSyncExternalStore(appUpdateChecker.subscribe, appUpdateChecker.getSnapshot)
 }
 
-/** Opens the update the check found: the GitHub release (Android) or App Store (iOS). */
+/** Opens the update the check found: the GitHub release (Android), App Store or the private feed's link (iOS). */
 export function openAppUpdate(url: string): void {
   void Linking.openURL(url).catch(() => {})
 }
