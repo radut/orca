@@ -21808,6 +21808,12 @@
       "copyCode": "Copy code",
       "wrapLines": "Wrap lines",
       "disableLineWrap": "Disable line wrap",
+      "runInTerminal": "Run",
+      "runRunning": "Running…",
+      "runExited": "Exit {{code}}",
+      "runTimedOut": "Stopped after 5 minutes",
+      "runClosed": "The terminal closed before it finished",
+      "runFailed": "Could not run it",
       "context": {
         "unavailable": "Context usage is not known yet. It becomes available after the agent next responds.",
         "summary": "Context: {{used}} / {{window}} tokens ({{percent}}%), estimated from the last response.",

@@ -80,6 +80,8 @@ type NativeChatInstall = {
 export type NativeChatHostSetup = {
   signIn: NativeChatSignIn | null
   install: NativeChatInstall | null
+  /** The chat's workspace on `host`, where its code blocks' Play runs them; absent without one. */
+  worktreeId?: string | null
   /** The user's own CLI update on the chat's host; null for agents Orca can't update. */
   update?: AgentCliUpdateView | null
   /** The chat's host, so setup links open Settings on it. */
@@ -313,7 +315,7 @@ export function useNativeChatHostSetup(input: NativeChatHostSetupInput): NativeC
   const signIn = useNativeChatSignIn(input, terminal)
   const install = useNativeChatInstall(input, terminal)
   const update = useNativeChatCliUpdate(input.target, input.agent, input.onRechecked)
-  const { target, journalItems } = input
+  const { target, journalItems, worktreeId } = input
   // Keyed by its ids so a streamed reply leaves the set, and the rows reading it, alone.
   const unresolvedKey = useMemo(
     // Sent messages too: a refused one's line can offer the fix.
@@ -326,9 +328,10 @@ export function useNativeChatHostSetup(input: NativeChatHostSetupInput): NativeC
       signIn,
       install,
       update,
+      worktreeId,
       host: target,
       unresolvedFailureRows
     }),
-    [signIn, install, update, target, unresolvedFailureRows]
+    [signIn, install, update, worktreeId, target, unresolvedFailureRows]
   )
 }
