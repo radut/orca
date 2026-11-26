@@ -2542,6 +2542,7 @@
       "quickCommands": "Quick commands",
       "fileExplorer": "File explorer",
       "sourceControl": "Source control",
+      "findInTerminal": "Find in terminal",
       "itemsNeedYou": "Items, {{count}} need you",
       "items": "Items",
       "textSize": "Text size"
@@ -3378,6 +3379,13 @@
       "camera": "Camera",
       "choosePhotos": "Choose photos",
       "recentPhoto": "Recent photo"
+    },
+    "terminalFind": {
+      "placeholder": "Find in terminal",
+      "noResults": "No results",
+      "previous": "Previous match",
+      "next": "Next match",
+      "close": "Close find"
     },
     "textSizeSheet": {
       "chatTitle": "Chat text",
