@@ -20,6 +20,7 @@ import {
 } from '../../../../../../shared/native-chat/tools/native-chat-tool-fold'
 import { foldSubagentItems } from '../../../../../../shared/native-chat/transcript/subagents/native-chat-subagent-items'
 import { stripNoiseMessages } from '../../../../../../shared/native-chat/transcript/messages/native-chat-noise'
+import { isVisuallyEmptyNativeChatAssistantMessage } from '../../../../../../shared/native-chat/transcript/row-content/native-chat-row-content'
 import { agentJournalItemSubagentId } from '../../../../../../shared/agent-session/journal/agent-session-journal-producer'
 import {
   noteStreamedTextStage,
@@ -197,13 +198,16 @@ export function createNativeChatMessageListProjection(): (
   let state: NativeChatListState | null = null
   return (messages, journal) => {
     const previous = state
-    state =
-      (state && reuseUnits(state, messages, journal)) ?? projectFully(messages, journal, state)
+    // Why: keep the input array's identity when nothing is hidden, so in-place revision links still match.
+    const visible = messages.some(isVisuallyEmptyNativeChatAssistantMessage)
+      ? messages.filter((message) => !isVisuallyEmptyNativeChatAssistantMessage(message))
+      : messages
+    state = (state && reuseUnits(state, visible, journal)) ?? projectFully(visible, journal, state)
     // A subagent's streaming reply changes only text, so scans that read none (turn diffs, opened
     // pull requests) keep what they built for the rows it revised.
     if (
       previous &&
-      projectionBesideStreamedText(messages) === projectionBesideStreamedText(previous.input) &&
+      projectionBesideStreamedText(visible) === projectionBesideStreamedText(previous.input) &&
       sameTurnJournalBesideStreamedText(journal, previous.journal)
     ) {
       noteStreamedTextStage(state.projection.subagentRows, previous.projection.subagentRows)
