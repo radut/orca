@@ -112,11 +112,8 @@ export function useMobileSessionTerminalCreateActions(scope: MobileSessionAttach
           agent,
           options,
           nativeChatDefault,
-          onTerminalLanded: (tabId) => {
-            if (isCurrent()) {
-              scope.nativeChatController.setTabView(tabId, 'launch-terminal')
-            }
-          },
+          onTerminalLanded: (tabId) =>
+            isCurrent() && scope.nativeChatController.setTabView(tabId, 'launch-terminal'),
           lock: clientMutationId,
           activeSessionTabId,
           pendingSelectionRef,
