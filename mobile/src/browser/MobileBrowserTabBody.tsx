@@ -20,5 +20,9 @@ export function MobileBrowserTabBody({ hostId, ...props }: Props) {
       />
     )
   }
-  return hostId ? <MobileBrowserSurface {...props} hostId={hostId} /> : <MobileBrowserPane {...props} />
+  return hostId ? (
+    <MobileBrowserSurface {...props} hostId={hostId} />
+  ) : (
+    <MobileBrowserPane {...props} />
+  )
 }
