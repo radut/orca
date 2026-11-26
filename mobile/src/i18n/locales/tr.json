@@ -3392,7 +3392,8 @@
       "quickCommands": "Hızlı komutlar",
       "items": "Öğeler",
       "itemsNeedYou": "Öğeler, {{count}} tanesi sizi bekliyor",
-      "textSize": "Metin boyutu"
+      "textSize": "Metin boyutu",
+      "findInTerminal": "Terminalde bul"
     },
     "headerMoreActionsSheet": {
       "agentHistory": "Ajan Geçmişi",
@@ -3934,6 +3935,13 @@
       "camera": "Kamera",
       "choosePhotos": "Fotoğraf seç",
       "recentPhoto": "Son fotoğraf"
+    },
+    "terminalFind": {
+      "placeholder": "Terminalde bul",
+      "noResults": "Sonuç yok",
+      "previous": "Önceki eşleşme",
+      "next": "Sonraki eşleşme",
+      "close": "Aramayı kapat"
     },
     "nativeChatView": {
       "linkedMessageMissing": "Bu mesaj bulunamadı.",
