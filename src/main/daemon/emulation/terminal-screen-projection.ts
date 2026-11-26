@@ -1,4 +1,7 @@
-import { detectTerminalComposerDraft } from '../../../shared/terminal/input/terminal-composer-draft'
+import {
+  detectTerminalComposerDraft,
+  readTerminalComposerTypedText
+} from '../../../shared/terminal/input/terminal-composer-draft'
 import type { HeadlessEmulator } from './headless-emulator'
 import type { HeadlessTerminalRow } from './headless-terminal-rows'
 import type { RuntimeTerminalRowMetadata } from '../../../shared/terminal/runtime/runtime-terminal-contracts'
@@ -42,6 +45,21 @@ function projectTerminalRows(
   }
 }
 
+/** The box is still blanked from the screen. `draft` is only text the user typed, not a dim suggestion. */
+function projectedComposer(
+  emulator: TerminalProjectionEmulator,
+  options?: TerminalGridReadOptions
+): {
+  region: ReturnType<typeof detectTerminalComposerDraft>
+  typed: string | undefined
+} {
+  const context = emulator.getCursorLineContext(undefined, options)
+  const region = detectTerminalComposerDraft(context)
+  // Why region: typed text matching a stock placeholder has no blanked box, so it stays in `lines`.
+  const typed = region ? readTerminalComposerTypedText(context) : null
+  return { region, typed: typed || undefined }
+}
+
 export function projectTerminalTailLines(
   emulator: TerminalProjectionEmulator,
   limit: number
@@ -49,13 +67,13 @@ export function projectTerminalTailLines(
   const tail = emulator.getBufferTailRows(limit)
   const visible = emulator.getVisibleRows()
   const visibleRange = emulator.getVisibleBufferRange()
-  const draft = detectTerminalComposerDraft(emulator.getCursorLineContext())
-  if (draft && visibleRange.endExclusive === visibleRange.totalLength) {
-    visible[draft.promptRow] = {
-      text: draft.promptGlyph,
+  const { region, typed } = projectedComposer(emulator)
+  if (region && visibleRange.endExclusive === visibleRange.totalLength) {
+    visible[region.promptRow] = {
+      text: region.promptGlyph,
       metadata: { wrapped: false, trailingSpaces: 0 }
     }
-    for (let row = draft.promptRow + 1; row <= draft.endRow; row += 1) {
+    for (let row = region.promptRow + 1; row <= region.endRow; row += 1) {
       visible[row] = { text: '', metadata: { wrapped: false, trailingSpaces: 0 } }
     }
     const scrollbackTail = tail.slice(0, Math.max(0, tail.length - visible.length))
@@ -63,7 +81,7 @@ export function projectTerminalTailLines(
   }
   return {
     ...projectTerminalRows(tail, limit),
-    ...(draft ? { draft: draft.text } : {})
+    ...(typed ? { draft: typed } : {})
   }
 }
 
@@ -76,19 +94,19 @@ export function projectTerminalVisibleLines(
   draft?: string
 } {
   const visible = emulator.getVisibleRows(options)
-  const draft = detectTerminalComposerDraft(emulator.getCursorLineContext(undefined, options))
-  if (draft) {
-    visible[draft.promptRow] = {
-      text: draft.promptGlyph,
+  const { region, typed } = projectedComposer(emulator, options)
+  if (region) {
+    visible[region.promptRow] = {
+      text: region.promptGlyph,
       metadata: { wrapped: false, trailingSpaces: 0 }
     }
-    for (let row = draft.promptRow + 1; row <= draft.endRow; row += 1) {
+    for (let row = region.promptRow + 1; row <= region.endRow; row += 1) {
       visible[row] = { text: '', metadata: { wrapped: false, trailingSpaces: 0 } }
     }
   }
   return {
     ...projectTerminalRows(visible),
-    ...(draft ? { draft: draft.text } : {})
+    ...(typed ? { draft: typed } : {})
   }
 }
 
