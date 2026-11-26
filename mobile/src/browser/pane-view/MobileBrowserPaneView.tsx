@@ -15,6 +15,10 @@ import { useMobileTranslation } from '../../i18n/use-mobile-translation'
 import { colors, pressedStyle } from '../../theme/mobile-theme'
 import { useMobileColorScheme } from '../../theme/use-mobile-color-scheme'
 import { MobileBrowserAddressField } from './MobileBrowserAddressField'
+import {
+  MobileBrowserDrawingButtons,
+  type MobileBrowserStreamedDrawing
+} from '../MobileBrowserDrawingButtons'
 import { MobileBrowserJavaScriptDialog } from './MobileBrowserJavaScriptDialog'
 import { MobileBrowserPagePrompt } from './MobileBrowserPagePrompt'
 import type { MobileBrowserPagePromptState } from '../page-interaction/use-mobile-browser-page-prompts'
@@ -70,6 +74,7 @@ type MobileBrowserPaneViewProps = {
   keyboardValue: string
   layoutRef: RefObject<BrowserTouchLayout | null>
   navigateToAddress: () => Promise<void>
+  drawing?: MobileBrowserStreamedDrawing
   panResponder: PanResponderInstance
   proceedCertificate: (challengeId: string) => Promise<MobileCertificateProceedFailure | null>
   pointerModifiers: BrowserPointerModifier[]
@@ -125,6 +130,7 @@ export function MobileBrowserPaneView(props: MobileBrowserPaneViewProps) {
     keyboardValue,
     layoutRef,
     navigateToAddress,
+    drawing,
     panResponder,
     pointerModifiers,
     proceedCertificate,
@@ -195,6 +201,13 @@ export function MobileBrowserPaneView(props: MobileBrowserPaneViewProps) {
             value={browserViewMode}
             onChange={selectBrowserViewMode}
           />
+          {drawing && (
+            <MobileBrowserDrawingButtons
+              drawing="stream"
+              onDrawingChange={drawing.onDrawingChange}
+              fullScreen={drawing.fullScreen}
+            />
+          )}
         </View>
       )}
 
