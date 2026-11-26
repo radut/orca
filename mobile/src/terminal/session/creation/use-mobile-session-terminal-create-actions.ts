@@ -164,8 +164,7 @@ export function useMobileSessionTerminalCreateActions(scope: MobileSessionAttach
         options,
         shell: options?.shell,
         ...(sourceFork ? { sourceChatFork: { sessionId: sourceFork.sessionId } } : {}),
-        viewMode:
-          sourceFork || options?.terminalView ? undefined : await hostViewModeForNewAgentTab(agent)
+        viewMode: terminalView ? undefined : await hostViewModeForNewAgentTab(agent)
       })
       if (!isCurrent()) {
         return sourceOutcome('accepted')
