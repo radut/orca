@@ -28,7 +28,7 @@ import {
   wslMoveHostCopyOutcome
 } from '../../persistence/moving-wsl-projects/quiescence/wsl-move-host-copy-stop'
 import { beginWslMoveUndoRun } from '../../persistence/moving-wsl-projects/orchestration/wsl-move-running-moves'
-import { runWslMoveHostAutomationsExclusive } from '../../persistence/moving-wsl-projects/cutover-recovery/wsl-move-undo-host-automations'
+import { runWslMoveHostAutomationsExclusive } from '../../persistence/moving-wsl-projects/cutover-recovery/wsl-move-host-automations-lock'
 import { listEnvironments } from '../../../shared/remote-runtime/host-store/runtime-environment-store'
 import { wasWslHostKeptForPeers } from '../../wsl/host-lifecycle/wsl-host-kept-for-peers'
 
@@ -159,6 +159,12 @@ async function releaseWslMovesHereNow(
     const ports = createUndoPorts()
     for (const move of released) {
       ports.refocusHere?.(move)
+      try {
+        ports.unhideMovedEntries?.(move)
+      } catch (error) {
+        // Cosmetic and repeated by the startup prune; it must never block the reload below.
+        console.warn('[wsl-move] Could not unhide moved entries after undo:', error)
+      }
     }
     fenceHandedToReload = true
     reloadWslMoveWindowWithWritesHeld(releaseSpawnFence)
