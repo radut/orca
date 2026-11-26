@@ -15,6 +15,7 @@ import { useMobileNativeChatVisualRenderer } from './visual/MobileNativeChatVisu
 import { MobileNativeChatVisualContext } from './visual/mobile-native-chat-visual-context'
 import { MobileNativeChatRootItemSourceContext } from './transcript/projection/mobile-native-chat-item-read'
 import { useMobileNativeChatMessageDetail } from './transcript/projection/use-mobile-native-chat-message-detail'
+import { useMobileNativeChatDetailSource } from './transcript/projection/use-mobile-native-chat-detail-source'
 import {
   MobileNativeChatReplyRevealsContext,
   useMobileNativeChatReplyReveals
@@ -168,32 +169,9 @@ function MobileNativeChatOverlayContent({
   const visuals = useMobileNativeChatVisualRenderer(controller.nativeChatVisualSource)
   const replyReveals = useMobileNativeChatReplyReveals(folded, streaming !== null, sendSurfaceId)
   useStopReadAloudWithChat(sendSurfaceId)
-  const itemSource = controller.nativeChatItemSource
-  const committedDetail = useMemo(
-    () => ({ current: fullContent.detail }),
-    [itemSource?.client, itemSource?.sessionId]
-  )
-  useLayoutEffect(() => {
-    committedDetail.current = fullContent.detail
-  }, [committedDetail, fullContent.detail])
-  const load = useCallback(
-    async (id: string) => {
-      if (!committedDetail.current) {
-        throw new Error('Message unavailable')
-      }
-      await committedDetail.current.load(id)
-    },
-    [committedDetail]
-  )
-  const detailSource = useMemo(
-    () =>
-      itemSource
-        ? {
-            ...itemSource,
-            messageDetail: fullContent.detail ? { ...fullContent.detail, load } : null
-          }
-        : null,
-    [itemSource, fullContent.detail, load]
+  const detailSource = useMobileNativeChatDetailSource(
+    controller.nativeChatItemSource,
+    fullContent.detail
   )
   const { mentionFiles, markdownLinks, openFile } = useMobileNativeChatFiles({
     controller,
