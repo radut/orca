@@ -49,7 +49,7 @@ it('recovers the page with zero repeated reply bodies and one changed body at bo
           turns
         })
       }
-      // oxlint-disable-next-line typescript/consistent-type-assertions -- Only store-backed posts are seeded.
+      // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: readBotGroup reads only the store and mail checks seeded here.
       const runtime = { store, mailTurnChecks: new Map() } as unknown as BotGroupRuntime
       const load = (keys?: string[]) => readBotGroup(runtime, group.id, undefined, undefined, keys)
       const initial = load([])
@@ -162,7 +162,7 @@ it('reads the frozen source once across consecutive detail pages at both sizes',
         ).toBe('frozen')
       }
       expect(
-        db.db.prepare('SELECT COUNT(*) AS count FROM bot_group_archive_turn').get().count
+        db.db.prepare('SELECT COUNT(*) AS count FROM bot_group_archive_turn').get()?.count
       ).toBe(8)
       const interleaved = 'next-frozen-1'
       expect(
