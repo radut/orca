@@ -1,3 +1,4 @@
+import { rowsBesideStreamedText } from '../../../../../../shared/agent-session/view/structured-agent-session-streamed-text-rows'
 import type { NativeChatMessageSlot } from '../../conversation/slots/native-chat-transcript-slots'
 import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useHostStructuredAgent } from '@/runtime/native-chat/agent-catalogs/use-host-structured-agent'
@@ -194,14 +195,20 @@ export function useNativeChatFork(input: {
     },
     []
   )
+  // The floor and inventory read no reply text, so they hold while a reply streams.
+  const structure = rowsBesideStreamedText(input.items)
+  const clearedThrough = useMemo(
+    () => latestAgentSessionContextClearSequence(structure),
+    [structure]
+  )
   const contextFloorSequence = Math.max(
-    latestAgentSessionContextClearSequence(input.items),
+    clearedThrough,
     agentSessionContextFloorSequence(input.contextFloor, input.epoch)
   )
   // Streaming replaces the items array on every commit; keep the set while its members hold, so the
   // context and every offered row's `fork` stay the same objects.
   const forkableRef = useRef<ReadonlySet<string>>(new Set())
-  const inventory = useMemo(() => nativeChatForkInventory(input.items), [input.items])
+  const inventory = useMemo(() => nativeChatForkInventory(structure), [structure])
   const { inheritedThroughSequence } = inventory
   const forkableItemIds = useMemo(() => {
     const next = inventory.forkableItemIds
