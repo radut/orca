@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto'
 import { z } from 'zod'
+import { lazyZodSchema } from '../../../shared/schema/lazy-zod-schema'
 import { parsePaneKey } from '../../../shared/workspace-layout/stable-pane-id'
 
 /** How long a pane counts as reachable after its plugin last polled; it polls every second. */
@@ -8,23 +9,27 @@ export const CLAUDE_TERMINAL_MAIL_LIVE_MS = 5000
 const UNTAKEN_TIMEOUT_MS = 5000
 const TAKEN_TIMEOUT_MS = 30_000
 
-const Identity = z.object({
-  paneKey: z
-    .string()
-    .max(256)
-    .refine((value) => parsePaneKey(value) !== null),
-  sessionId: z.string().min(1).max(256),
-  instanceId: z.string().min(1).max(256)
-})
-const Message = z.discriminatedUnion('action', [
-  Identity.extend({ action: z.literal('poll') }),
-  Identity.extend({
-    action: z.literal('ack'),
-    id: z.string().max(64),
-    submitted: z.boolean()
-  }),
-  Identity.extend({ action: z.literal('end') })
-])
+const Identity = lazyZodSchema(() =>
+  z.object({
+    paneKey: z
+      .string()
+      .max(256)
+      .refine((value) => parsePaneKey(value) !== null),
+    sessionId: z.string().min(1).max(256),
+    instanceId: z.string().min(1).max(256)
+  })
+)
+const Message = lazyZodSchema(() =>
+  z.discriminatedUnion('action', [
+    Identity.extend({ action: z.literal('poll') }),
+    Identity.extend({
+      action: z.literal('ack'),
+      id: z.string().max(64),
+      submitted: z.boolean()
+    }),
+    Identity.extend({ action: z.literal('end') })
+  ])
+)
 
 /** `refused`: the prompt never reached Claude, so the mail may go another way; `unverifiable`: it may have. */
 export type ClaudeTerminalMailOutcome = 'submitted' | 'refused' | 'unverifiable'
