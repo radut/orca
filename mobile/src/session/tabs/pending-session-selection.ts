@@ -9,6 +9,7 @@ export type PendingSessionSelection =
       lock: string
       surface: LaunchedSurface
       snapshotsLeft: number | null
+      onTerminalLanded?: (tabId: string) => void
     }
 
 // Match launches by reserved pane, returned handle or session id; structured chats are not listed under the reserved tab id.
@@ -24,13 +25,15 @@ export const LAUNCHED_SELECTION_SNAPSHOT_BUDGET = 5
 export function launchedSelection(
   lock: string,
   surface: Partial<LaunchedSurface>,
-  snapshotsLeft: number | null = LAUNCHED_SELECTION_SNAPSHOT_BUDGET
+  snapshotsLeft: number | null = LAUNCHED_SELECTION_SNAPSHOT_BUDGET,
+  onTerminalLanded?: (tabId: string) => void
 ): PendingSessionSelection {
   return {
     kind: 'launched',
     lock,
     surface: { pane: null, sessionId: null, handle: null, ...surface },
-    snapshotsLeft
+    snapshotsLeft,
+    onTerminalLanded
   }
 }
 
@@ -88,12 +91,12 @@ export function withoutPendingHandle(
   return selection.tabId ? { kind: 'tab', tabId: selection.tabId } : null
 }
 
-export function resolveLaunchedSelection(
+function resolveLaunchedSelection(
   selection: PendingSessionSelection | null,
   tabs: readonly MobileSessionTab[]
-): { selection: PendingSessionSelection | null; landedTabId: string | null } {
+): { selection: PendingSessionSelection | null; landedTab: MobileSessionTab | null } {
   if (selection?.kind !== 'launched') {
-    return { selection, landedTabId: null }
+    return { selection, landedTab: null }
   }
   const landed = tabs.find((tab) => isLaunchedTab(tab, selection.surface))
   if (landed) {
@@ -102,17 +105,29 @@ export function resolveLaunchedSelection(
         landed.type === 'terminal' && landed.terminal
           ? { kind: 'terminal', handle: landed.terminal, tabId: landed.id }
           : { kind: 'tab', tabId: landed.id },
-      landedTabId: landed.id
+      landedTab: landed
     }
   }
   if (selection.snapshotsLeft === null) {
-    return { selection, landedTabId: null }
+    return { selection, landedTab: null }
   }
   const snapshotsLeft = selection.snapshotsLeft - 1
   return {
     selection: snapshotsLeft > 0 ? { ...selection, snapshotsLeft } : null,
-    landedTabId: null
+    landedTab: null
   }
+}
+
+/** Resolves a launch and tells a CLI launch which terminal tab it landed in. */
+export function landLaunchedSelection(
+  selection: PendingSessionSelection | null,
+  tabs: readonly MobileSessionTab[]
+): ReturnType<typeof resolveLaunchedSelection> {
+  const resolved = resolveLaunchedSelection(selection, tabs)
+  if (resolved.landedTab?.type === 'terminal' && selection?.kind === 'launched') {
+    selection.onTerminalLanded?.(resolved.landedTab.id)
+  }
+  return resolved
 }
 
 export function isLaunchedSurfaceListed(
