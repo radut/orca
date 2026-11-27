@@ -1,3 +1,4 @@
+import { CLOCK_TIME, regionalDateTimeFormat } from '../../i18n/regional-date-time-format'
 // Carry provider usage-limit facts; each reader formats resets in its own clock.
 
 /** `session`: the rolling few-hour limit. `weekly`: the account's weekly limit. `weeklyModel`: a
@@ -45,6 +46,27 @@ export function readAgentSessionUsageLimit(value: unknown): AgentSessionUsageLim
     : undefined
 }
 
+const RESET_DAY_CLOCK: Intl.DateTimeFormatOptions = {
+  weekday: 'short',
+  month: 'short',
+  day: 'numeric',
+  hour: 'numeric',
+  minute: '2-digit'
+}
+
+const RESET_WEEKDAY_CLOCK: Intl.DateTimeFormatOptions = {
+  weekday: 'short',
+  hour: 'numeric',
+  minute: '2-digit'
+}
+
+const RESET_DATE_CLOCK: Intl.DateTimeFormatOptions = {
+  month: 'short',
+  day: 'numeric',
+  hour: 'numeric',
+  minute: '2-digit'
+}
+
 /** A row's short reset: the time today, else weekday and time within the week, else the date. */
 export function formatUsageLimitResetShort(
   resetsAt: number,
@@ -53,15 +75,12 @@ export function formatUsageLimitResetShort(
 ): string {
   const at = new Date(resetsAt)
   if (at.toDateString() === new Date(now).toDateString()) {
-    return new Intl.DateTimeFormat(locale, { hour: 'numeric', minute: '2-digit' }).format(at)
+    return regionalDateTimeFormat(CLOCK_TIME, locale).format(at)
   }
   const withinWeek = resetsAt > now && resetsAt - now < 6 * 24 * 60 * 60 * 1000
-  return new Intl.DateTimeFormat(
-    locale,
-    withinWeek
-      ? { weekday: 'short', hour: 'numeric', minute: '2-digit' }
-      : { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }
-  ).format(at)
+  return regionalDateTimeFormat(withinWeek ? RESET_WEEKDAY_CLOCK : RESET_DATE_CLOCK, locale).format(
+    at
+  )
 }
 
 /** A reset time in the reader's own clock: the time alone today, else with its day. */
@@ -72,10 +91,5 @@ export function formatUsageLimitResetClock(
 ): string {
   const at = new Date(resetsAt)
   const today = at.toDateString() === new Date(now).toDateString()
-  return new Intl.DateTimeFormat(
-    locale,
-    today
-      ? { hour: 'numeric', minute: '2-digit' }
-      : { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }
-  ).format(at)
+  return regionalDateTimeFormat(today ? CLOCK_TIME : RESET_DAY_CLOCK, locale).format(at)
 }
