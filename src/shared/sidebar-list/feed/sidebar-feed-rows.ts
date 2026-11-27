@@ -48,6 +48,7 @@ import type { PinnedWorktreeDisplayPolicy, Row, WorktreeGroupBy } from '../row-t
 import type { SidebarFeedWindowExtras } from '../sidebar-feed-extras'
 import type { SidebarFeedDomains } from './sidebar-feed-domains'
 import { planSidebarRows } from '../sidebar-row-plan'
+import { getHiddenMainCheckouts } from '../selection/hidden-main-checkouts'
 import type { FeedLineagePolicy } from './sidebar-feed-lineage-parents'
 import type { WorkspaceSortBy as SortBy } from '../../workspace-view/workspace-row-sort'
 import {
@@ -214,6 +215,7 @@ export function planSidebarFeedRows(
     filterRepoIds: view.filters.filterRepoIds,
     hiddenProjects
   })
+  const hiddenMainRows = { repos: visibleRepos, worktreesByRepo, visibleWorktrees }
   const plan = planSidebarRows({
     groupBy,
     sortBy: view.sortBy,
@@ -241,7 +243,9 @@ export function planSidebarFeedRows(
     defaultHostId,
     pinnedDisplayPolicy: view.pinnedDisplayPolicy,
     filterRepoIds: view.filters.filterRepoIds,
-    hiddenProjects
+    hiddenProjects,
+    // Same Recent ranking as the desktop list: a hidden main checkout's chats still count.
+    activityOnlyWorktrees: getHiddenMainCheckouts(hiddenMainRows, defaultHostId)
   })
   return {
     visibleWorktrees,
