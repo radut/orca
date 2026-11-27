@@ -430,7 +430,8 @@
 1 src/main/daemon/providers/adapter/daemon-pty-runtime-state.ts
 1 src/main/daemon/providers/adapter/daemon-pty-session-control.ts
 5 src/main/daemon/providers/adapter/daemon-pty-session-spawn.ts
-17 src/main/daemon/providers/lifecycle/daemon-provider-init.ts
+3 src/main/daemon/providers/lifecycle/daemon-legacy-fallback-init.ts # one-shot startup fallback when the current daemon fails to start
+22 src/main/daemon/providers/lifecycle/daemon-provider-init.ts # one-shot startup: legacy-session fallback on current daemon failure
 7 src/main/daemon/providers/lifecycle/daemon-provider-restart.ts
 5 src/main/daemon/providers/lifecycle/daemon-provider-state.ts
 4 src/main/daemon/providers/lifecycle/daemon-severed-restart.ts
