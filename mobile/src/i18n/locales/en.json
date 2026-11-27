@@ -2799,7 +2799,9 @@
       "skills": "Skills",
       "availableSkills": "{{count}} available",
       "commands": "Commands",
-      "addFiles": "Add files"
+      "addFiles": "Add files",
+      "videos": "Videos",
+      "videoSource": "From your photo library"
     },
     "nativeChatCliFork": {
       "resumeInNewCli": "Resume in New CLI"
@@ -3409,7 +3411,6 @@
   "chat": {
     "composer": {
       "addToMessage": "Add to message",
-      "attachImage": "Attach image",
       "placeholder": "Ask anything, @ to mention files, / for commands",
       "cancelEditing": "Cancel editing",
       "saveEditedMessage": "Save edited message",

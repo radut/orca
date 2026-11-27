@@ -1,4 +1,4 @@
-import { CLIPBOARD_IMAGE_MAX_SOURCE_BYTES } from '../../../../src/shared/clipboard/clipboard-image'
+import { AGENT_SESSION_ATTACHMENT_UPLOAD_MAX_BYTES } from '../../../../src/shared/agent-session/agent-session-attachments'
 
 // Keep contracts/errors free of Expo imports so a page-side instanceof cannot pull native picker code into the bundle.
 
@@ -19,18 +19,19 @@ export type PickedMobileFile = {
   readonly name: string
   readonly mime: string
   readonly byteLength: number
-  // Raw base64 (no data: prefix).
-  readonly base64: string
+  // Read while uploading so a large file never sits in memory whole; valid until the picker iterates on.
+  readonly readBytes: () => AsyncIterable<Uint8Array>
 }
 
-// Match the shell’s staging ceiling so native/page callers refuse the same file sizes.
-export const MOBILE_PICKED_FILE_MAX_BYTES = CLIPBOARD_IMAGE_MAX_SOURCE_BYTES
+// Videos come from the photo library, which the Files app cannot reach on iOS; both stream like any file.
+export type MobilePickedFileSource = 'files' | 'videos'
+
+// Files stream to the host's chunked upload, so they share its ceiling rather than the in-memory image one.
+export const MOBILE_PICKED_FILE_MAX_BYTES = AGENT_SESSION_ATTACHMENT_UPLOAD_MAX_BYTES
 
 export class MobileFileTooLargeError extends Error {
-  constructor(fileName: string | null) {
-    super(
-      `${fileName ?? 'That file'} is over ${Math.floor(MOBILE_PICKED_FILE_MAX_BYTES / (1024 * 1024))} MB`
-    )
+  constructor(fileName: string | null, maxBytes: number = MOBILE_PICKED_FILE_MAX_BYTES) {
+    super(`${fileName ?? 'That file'} is over ${Math.floor(maxBytes / (1024 * 1024))} MB`)
     this.name = 'MobileFileTooLargeError'
   }
 }
@@ -90,6 +91,7 @@ export type AddContextChoiceName =
   | 'camera'
   | 'photos'
   | 'files'
+  | 'videos'
   | 'workspaceFile'
   | 'skills'
   | 'commands'
@@ -98,7 +100,7 @@ export type AddContextChoiceName =
 export type MediaPicker = {
   pickImage: (source: MobileImageSource) => Promise<PickedMobileImage | null>
   pickImages: (source: MobileImageSource) => AsyncIterable<PickedMobileImage>
-  pickFiles: () => AsyncIterable<PickedMobileFile>
+  pickFiles: (from?: MobilePickedFileSource) => AsyncIterable<PickedMobileFile>
   // The app's own screens read recent photos in-process; null on the served page, which never sees the library.
   recentPhotos: RecentPhotoLibrary | null
   // The served page asks the shell to draw Add context, so only photos tapped there leave the shell; null elsewhere.

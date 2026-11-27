@@ -353,7 +353,6 @@
     },
     "composer": {
       "addToMessage": "Mesaja ekle",
-      "attachImage": "Görsel ekle",
       "cancelEditing": "Düzenlemeyi iptal et",
       "placeholder": "Bir şey sorun; dosyalara başvurmak için @, komutlar için / kullanın",
       "saveEditedMessage": "Düzenlenen mesajı kaydet",
@@ -3438,7 +3437,9 @@
       "fileTypes": "PDF, metin, kod…",
       "skills": "Beceriler",
       "workspaceFile": "Çalışma alanı dosyası",
-      "addFiles": "Dosya ekle"
+      "addFiles": "Dosya ekle",
+      "videos": "Videolar",
+      "videoSource": "Fotoğraf arşivinden"
     },
     "nativeChatCardHeaderAction": {
       "collapse": "Daralt"

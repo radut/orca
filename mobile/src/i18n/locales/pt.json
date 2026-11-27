@@ -237,7 +237,6 @@
     },
     "composer": {
       "addToMessage": "Adicionar à mensagem",
-      "attachImage": "Anexar imagem",
       "cancelEditing": "Cancelar edição",
       "placeholder": "Pergunte o que quiser, @ para mencionar arquivos, / para comandos",
       "saveEditedMessage": "Salvar mensagem editada",
@@ -2824,7 +2823,9 @@
       "fileTypes": "PDF, texto, código…",
       "skills": "Skills",
       "workspaceFile": "Arquivo do espaço de trabalho",
-      "addFiles": "Adicionar arquivos"
+      "addFiles": "Adicionar arquivos",
+      "videos": "Vídeos",
+      "videoSource": "Da sua fototeca"
     },
     "nativeChatCardHeaderAction": {
       "collapse": "Recolher"

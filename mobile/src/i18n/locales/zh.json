@@ -306,7 +306,6 @@
     },
     "composer": {
       "addToMessage": "添加到消息",
-      "attachImage": "添加图片",
       "cancelEditing": "取消编辑",
       "placeholder": "随心输入，@ 引用文件，/ 使用命令",
       "saveEditedMessage": "保存编辑后的消息",
@@ -3308,7 +3307,9 @@
       "fileTypes": "PDF、文本、代码…",
       "skills": "技能",
       "workspaceFile": "工作区文件",
-      "addFiles": "添加文件"
+      "addFiles": "添加文件",
+      "videos": "视频",
+      "videoSource": "来自你的照片图库"
     },
     "nativeChatCardHeaderAction": {
       "collapse": "收起"

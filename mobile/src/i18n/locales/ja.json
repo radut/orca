@@ -217,7 +217,6 @@
     },
     "composer": {
       "addToMessage": "メッセージに追加",
-      "attachImage": "画像を添付",
       "cancelEditing": "編集をキャンセル",
       "placeholder": "何でも聞いてください。@ でファイルを参照、/ でコマンドを実行",
       "saveEditedMessage": "編集したメッセージを保存",
@@ -2383,7 +2382,9 @@
       "fileTypes": "PDF、テキスト、コード…",
       "skills": "スキル",
       "workspaceFile": "ワークスペースファイル",
-      "addFiles": "ファイルを追加"
+      "addFiles": "ファイルを追加",
+      "videos": "ビデオ",
+      "videoSource": "写真ライブラリから"
     },
     "nativeChatCardHeaderAction": {
       "collapse": "折りたたむ"

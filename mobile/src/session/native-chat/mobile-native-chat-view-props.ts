@@ -1,4 +1,7 @@
-import type { MobileComposerImagePick } from '../../platform/media-picking/media-picker-contract'
+import type {
+  MobileComposerImagePick,
+  MobilePickedFileSource
+} from '../../platform/media-picking/media-picker-contract'
 import type { MobileSessionItemNavigation } from '../mobile-session-item-target'
 import type { NativeChatSkillDiscoverySnapshot } from '../../../../src/shared/native-chat/input/composer/native-chat-picker-items'
 import type { NativeChatMessage } from '../../../../src/shared/native-chat/native-chat-types'
@@ -74,6 +77,8 @@ export type MobileNativeChatViewProps = MobileNativeChatSendProps &
     /** Photos, Camera and recent photos from the Add context sheet. */
     onAttachImages?: (pick: MobileComposerImagePick) => void
     onPasteImages?: (paste: MobilePastedImages) => void
+    /** A terminal-backed chat's Files and Videos rows; a structured chat brings its own. */
+    onAttachFiles?: (from: MobilePickedFileSource) => void
     attachments?: PendingNativeChatImage[]
     onRemoveAttachment?: (id: string) => void
     isAttaching?: boolean

@@ -1,10 +1,12 @@
-import { AtSign, Package, Paperclip, Terminal } from 'lucide-react-native'
+import { AtSign, Film, Package, Paperclip, Terminal } from 'lucide-react-native'
 import type { ActionSheetAction } from '../../../../components/sheets/ActionSheetModal'
 import { translate } from '../../../../i18n/mobile-i18n'
 
 // Rows below the Add context sheet's photo strip; the sheet dismisses itself before each runs.
 export function mobileNativeChatAttachActions(args: {
   onFiles: (() => void) | undefined
+  /** Library videos stream like files, so the row shows wherever Files does. */
+  onVideos: (() => void) | undefined
   structured: boolean
   onWorkspaceFile: () => void
   onSkills: () => void
@@ -19,6 +21,15 @@ export function mobileNativeChatAttachActions(args: {
       hint: translate('session.nativeChatAttachActions.fileTypes', 'PDF, text, code…'),
       icon: Paperclip,
       onPress: args.onFiles
+    })
+  }
+  if (args.onVideos) {
+    actions.push({
+      id: 'videos',
+      label: translate('session.nativeChatAttachActions.videos', 'Videos'),
+      hint: translate('session.nativeChatAttachActions.videoSource', 'From your photo library'),
+      icon: Film,
+      onPress: args.onVideos
     })
   }
   if (!args.structured) {

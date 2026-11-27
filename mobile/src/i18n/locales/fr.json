@@ -221,7 +221,6 @@
     },
     "composer": {
       "addToMessage": "Ajouter au message",
-      "attachImage": "Joindre une image",
       "cancelEditing": "Annuler la modification",
       "placeholder": "Posez votre question, @ pour référencer des fichiers, / pour les commandes",
       "saveEditedMessage": "Enregistrer le message modifié",
@@ -2462,7 +2461,9 @@
       "fileTypes": "PDF, texte, code…",
       "skills": "Skills",
       "workspaceFile": "Fichier d'espace de travail",
-      "addFiles": "Ajouter des fichiers"
+      "addFiles": "Ajouter des fichiers",
+      "videos": "Vidéos",
+      "videoSource": "Depuis votre photothèque"
     },
     "nativeChatCardHeaderAction": {
       "collapse": "Réduire"
