@@ -28,6 +28,7 @@ import {
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip'
 import RepoBadgeLabel from '@/components/repo/RepoBadgeLabel'
 import { FilterToggleRow } from './FilterToggleRow'
+import { WorkspaceStatusFilterRows } from './workspace-status-filter-rows'
 import {
   clearSidebarFiltersKeepingActiveRow,
   setShowSleepingWorkspacesKeepingActiveRow
@@ -231,6 +232,7 @@ const SidebarFilter = React.memo(function SidebarFilter({
           checked={hideDetachedHeadWorkspaces}
           onChange={setHideDetachedHeadWorkspaces}
         />
+        <WorkspaceStatusFilterRows />
 
         {canFilterRepos && (
           <>
