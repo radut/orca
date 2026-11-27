@@ -254,6 +254,8 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
   const { colorScheme } = surface.appearance
   const paneHeader = nativeChatPaneHeader(props, ownerWorktreeId, colorScheme, handOff)
   const findBar = <NativeChatSurfaceFindBar surface={surface} isVisible={props.isVisible} />
+  const usageLimits = { recovery: controller, pane: props, directory: fileLinkContext }
+  const rowActions = { pane: props, chat: submits.rows, forks, messages: controller.messages }
   return (
     <NativeChatAntigravityAuthProvider target={install.antigravityAuth}>
       <NativeChatSlackMirrorContext.Provider value={slackMirror}>
@@ -287,14 +289,12 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
                       tabId={props.tabId}
                     />
                   ) : (
-                    <NativeChatRowActionsProvider pane={props} chat={submits.rows} forks={forks}>
-                      <NativeChatUsageLimitActionsProvider
-                        recovery={controller}
-                        pane={props}
-                        directory={fileLinkContext}
-                        messages={controller.messages}
-                        view={continuation.view}
-                      >
+                    <NativeChatUsageLimitActionsProvider
+                      {...usageLimits}
+                      messages={controller.messages}
+                      view={continuation.view}
+                    >
+                      <NativeChatRowActionsProvider {...rowActions}>
                         <NativeChatHostSetupContext.Provider value={setup}>
                           <NativeChatWorkerApprovalTimeline
                             party={workerApprovalParty}
@@ -331,8 +331,8 @@ export function NativeChatStructuredSession(props: Omit<NativeChatStructuredView
                             )}
                           </NativeChatWorkerApprovalTimeline>
                         </NativeChatHostSetupContext.Provider>
-                      </NativeChatUsageLimitActionsProvider>
-                    </NativeChatRowActionsProvider>
+                      </NativeChatRowActionsProvider>
+                    </NativeChatUsageLimitActionsProvider>
                   )}
                 </NativeChatContextClearFade>
               </NativeChatDockTranscript>
