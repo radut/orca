@@ -2587,7 +2587,9 @@
       "waitingForDesktop": "Sunucudan hâlâ yanıt bekleniyor",
       "workspaceOptions": "Çalışma alanı seçenekleri",
       "done": "Tamam",
-      "reset": "Sıfırla"
+      "reset": "Sıfırla",
+      "hideByStatus": "Duruma göre gizle",
+      "hideStatus": "{{status}} çalışma alanlarını gizle"
     },
     "workspaceRenameSheet": {
       "title": "Çalışma alanını yeniden adlandır",
