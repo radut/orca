@@ -5,8 +5,12 @@
 20 src/main/ai-vault/parse-cache/session-parse-cache-database.ts
 13 src/main/ai-vault/parse-cache/session-scope-cwds-table.ts
 2 src/main/ai-vault/scanners/opencode/sqlite/session-scanner-opencode-sqlite-open.ts
+6 src/main/ai-vault/scanners/opencode/sqlite/session-scanner-opencode-sqlite.ts
+6 src/main/ai-vault/scanners/opencode2/session-scanner-opencode2-sqlite-list.ts
+10 src/main/ai-vault/scanners/opencode2/session-scanner-opencode2-sqlite.ts
+12 src/main/bots/bot-group-post-read.ts # room-post reads moved out of bot-group-store.ts (-8 there) plus the saved reply on each post
 13 src/main/bots/bot-group-store-tables.ts # store-open table setup moved out of the store, keep-field triggers and the incremental remote-ask index pass (one-shot startup)
-50 src/main/bots/bot-group-store.ts # +3: one indexed remote-ask insert per post on append and its by-request lookup
+42 src/main/bots/bot-group-store.ts # -8 room-post reads moved to bot-group-post-read.ts; +3: one indexed remote-ask insert per post on append and its by-request lookup
 5 src/main/browser-passwords/browser-password-chromium-import.ts
 1 src/main/browser/cookies/chromium/prepare-import.ts
 5 src/main/browser/cookies/sources/browser-cookie-firefox-import.ts
