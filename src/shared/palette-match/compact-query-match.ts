@@ -19,7 +19,7 @@ export type CompactText = { text: string; offsets: readonly number[] }
 export type ApproximateSpan = { start: number; end: number; distance: number }
 
 /** Drops spaces and `-_/.` so word splits and separators never decide a match. */
-function compactPaletteText(normalized: string): CompactText {
+export function compactPaletteText(normalized: string): CompactText {
   let text = ''
   const offsets: number[] = []
   for (let index = 0; index < normalized.length; index += 1) {
