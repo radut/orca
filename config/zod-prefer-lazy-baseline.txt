@@ -19,7 +19,6 @@
 1 src/main/antigravity/agy-managed-runtime.ts
 1 src/main/antigravity/antigravity-agent-platform-project.ts
 2 src/main/avatar-generation/avatar-generation-ipc.ts
-1 src/main/bots/bot-group-store.ts
 1 src/main/bots/bot-memory-ops.ts
 1 src/main/bots/bot-tools-codex.ts
 1 src/main/bots/bot-tools-host.ts
@@ -182,7 +181,7 @@
 1 src/shared/bots/bot-connector-offer.ts
 8 src/shared/bots/bot-first-look.ts
 15 src/shared/bots/bot-group-schema.ts
-12 src/shared/bots/bot-group.ts
+11 src/shared/bots/bot-group.ts
 3 src/shared/bots/bot-import-cards.ts
 2 src/shared/bots/bot-import.ts
 3 src/shared/bots/bot-item-ask.ts

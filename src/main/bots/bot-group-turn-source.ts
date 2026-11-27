@@ -1,3 +1,4 @@
+import { lazyZodSchema } from '../../shared/schema/lazy-zod-schema'
 import type { AgentJournalRenderItem } from '../../shared/agent-session/journal/agent-session-journal-types'
 import type { BotGroupTurnDetailPage } from '../../shared/bots/use-bot-group-turn-details'
 import { BotGroupTurnSchema } from '../../shared/bots/bot-group-schema'
@@ -22,7 +23,9 @@ export type BotGroupTurnSource =
   | { kind: 'frozen'; page: BotGroupTurnDetailPage }
   | null
 
-const turnHeader = BotGroupTurnSchema.pick({ sessionId: true, turnItemId: true })
+const turnHeader = lazyZodSchema(() =>
+  BotGroupTurnSchema.pick({ sessionId: true, turnItemId: true })
+)
 const initialized = new WeakSet<Database>()
 const archiveUse = new WeakMap<Database, Map<string, number>>()
 const PAGE_ROWS = 128
