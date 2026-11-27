@@ -52,7 +52,7 @@ async function probeGitMarkers(dirPath: string): Promise<{
   }
 }
 
-async function hasGitMarker(dirPath: string): Promise<boolean> {
+export async function hasGitMarker(dirPath: string): Promise<boolean> {
   return (await probeGitMarkers(dirPath)).hasGitMarker
 }
 
@@ -102,7 +102,7 @@ async function mayNeedGitDiscovery(path: string, signal?: AbortSignal): Promise<
   }
 }
 
-async function readLocalDirectory(dirPath: string): Promise<NestedRepoDirectoryEntry[]> {
+export async function readLocalDirectory(dirPath: string): Promise<NestedRepoDirectoryEntry[]> {
   // Dirents avoid per-child stat and prevent symlink traversal outside the selected folder.
   const entries = await readdir(dirPath, { withFileTypes: true })
   return entries.map((entry) => ({
@@ -112,30 +112,43 @@ async function readLocalDirectory(dirPath: string): Promise<NestedRepoDirectoryE
   }))
 }
 
-export async function scanNestedRepos(args: {
+type NestedRepoScanArgs = {
   path: string
   options?: unknown
-  filesystem?: NestedRepoScanFilesystem
   signal?: AbortSignal
   onProgress?: (scan: NestedRepoScanResult) => void
-}): Promise<NestedRepoScanResult> {
+}
+
+export async function scanNestedRepos(
+  args: NestedRepoScanArgs & { filesystem?: NestedRepoScanFilesystem }
+): Promise<NestedRepoScanResult> {
+  return scanNestedReposWithFilesystem({
+    ...args,
+    filesystem: args.filesystem ?? {
+      readDirectory: readLocalDirectory,
+      readTextFile: (path: string) => readFile(path, 'utf8'),
+      joinPath: join,
+      basename,
+      hasGitMarker,
+      isSelectedPathGitRepo: async (path: string) =>
+        (await mayNeedGitDiscovery(path, args.signal)) &&
+        !args.signal?.aborted &&
+        ((await isGitRepoAsync(path)) || (await hasGitMarker(path)))
+    }
+  })
+}
+
+/** The scan itself; every disk or host access goes through the caller's filesystem. */
+export async function scanNestedReposWithFilesystem(
+  args: NestedRepoScanArgs & { filesystem: NestedRepoScanFilesystem }
+): Promise<NestedRepoScanResult> {
   const startedAt = Date.now()
   const options = normalizeNestedRepoScanOptions(args.options)
   const repos: NestedRepoCandidate[] = []
   let truncated = false
   let timedOut = false
   let stopped = false
-  const filesystem = args.filesystem ?? {
-    readDirectory: readLocalDirectory,
-    readTextFile: (path: string) => readFile(path, 'utf8'),
-    joinPath: join,
-    basename,
-    hasGitMarker,
-    isSelectedPathGitRepo: async (path: string) =>
-      (await mayNeedGitDiscovery(path, args.signal)) &&
-      !args.signal?.aborted &&
-      ((await isGitRepoAsync(path)) || (await hasGitMarker(path)))
-  }
+  const { filesystem } = args
   const buildResult = (selectedPathKind: NestedRepoScanResult['selectedPathKind']) => ({
     selectedPath: args.path,
     selectedPathKind,
