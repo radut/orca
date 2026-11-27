@@ -34,11 +34,7 @@ import {
   readRuntimeAiVaultDeleteSessionResponse,
   runtimeAiVaultDeleteSessionParams
 } from '../../../shared/ai-vault/contracts/ai-vault-runtime-session-delete'
-import type { RuntimeAiVaultHostInfo } from './ai-vault-runtime-scan'
-
-export type RuntimeAiVaultScanOptions = {
-  timeoutMs?: number
-}
+import type { RuntimeAiVaultHostInfo, RuntimeAiVaultScanOptions } from './ai-vault-runtime-scan'
 
 // Zod strips undeclared keys; keep the repinned home so resume uses the correct account.
 const aiVaultPrepareSessionResumeResultSchema = z.object({
@@ -91,7 +87,10 @@ export async function scanRuntimeAiVaultSessions(
       ...boundedAiVaultScopeArgs(args.scopePaths, args.scopeOnly),
       executionHostId
     },
-    options.timeoutMs
+    options.timeoutMs,
+    undefined,
+    undefined,
+    { signal: options.signal, responseTimeoutMs: options.responseTimeoutMs }
   )
   if (response.ok === true) {
     try {
@@ -227,6 +226,7 @@ function withRuntimeExecutionHost(
     sessions: result.sessions.map((session) =>
       retagRuntimeSession(session, executionHostId, pairingRevision)
     ),
+    ...(result.hiddenRowCount ? { hiddenRowCount: result.hiddenRowCount } : {}),
     issues: result.issues.map((issue) => ({ ...issue, executionHostId })),
     scannedAt: result.scannedAt,
     ...(result.fingerprint ? { fingerprint: result.fingerprint } : {})
