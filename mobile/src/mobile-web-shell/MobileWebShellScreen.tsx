@@ -45,7 +45,7 @@ import {
   storageReadParamsSchema,
   type ShellChainVerb
 } from './bridge/native-capabilities/bridge-native-verbs'
-import { SHELL_OPENING_LABEL, ShellPageCover } from './presentation/ShellWaitingFrame'
+import { ShellPageCover } from './presentation/ShellWaitingFrame'
 import { ShellStateScreen } from './presentation/ShellStateScreen'
 import {
   useReportedShellOverlayLoad,
@@ -423,9 +423,7 @@ export function MobileWebShellScreen({
           }
         }}
       />
-      {overlay ? null : (
-        <ShellPageCover label={SHELL_OPENING_LABEL} visible={pageFrame === 'unpainted'} />
-      )}
+      {overlay ? null : <ShellPageCover visible={pageFrame === 'unpainted'} />}
       {localBrowser.overlay}
       <ShellDevFacts state={state} droppedBinaryFrames={droppedBinaryFrames} />
     </View>
