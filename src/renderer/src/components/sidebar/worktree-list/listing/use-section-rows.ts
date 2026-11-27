@@ -145,6 +145,8 @@ export function useSidebarSectionRows(args: SectionRowsArgs) {
   // Same-id registrations on two hosts: each row and project header needs its own host's.
   const repoOfWorktree = useMemo(() => createHostScopedRepoOf(repos, repoMap), [repos, repoMap])
   const hiddenMainCheckouts = useHiddenMainCheckouts(args)
+  // PR cache only affects grouping in pr-status mode; avoid re-planning all rows on every PR update in other modes.
+  const prCacheForPlan = args.groupBy === 'pr-status' ? args.prCache : null
   const rowPlan = useMemo(
     () =>
       planSidebarRows({
@@ -153,7 +155,7 @@ export function useSidebarSectionRows(args: SectionRowsArgs) {
         worktrees,
         repoMap,
         repoOfWorktree,
-        prGroupOf: createSidebarPRGroupReader(repoMap, args.prCache),
+        prGroupOf: createSidebarPRGroupReader(repoMap, prCacheForPlan),
         repoOrder,
         workspaceStatuses: args.workspaceStatuses,
         projectOrderBy: args.projectOrderBy,
@@ -182,7 +184,7 @@ export function useSidebarSectionRows(args: SectionRowsArgs) {
       repos,
       repoMap,
       repoOfWorktree,
-      args.prCache,
+      prCacheForPlan,
       defaultHostId,
       repoOrder,
       args.workspaceStatuses,
@@ -216,7 +218,7 @@ export function useSidebarSectionRows(args: SectionRowsArgs) {
     repoMap,
     worktreeMap: args.worktreeMap,
     worktreeLineageById: args.worktreeLineageById,
-    prCache: args.prCache,
+    prCache: prCacheForPlan,
     workspaceStatuses: args.workspaceStatuses,
     projectGroups: args.visibleProjectGroupsForRows,
     projectGrouping: args.projectGrouping,
