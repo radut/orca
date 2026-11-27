@@ -11,9 +11,9 @@ import {
   wordPrefixMinPiece
 } from './compact-query-match'
 
-type ChainPiece = { fieldIndex: number; span: TextSpan }
+export type ChainPiece = { fieldIndex: number; span: TextSpan }
 
-function groupByField(
+export function groupByField(
   fields: readonly PaletteIndexedField[],
   pieces: readonly ChainPiece[]
 ): CompactMatchPart[] {
