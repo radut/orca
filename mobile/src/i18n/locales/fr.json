@@ -2137,7 +2137,9 @@
       "reset": "Réinitialiser",
       "thisComputer": "Cet ordinateur",
       "waitingForDesktop": "Toujours en attente de l'hôte",
-      "workspaceOptions": "Options des espaces de travail"
+      "workspaceOptions": "Options des espaces de travail",
+      "hideByStatus": "Masquer par statut",
+      "hideStatus": "Masquer les espaces de travail {{status}}"
     },
     "hostBottomBar": {
       "workspaceOptions": "Options des espaces de travail",
