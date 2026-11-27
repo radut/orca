@@ -68,6 +68,7 @@ export function MobileNativeChatComposer({
   contextUsage = null,
   onAttachImages,
   onPasteImages,
+  onAttachFiles,
   attachments = NO_ATTACHMENTS,
   onRemoveAttachment,
   isAttaching = false,
@@ -326,7 +327,7 @@ export function MobileNativeChatComposer({
             >
               <MobileNativeChatComposerAttachButton
                 onAttachImages={onAttachImages}
-                onAttachFiles={structured?.onAttachFiles}
+                onAttachFiles={structured ? structured.onAttachFiles : onAttachFiles}
                 structured={structured !== null}
                 isAttaching={isAttaching}
                 disabled={disabled || offline}

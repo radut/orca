@@ -7,7 +7,8 @@ import { mobileNativeChatAttachActions } from './mobile-native-chat-attach-actio
 import { MobileNativeChatAddContextSheet } from './MobileNativeChatAddContextSheet'
 import type {
   AddContextChoice,
-  MobileComposerImagePick
+  MobileComposerImagePick,
+  MobilePickedFileSource
 } from '../../../../platform/media-picking/media-picker-contract'
 import { useMediaPicker } from '../../../../platform/media-picking/media-picker'
 import {
@@ -25,11 +26,11 @@ export function MobileNativeChatComposerAttachButton({
   menu
 }: {
   onAttachImages: ((pick: MobileComposerImagePick) => void) | undefined
-  onAttachFiles: (() => void) | undefined
+  onAttachFiles: ((from: MobilePickedFileSource) => void) | undefined
   structured: boolean
   isAttaching: boolean
   disabled: boolean
-  /** A structured chat's add-to-message sheet; without it the button opens the photo library. */
+  /** A chat's workspace-context rows; without it the sheet offers only what onAttach* can add. */
   menu?: {
     openFileMenu: () => void
     openSlashMenu: (kind: 'skill' | 'command') => void
@@ -39,8 +40,7 @@ export function MobileNativeChatComposerAttachButton({
   const t = useMobileTranslation()
   const picker = useMediaPicker()
   const [attachOpen, setAttachOpen] = useState(false)
-  // Without a menu (an item comment) the + adds photos only, so it opens the library at once.
-  if (!onAttachImages && !(structured && menu)) {
+  if (!onAttachImages && !onAttachFiles && !(structured && menu)) {
     return null
   }
   const run = (choice: AddContextChoice): void => {
@@ -52,8 +52,8 @@ export function MobileNativeChatComposerAttachButton({
       }
     } else if (choice.choice === 'camera' || choice.choice === 'photos') {
       onAttachImages?.(choice.choice === 'camera' ? 'camera' : 'library')
-    } else if (choice.choice === 'files') {
-      onAttachFiles?.()
+    } else if (choice.choice === 'files' || choice.choice === 'videos') {
+      onAttachFiles?.(choice.choice)
     } else if (choice.choice === 'workspaceFile') {
       menu?.openFileMenu()
     } else if (choice.choice === 'skills' || choice.choice === 'commands') {
@@ -62,30 +62,24 @@ export function MobileNativeChatComposerAttachButton({
   }
   // On the served page the shell draws the sheet, so the photo library never reaches the page.
   const { openAddContext, recentPhotos: library } = picker
-  const open = !menu
-    ? () => onAttachImages?.('library')
-    : openAddContext
-      ? () => {
-          const options = {
-            images: onAttachImages !== undefined,
-            files: onAttachFiles !== undefined,
-            structured,
-            skillCount: menu?.skillCount ?? 0
-          }
-          openAddContext(options).then(run, (error: unknown) => {
-            console.warn('[add-context] the shell sheet failed; drawing it in the page', error)
-            setAttachOpen(true)
-          })
+  const open = openAddContext
+    ? () => {
+        const options = {
+          images: onAttachImages !== undefined,
+          files: onAttachFiles !== undefined,
+          structured: structured && menu !== undefined,
+          skillCount: menu?.skillCount ?? 0
         }
-      : () => setAttachOpen(true)
+        openAddContext(options).then(run, (error: unknown) => {
+          console.warn('[add-context] the shell sheet failed; drawing it in the page', error)
+          setAttachOpen(true)
+        })
+      }
+    : () => setAttachOpen(true)
   return (
     <>
       <Pressable
-        accessibilityLabel={
-          menu
-            ? t('chat.composer.addToMessage', 'Add to message')
-            : t('chat.composer.attachImage', 'Attach image')
-        }
+        accessibilityLabel={t('chat.composer.addToMessage', 'Add to message')}
         style={({ pressed }) => [inputStyles.controlButton, pressed && inputStyles.pressed]}
         onPress={open}
         disabled={isAttaching || disabled}
@@ -97,28 +91,27 @@ export function MobileNativeChatComposerAttachButton({
           <Plus size={19} color={colors.textPrimary} strokeWidth={2} />
         )}
       </Pressable>
-      {menu ? (
-        <MobileNativeChatAddContextSheet
-          visible={attachOpen}
-          onClose={() => setAttachOpen(false)}
-          onPhotos={onAttachImages && (() => onAttachImages('library'))}
-          onCamera={onAttachImages && (() => onAttachImages('camera'))}
-          library={library}
-          onRecentPhotos={
-            onAttachImages && library
-              ? (ids) => onAttachImages({ recentPhotos: library.pick(ids), release: () => {} })
-              : undefined
-          }
-          actions={mobileNativeChatAttachActions({
-            onFiles: onAttachFiles,
-            structured,
-            onWorkspaceFile: menu.openFileMenu,
-            onSkills: () => menu.openSlashMenu('skill'),
-            onCommands: () => menu.openSlashMenu('command'),
-            skillCount: menu.skillCount
-          })}
-        />
-      ) : null}
+      <MobileNativeChatAddContextSheet
+        visible={attachOpen}
+        onClose={() => setAttachOpen(false)}
+        onPhotos={onAttachImages && (() => onAttachImages('library'))}
+        onCamera={onAttachImages && (() => onAttachImages('camera'))}
+        library={library}
+        onRecentPhotos={
+          onAttachImages && library
+            ? (ids) => onAttachImages({ recentPhotos: library.pick(ids), release: () => {} })
+            : undefined
+        }
+        actions={mobileNativeChatAttachActions({
+          onFiles: onAttachFiles && (() => onAttachFiles('files')),
+          onVideos: onAttachFiles && (() => onAttachFiles('videos')),
+          structured: structured && menu !== undefined,
+          onWorkspaceFile: () => menu?.openFileMenu(),
+          onSkills: () => menu?.openSlashMenu('skill'),
+          onCommands: () => menu?.openSlashMenu('command'),
+          skillCount: menu?.skillCount ?? 0
+        })}
+      />
     </>
   )
 }
