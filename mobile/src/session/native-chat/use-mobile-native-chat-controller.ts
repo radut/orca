@@ -158,6 +158,7 @@ export function useMobileNativeChatController(args: {
   })
 
   const terminalTurn = useMobileNativeChatTerminalTurn({
+    ...args,
     status: nativeChatStatus,
     resolution: activeChatResolution,
     session: activeChatStructured ? null : nativeChatSession,
@@ -296,7 +297,7 @@ export function useMobileNativeChatController(args: {
     ...prompts,
     handleNativeChatStop: activeChatStructured ? structuredNativeChat.cancel : terminalTurn.stop,
     nativeChatQueued: structuredNativeChat.queued,
-    nativeChatBackgroundTasks: activeChatStructured ? structuredNativeChat.backgroundTasks : null,
+    nativeChatBackgroundTasks: activeTurn.backgroundTasks,
     nativeChatContextUsage: activeChatStructured ? structuredNativeChat.contextUsage : null,
     nativeChatInterruptedContinue: activeChatStructured
       ? structuredNativeChat.interruptedContinue
