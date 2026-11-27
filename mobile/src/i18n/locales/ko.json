@@ -353,7 +353,6 @@
     },
     "composer": {
       "addToMessage": "메시지에 추가",
-      "attachImage": "이미지 첨부",
       "cancelEditing": "편집 취소",
       "placeholder": "무엇이든 물어보세요. @로 파일 참조, /로 명령어 실행",
       "saveEditedMessage": "수정한 메시지 저장",
@@ -3069,7 +3068,9 @@
       "fileTypes": "PDF, 텍스트, 코드…",
       "skills": "스킬",
       "workspaceFile": "워크스페이스 파일",
-      "addFiles": "파일 추가"
+      "addFiles": "파일 추가",
+      "videos": "동영상",
+      "videoSource": "사진 보관함에서"
     },
     "nativeChatCardHeaderAction": {
       "collapse": "접기"

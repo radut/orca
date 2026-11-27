@@ -268,7 +268,6 @@
     },
     "composer": {
       "addToMessage": "新增至訊息",
-      "attachImage": "附加圖片",
       "cancelEditing": "取消編輯",
       "placeholder": "隨心輸入，@ 引用檔案，/ 使用命令",
       "saveEditedMessage": "儲存編輯後的訊息",
@@ -2865,7 +2864,9 @@
       "fileTypes": "PDF、文字、程式碼…",
       "skills": "技能",
       "workspaceFile": "工作區檔案",
-      "addFiles": "新增檔案"
+      "addFiles": "新增檔案",
+      "videos": "影片",
+      "videoSource": "來自你的照片圖庫"
     },
     "nativeChatCardHeaderAction": {
       "collapse": "收合"

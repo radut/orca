@@ -367,7 +367,6 @@
     },
     "composer": {
       "addToMessage": "Добавить к сообщению",
-      "attachImage": "Прикрепить изображение",
       "cancelEditing": "Отменить редактирование",
       "placeholder": "Задайте вопрос; @ — файлы, / — команды",
       "saveEditedMessage": "Сохранить изменённое сообщение",
@@ -3652,7 +3651,9 @@
       "fileTypes": "PDF, текст, код…",
       "skills": "Навыки",
       "workspaceFile": "Файл рабочего пространства",
-      "addFiles": "Добавить файлы"
+      "addFiles": "Добавить файлы",
+      "videos": "Видео",
+      "videoSource": "Из медиатеки"
     },
     "nativeChatCardHeaderAction": {
       "collapse": "Свернуть"
