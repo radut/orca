@@ -32,6 +32,7 @@ function nativeChatLaunchNotice(
   {
     lifecycle,
     failure = null,
+    errorText = null,
     agentLabel,
     hostName,
     onRetry,
@@ -41,6 +42,8 @@ function nativeChatLaunchNotice(
   }: {
     lifecycle: StructuredAgentSessionLaunchLifecycle | null
     failure?: StructuredLaunchFailure | null
+    /** The start's own error when the host gave no refusal. */
+    errorText?: string | null
     agentLabel?: string
     /** Where the chat runs, as a sentence names it. */
     hostName?: string
@@ -124,6 +127,7 @@ function nativeChatLaunchNotice(
     key: 'launch',
     kind: 'error',
     text: cause ? (saysStartFailure ? cause : joinSentences([message, cause])) : message,
+    ...(errorText ? { errorText } : {}),
     action:
       nativeChatSetupAction(failure?.details?.reason, setup, t) ??
       nativeChatCliUpdateAction(cliTooOld, setup, t) ??
@@ -153,6 +157,7 @@ export function structuredSessionNotices(
     launch: {
       lifecycle: StructuredAgentSessionLaunchLifecycle | null
       failure: StructuredLaunchFailure | null
+      errorText?: string | null
       retry: () => void
     }
     agentLabel: string
@@ -174,6 +179,7 @@ export function structuredSessionNotices(
     {
       lifecycle: hostPermission ? null : launch.lifecycle,
       failure: launch.failure,
+      errorText: launch.errorText,
       agentLabel,
       hostName,
       onRetry: launch.retry,
