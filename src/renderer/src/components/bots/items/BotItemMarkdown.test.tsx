@@ -1,7 +1,11 @@
 // @vitest-environment happy-dom
-import { cleanup, render, screen } from '@testing-library/react'
+import { cleanup, render as renderInDom, screen } from '@testing-library/react'
+import { TooltipProvider } from '@/components/ui/tooltip'
 import { afterEach, expect, it } from 'vitest'
 import { BotItemMarkdown } from './BotItemMarkdown'
+
+// The code buttons' hover labels need the app's tooltip provider.
+const render = (ui: React.ReactElement) => renderInDom(ui, { wrapper: TooltipProvider })
 
 afterEach(cleanup)
 
