@@ -26,9 +26,10 @@ export abstract class OrcaRuntimeWithSyncWindowGraph extends OrcaRuntimeWithSlep
   /** A serve or orcad host: no owner window here ever answers a card. */
   servesWithoutWindow = (): boolean => this.servesHeadlessGraph
 
-  shouldRelayTerminalBrowserOpens(): boolean {
-    return this.authoritativeWindowId === HEADLESS_RUNTIME_WINDOW_ID
-  }
+  /** No window attached; main stands in for one (serve, orcad, or a main-owned layout between windows). */
+  hasHeadlessAuthority = (): boolean => this.authoritativeWindowId === HEADLESS_RUNTIME_WINDOW_ID
+
+  shouldRelayTerminalBrowserOpens = (): boolean => this.hasHeadlessAuthority()
 
   async syncWindowGraph(
     windowId: number,
