@@ -1,5 +1,9 @@
 import type { ExecutionHostId } from '../../../../src/shared/execution-host/execution-host'
 import {
+  nameSearchMatches,
+  prepareNameSearchQuery
+} from '../../../../src/shared/palette-match/name-search-match'
+import {
   isListedByFolderWorkspace,
   NO_HIDDEN_PROJECTS,
   type HiddenProjects
@@ -88,14 +92,9 @@ export function filterWorktrees(
     filters,
     phoneRowFacts(repoHostIdByRepoId, hiddenProjects, childrenByParentIdentity)
   )
-  const q = search.trim().toLowerCase()
-  if (!q) {
+  const query = prepareNameSearchQuery(search)
+  if (!query) {
     return result
   }
-  return result.filter(
-    (w) =>
-      w.displayName.toLowerCase().includes(q) ||
-      w.branch.toLowerCase().includes(q) ||
-      w.repo.toLowerCase().includes(q)
-  )
+  return result.filter((w) => nameSearchMatches(query, [w.displayName, w.branch, w.repo]))
 }
