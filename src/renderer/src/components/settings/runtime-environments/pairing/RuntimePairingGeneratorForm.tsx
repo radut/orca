@@ -8,7 +8,7 @@ import { describeNetworkAddress } from './network-address-label'
 import { AddressPicker, type AddressOption } from '../../../network/AddressPicker'
 import { parseServerShareAddress } from '../../../../../../shared/network/server-share-address'
 import { GeneratedUrlRow, UnavailableUrlRow } from './RuntimePairingGeneratedUrlRows'
-import type { RuntimePairingIntent } from './runtime-pairing-link-state'
+import type { RuntimePairingIntent, RuntimePairingInterface } from './runtime-pairing-link-state'
 import type { RuntimePairingLinkExpiry } from './use-runtime-pairing-link-expiry'
 import { useIntlLocale, useTranslate } from '@/i18n/use-translate'
 import { uiDateTimeFormat } from '@/i18n/ui-intl-formatters'
@@ -17,7 +17,8 @@ import { CLOCK_TIME } from '../../../../../../shared/i18n/regional-date-time-for
 type RuntimePairingGeneratorFormProps = {
   intent: RuntimePairingIntent
   loopbackAddress: string
-  networkInterfaces: { name: string; address: string }[]
+  networkInterfaces: RuntimePairingInterface[]
+  disconnectedInterface: RuntimePairingInterface | null
   selectedAddress: string
   refreshingNetworkInterfaces: boolean
   isGeneratingPairing: boolean
@@ -38,6 +39,7 @@ export function RuntimePairingGeneratorForm({
   intent,
   loopbackAddress,
   networkInterfaces,
+  disconnectedInterface,
   selectedAddress,
   refreshingNetworkInterfaces,
   isGeneratingPairing,
@@ -55,7 +57,10 @@ export function RuntimePairingGeneratorForm({
 }: RuntimePairingGeneratorFormProps): React.JSX.Element {
   const t = useTranslate()
   const intlLocale = useIntlLocale()
-  const options: AddressOption[] = networkInterfaces.map((networkInterface) => ({
+  const listedInterfaces = disconnectedInterface
+    ? [...networkInterfaces, disconnectedInterface]
+    : networkInterfaces
+  const options: AddressOption[] = listedInterfaces.map((networkInterface) => ({
     value: networkInterface.address,
     label: describeNetworkAddress(networkInterface.name, networkInterface.address, t)
   }))
@@ -92,12 +97,18 @@ export function RuntimePairingGeneratorForm({
     }
   ]
   const generatedIsCurrent = generatedAddress === selectedAddress
-  const staleGeneratedLink = generatedAddress !== null && !generatedIsCurrent && !grantRemoved
+  // Why: while the chosen interface is disconnected, its alert already says what to do.
+  const staleGeneratedLink =
+    generatedAddress !== null && !generatedIsCurrent && !grantRemoved && !disconnectedInterface
   const showLink = generatedIsCurrent && !grantRemoved && linkExpiry?.kind !== 'expired'
   const customAddressResult =
     intent === 'custom' ? parseServerShareAddress(selectedAddress) : { ok: true as const }
   const customAddressInvalid = selectedAddress !== '' && !customAddressResult.ok
-  const canGenerate = selectedAddress !== '' && (intent !== 'custom' || customAddressResult.ok)
+  const canGenerate =
+    selectedAddress !== '' &&
+    (intent !== 'another' ||
+      networkInterfaces.some((networkInterface) => networkInterface.address === selectedAddress)) &&
+    (intent !== 'custom' || customAddressResult.ok)
 
   return (
     <>
@@ -205,7 +216,12 @@ export function RuntimePairingGeneratorForm({
                 )}
                 options={options}
                 value={selectedAddress}
-                onValueChange={onSelectedAddressChange}
+                onValueChange={(address) => {
+                  if (address !== disconnectedInterface?.address) {
+                    onSelectedAddressChange(address)
+                  }
+                }}
+                onCustomValueChange={onSelectedAddressChange}
                 placeholder=""
                 customInputId="runtime-pairing-custom-address"
                 formatCustomLabel={(address) =>
@@ -284,6 +300,15 @@ export function RuntimePairingGeneratorForm({
                 {t(
                   'auto.components.settings.RuntimePairingUrlGenerator.noExternalAddress',
                   'No address for another device was found. Connect this computer to a LAN or Tailscale, refresh, or choose Custom address.'
+                )}
+              </p>
+            ) : null}
+            {disconnectedInterface ? (
+              <p role="alert" className="text-xs text-destructive">
+                {t(
+                  'auto.components.settings.RuntimePairingUrlGenerator.interfaceDisconnected',
+                  '{{address}} is disconnected. Reconnect it and refresh, or choose another address to create a link.',
+                  { address: disconnectedInterface.address }
                 )}
               </p>
             ) : null}

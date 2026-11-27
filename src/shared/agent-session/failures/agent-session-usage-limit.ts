@@ -54,6 +54,35 @@ const RESET_DAY_CLOCK: Intl.DateTimeFormatOptions = {
   minute: '2-digit'
 }
 
+const RESET_WEEKDAY_CLOCK: Intl.DateTimeFormatOptions = {
+  weekday: 'short',
+  hour: 'numeric',
+  minute: '2-digit'
+}
+
+const RESET_DATE_CLOCK: Intl.DateTimeFormatOptions = {
+  month: 'short',
+  day: 'numeric',
+  hour: 'numeric',
+  minute: '2-digit'
+}
+
+/** A row's short reset: the time today, else weekday and time within the week, else the date. */
+export function formatUsageLimitResetShort(
+  resetsAt: number,
+  now: number = Date.now(),
+  locale?: string
+): string {
+  const at = new Date(resetsAt)
+  if (at.toDateString() === new Date(now).toDateString()) {
+    return regionalDateTimeFormat(CLOCK_TIME, locale).format(at)
+  }
+  const withinWeek = resetsAt > now && resetsAt - now < 6 * 24 * 60 * 60 * 1000
+  return regionalDateTimeFormat(withinWeek ? RESET_WEEKDAY_CLOCK : RESET_DATE_CLOCK, locale).format(
+    at
+  )
+}
+
 /** A reset time in the reader's own clock: the time alone today, else with its day. */
 export function formatUsageLimitResetClock(
   resetsAt: number,
