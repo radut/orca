@@ -223,7 +223,7 @@ export type RuntimeTerminalRead = {
   latestCursor?: string
   returnedLineCount?: number
   source?: 'stream' | 'screen' | 'screen-unavailable'
-  /** UI-only composer text, excluded from `tail`. */
+  /** Text the user typed in the composer, excluded from `tail`. A dim prompt suggestion is omitted. */
   draft?: string
 }
 
