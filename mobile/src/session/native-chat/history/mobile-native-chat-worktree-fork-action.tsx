@@ -3,7 +3,7 @@ import { AGENT_SESSION_CREATE_FORK_WORKTREE_RUNTIME_CAPABILITY } from '../../../
 import { Bot } from 'lucide-react-native'
 import type { ActionSheetAction } from '../../../components/sheets/ActionSheetModal'
 import { MobileForkIcon } from '../../../components/icons/MobileForkIcon'
-import { colors } from '../../../theme/mobile-theme'
+import { getMobilePalette } from '../../../theme/mobile-theme'
 import type { MobileSessionController } from '../../use-mobile-session-controller'
 import { requestMobileWorktreeFork } from './mobile-native-chat-worktree-fork-requests'
 import {
@@ -48,7 +48,7 @@ export function mobileWorktreeForkAction(
       : t('chat.fork.worktree.menuHint', 'A new worktree with a copy of this chat'),
     ...(subagent
       ? { icon: Bot }
-      : { renderIcon: () => <MobileForkIcon size={16} color={colors.textSecondary} /> }),
+      : { renderIcon: () => <MobileForkIcon size={16} color={getMobilePalette().textSecondary} /> }),
     disabled: controller.connState !== 'connected',
     closeBeforePress: true,
     onPress: () => {

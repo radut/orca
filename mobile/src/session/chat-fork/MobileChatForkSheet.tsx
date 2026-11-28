@@ -10,11 +10,11 @@ import {
   SectionHeader
 } from '../../components/list/ListGroup'
 import { MobileAgentIcon } from '../../components/icons/MobileAgentIcon'
-import { newWorktreeFormStyles as styles } from '../../new-workspace/creation/forms/new-worktree-form-styles'
+import { newWorktreeFormStylesSheet } from '../../new-workspace/creation/forms/new-worktree-form-styles'
 import { SheetHeader } from '../../components/nav-bar/SheetHeader'
 import { SheetPrimaryButton } from '../../components/sheets/SheetPrimaryButton'
 import { useMobileTranslation } from '../../i18n/use-mobile-translation'
-import { useMobileColorScheme } from '../../theme/use-mobile-color-scheme'
+import { useThemedStyles } from '../../theme/themed-styles'
 import type { RpcClient } from '../../transport/rpc/rpc-client-contract'
 import type { ChatForkRunTarget } from './chat-fork-run'
 import {
@@ -53,7 +53,7 @@ export function MobileChatForkSheet(props: {
   onClose: () => void
   onAfterClose: () => void
 }): React.JSX.Element {
-  useMobileColorScheme()
+  const styles = useThemedStyles(newWorktreeFormStylesSheet)
   const t = useMobileTranslation()
   const { source } = props
   const [picks, setPicks] = useState<ChatForkPicks>({})

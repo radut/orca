@@ -10,12 +10,12 @@ import {
   isAgentSessionForkSourceAdmissionRefusal,
   isAgentSessionCreateAdmissionRefusal
 } from '../../../../../src/shared/agent-session/failures/agent-session-definitive-refusal'
-import {
-  structuredAgentSessionCreateParams,
-  type StructuredAgentSessionCreateParams,
-  type StructuredAgentSessionForkSource,
-  type StructuredAgentSessionResumeSource
+import type {
+  StructuredAgentSessionCreateParams,
+  StructuredAgentSessionForkSource,
+  StructuredAgentSessionResumeSource
 } from '../../../../../src/shared/agent-session/lifecycle/operations/structured-agent-session-create'
+import { createParamsFor, type CreateSource } from './mobile-structured-agent-session-create-params'
 import { readAgentSessionErrorRefusal } from '../../../../../src/shared/agent-session/failures/agent-session-write-failure'
 import {
   readAgentSessionRefusalReference,
@@ -29,8 +29,6 @@ import {
   structuredAgentSessionCreate,
   structuredAgentSupportProbe
 } from './mobile-structured-create-operations'
-import { randomV4Uuid } from '../../../platform/random-v4-uuid'
-import { createOrcaSessionId } from '../../../../../src/shared/agent-session/identity/orca-session-address'
 import { rememberMobileCreatedStructuredSession } from './mobile-created-structured-sessions'
 
 // Partial: the reply is read before it is checked.
@@ -59,46 +57,11 @@ type MobileStructuredAgentCreateResult = Exclude<
   { kind: 'unsupported' }
 >
 
-/** A chat starts fresh, forks a native chat, or resumes a provider conversation. */
-type CreateSource = {
-  forkFrom?: StructuredAgentSessionForkSource
-  resumeFrom?: StructuredAgentSessionResumeSource
-}
-
 /** What createSupport is asked about resuming: whether another terminal still runs it, apart from
  *  the panes the phone closes first. */
 export type MobileStructuredResumePreflight = {
   providerSessionId: string
   closingPaneKeys?: string[]
-}
-
-function createParamsFor(
-  agent: TuiAgent,
-  worktree: string,
-  source: CreateSource,
-  tabPlacement: StructuredAgentSessionCreateParams['tabPlacement'],
-  firstMessageText?: string
-): StructuredAgentSessionCreateParams {
-  return structuredAgentSessionCreateParams({
-    sessionId: createOrcaSessionId(randomV4Uuid),
-    worktree,
-    agent,
-    ...source,
-    ...(tabPlacement ? { tabPlacement } : {}),
-    ...(firstMessageText
-      ? {
-          firstMessage: {
-            clientMessageId: randomV4Uuid(),
-            body: {
-              kind: 'message' as const,
-              role: 'user' as const,
-              blocks: [{ type: 'text' as const, text: firstMessageText }]
-            }
-          }
-        }
-      : {}),
-    randomUuid: randomV4Uuid
-  })
 }
 
 function unknownCreateResult(agent: TuiAgent, error: unknown): MobileStructuredAgentCreateResult {
