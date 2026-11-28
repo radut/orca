@@ -58,7 +58,7 @@ export function MobileHomeAgentsBottomBar({
       <BottomSearchBar
         value={query}
         onChangeText={onQueryChange}
-        placeholder={t('agents.search.placeholder', 'Search agents')}
+        placeholder={t('agents.search.placeholder', 'Search agents and workspaces')}
         // The tab bar under it already keeps clear of the home indicator.
         bottomInset={0}
         leading={{
