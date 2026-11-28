@@ -11,6 +11,7 @@ export const BRIDGE_ADD_CONTEXT_CHOICES = [
   'camera',
   'photos',
   'files',
+  'videos',
   'workspaceFile',
   'skills',
   'commands',

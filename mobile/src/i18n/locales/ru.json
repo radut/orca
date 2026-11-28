@@ -324,7 +324,6 @@
     },
     "composer": {
       "addToMessage": "Добавить к сообщению",
-      "attachImage": "Прикрепить изображение",
       "cancelEditing": "Отменить редактирование",
       "saveEditedMessage": "Сохранить изменённое сообщение",
       "sendMessage": "Отправить сообщение",
@@ -3445,7 +3444,9 @@
       "files": "Файлы",
       "photos": "Фото",
       "skills": "Навыки",
-      "workspaceFile": "Файл рабочего пространства"
+      "workspaceFile": "Файл рабочего пространства",
+      "videos": "Видео",
+      "videoSource": "Из медиатеки"
     },
     "nativeChatCardHeaderAction": {
       "collapse": "Свернуть"
@@ -4028,6 +4029,10 @@
     },
     "tabMenu": {
       "closeTab": "Закрыть вкладку"
+    },
+    "nativeChatFileAttachments": {
+      "pastedTextTooLarge": "Вставленный текст больше {{max}} МБ, поэтому его нельзя прикрепить",
+      "terminalFileReference": "Файл с моего телефона, сохранён на этом компьютере как {{path}}"
     },
     "terminalChatContinuation": {
       "busy": "Открывается другой чат или терминал. Подождите и повторите попытку.",

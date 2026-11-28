@@ -317,7 +317,6 @@
     },
     "composer": {
       "addToMessage": "Añadir al mensaje",
-      "attachImage": "Adjuntar imagen",
       "cancelEditing": "Cancelar edición",
       "saveEditedMessage": "Guardar mensaje editado",
       "sendMessage": "Enviar mensaje",
@@ -3265,7 +3264,9 @@
       "files": "Archivos",
       "photos": "Fotos",
       "skills": "Habilidades",
-      "workspaceFile": "Archivo del espacio de trabajo"
+      "workspaceFile": "Archivo del espacio de trabajo",
+      "videos": "Videos",
+      "videoSource": "De tu fototeca"
     },
     "nativeChatCardHeaderAction": {
       "collapse": "Contraer"
@@ -3789,6 +3790,10 @@
       "tabCount": "Pestañas: {{count}}",
       "actionsHint": "Muestra las acciones de esta pestaña",
       "hint": "Muestra todas las pestañas"
+    },
+    "nativeChatFileAttachments": {
+      "pastedTextTooLarge": "Este texto pegado supera los {{max}} MB, así que no se puede adjuntar",
+      "terminalFileReference": "Archivo de mi teléfono, guardado en este equipo como {{path}}"
     },
     "contentState": {
       "connectingTo": "Conectando con {{host}}…",
