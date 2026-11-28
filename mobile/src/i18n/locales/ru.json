@@ -563,13 +563,14 @@
       "signInForModels": "Войдите, чтобы увидеть доступные вам модели."
     },
     "sessionOptionPickers": {
+      "appliesAfterTurn": "Применится после завершения текущего ответа",
+      "backToModels": "Назад к моделям",
       "dispatchUnconfirmed": "Отправлено агенту — получение не подтверждено",
+      "heldPickFailed": "Настройка, выбранная во время ответа, не применена.",
       "modelFullAccessLabel": "Модель: {{value}}, полный доступ",
       "modelLabel": "Модель: {{value}}",
       "permissions": "Разрешения",
       "permissionsLabel": "Разрешения: {{value}}",
-      "settingsLocked": "Настройки модели станут доступны после завершения текущего ответа.",
-      "workingAnnouncement": "Агент работает. Настройки модели станут доступны после завершения текущего ответа.",
       "applying": "Применяется…",
       "onAttach": "Применится при подключении к чату",
       "heldPickRefused": "{{picked}} недоступно в этом чате. Оставлено: {{kept}}."
