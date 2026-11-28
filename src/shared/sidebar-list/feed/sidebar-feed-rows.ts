@@ -51,7 +51,7 @@ import { planSidebarRows } from '../sidebar-row-plan'
 import type { FeedLineagePolicy } from './sidebar-feed-lineage-parents'
 import type { WorkspaceSortBy as SortBy } from '../../workspace-view/workspace-row-sort'
 import {
-  selectVisibleSidebarWorktrees,
+  selectVisibleSidebarWorktreesMarkingHidden,
   withoutBotListedFolderWorkspaces,
   withoutBotListedWorktrees
 } from '../selection/visible-worktrees'
@@ -95,6 +95,7 @@ export type SidebarFeedRows = {
 
 export type SidebarFeedPlan = {
   visibleWorktrees: Worktree[]
+  filterHiddenIdentities: ReadonlySet<string>
   plan: ReturnType<typeof planSidebarRows>
   worktreeMap: Map<string, Worktree>
   lineageById: Record<string, WorktreeLineage>
@@ -145,7 +146,7 @@ export function planSidebarFeedRows(
   const pairedDeviceIdsByEnvironment = feedPairedDeviceIdsByEnvironment(domains)
   const hiddenProjects = indexHiddenProjects(repos, defaultHostId)
 
-  const visibleWorktrees = selectVisibleSidebarWorktrees({
+  const visible = selectVisibleSidebarWorktreesMarkingHidden({
     rows: withoutBotListedWorktrees(allWorktrees, extras.botListedWorktreeIdentities),
     ancestorByIdentity,
     rankOf: (worktree) => rankByIdentity.get(getWorktreeHostIdentity(worktree)),
@@ -174,7 +175,8 @@ export function planSidebarFeedRows(
     lineageParentIdentities: index.lineageParentIdentities,
     filterRepoIds: view.filters.filterRepoIds,
     preserveLineageParentOrder: view.sortBy === 'manual',
-    forcedVisibleWorktreeIds: extras.forcedVisibleWorktreeIds
+    forcedVisibleWorktreeIds: extras.forcedVisibleWorktreeIds,
+    forcedVisibleWorktreeIdentities: extras.forcedVisibleWorktreeIdentities
   })
 
   const visibleHostIdSet = getVisibleSidebarHostIdSet(
@@ -210,14 +212,14 @@ export function planSidebarFeedRows(
     groupBy,
     repos: visibleRepos,
     worktreesByRepo,
-    visibleWorktrees,
+    visibleWorktrees: visible.worktrees,
     filterRepoIds: view.filters.filterRepoIds,
     hiddenProjects
   })
   const plan = planSidebarRows({
     groupBy,
     sortBy: view.sortBy,
-    worktrees: visibleWorktrees,
+    worktrees: visible.worktrees,
     repoMap,
     repoOfWorktree: index.repoOf,
     prGroupOf: (worktree) =>
@@ -244,7 +246,8 @@ export function planSidebarFeedRows(
     hiddenProjects
   })
   return {
-    visibleWorktrees,
+    visibleWorktrees: visible.worktrees,
+    filterHiddenIdentities: visible.filterHiddenIdentities,
     plan,
     worktreeMap,
     lineageById,
