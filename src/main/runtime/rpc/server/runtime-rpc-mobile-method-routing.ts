@@ -302,6 +302,7 @@ export const EXECUTION_HOST_METHODS = [
   'terminal.openInputSession',
   'terminal.read',
   'terminal.rename',
+  'terminal.restartAgent',
   'terminal.send',
   'terminal.setDisplayMode',
   'terminal.subscribe',
