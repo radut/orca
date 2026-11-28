@@ -1,6 +1,6 @@
 import type { RefObject } from 'react'
 import type { HostInstance } from 'react-native'
-import { ALargeSmall, Columns2, SquareChevronRight } from 'lucide-react-native'
+import { ALargeSmall, Columns2, Search, SquareChevronRight } from 'lucide-react-native'
 import { MobileAgentSessionHistoryIcon } from '../agent-history/MobileAgentSessionHistoryIcon'
 import type { ActionSheetAction } from '../components/sheets/ActionSheetModal'
 import { PullDownMenu } from '../components/nav-bar/PullDownMenu'
@@ -39,7 +39,8 @@ export function MobileSessionHeaderMoreMenu({ controller, anchorRef }: Props) {
     activeSessionTab,
     connState,
     createTabBusy,
-    handleOpenQuickCommands
+    handleOpenQuickCommands,
+    terminalFind
   } = controller
   const worktreeFork = mobileWorktreeForkAction(controller, controller.activeSessionTab, t)
   const subagentFork = mobileWorktreeForkAction(
@@ -89,6 +90,17 @@ export function MobileSessionHeaderMoreMenu({ controller, anchorRef }: Props) {
       ? 'terminal'
       : null
   const view: ActionSheetAction[] = [
+    ...(terminalFind.available
+      ? [
+          {
+            id: 'findInTerminal',
+            label: t('session.header.findInTerminal', 'Find in terminal'),
+            icon: Search,
+            closeBeforePress: true,
+            onPress: terminalFind.openFind
+          }
+        ]
+      : []),
     ...(canSplitTerminals || terminalSplitActive
       ? [
           {

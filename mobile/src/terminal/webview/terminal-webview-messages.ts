@@ -6,6 +6,7 @@ export type TerminalFrame = { width: number; height: number }
 
 // Desktop terminal settings the phone follows; scrollback is capped for phone memory.
 export type TerminalHostSettings = { scrollbackRows: number; wordSeparator: string }
+export type TerminalFindDirection = 'next' | 'previous'
 
 // The app's own colours for chrome drawn inside the terminal (the selection menu and handles).
 export type TerminalChromeColors = {
@@ -45,6 +46,14 @@ export type TerminalWebViewCommand =
   | { type: 'reset-zoom'; id?: number }
   | { type: 'cancel-select'; id?: number }
   | { type: 'do-select-all'; id?: number }
+  | {
+      type: 'find'
+      id?: number
+      query: string
+      direction: TerminalFindDirection
+      incremental: boolean
+    }
+  | { type: 'clear-find'; id?: number }
   | { type: 'set-theme'; id?: number; terminalTheme?: RuntimeMobileTerminalTheme }
   | { type: 'set-chrome'; id?: number; chrome: TerminalChromeColors }
   | ({ type: 'set-host-settings'; id?: number } & TerminalHostSettings)

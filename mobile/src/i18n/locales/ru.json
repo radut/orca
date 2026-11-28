@@ -3405,7 +3405,8 @@
       "quickCommands": "Быстрые команды",
       "items": "Элементы",
       "itemsNeedYou": "Элементы, вас ждут: {{count}}",
-      "textSize": "Размер текста"
+      "textSize": "Размер текста",
+      "findInTerminal": "Найти в терминале"
     },
     "headerMoreActionsSheet": {
       "agentHistory": "История агентов",
@@ -3912,6 +3913,13 @@
       "camera": "Камера",
       "choosePhotos": "Выбрать фото",
       "recentPhoto": "Недавнее фото"
+    },
+    "terminalFind": {
+      "placeholder": "Найти в терминале",
+      "noResults": "Нет результатов",
+      "previous": "Предыдущее совпадение",
+      "next": "Следующее совпадение",
+      "close": "Закрыть поиск"
     },
     "nativeChatView": {
       "linkedMessageMissing": "Не удалось найти это сообщение.",
