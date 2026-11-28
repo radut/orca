@@ -7,6 +7,7 @@ import { PullDownMenu } from '../components/nav-bar/PullDownMenu'
 import { useMobileColors } from '../theme/use-mobile-color-scheme'
 import { useMobileTranslation } from '../i18n/use-mobile-translation'
 import type { MobileSessionController } from './use-mobile-session-controller'
+import { mobileWorktreeForkAction } from './native-chat/history/mobile-native-chat-worktree-fork-action'
 import { getMobileNativeChatCliForkActions } from './native-chat/history/mobile-native-chat-cli-fork'
 import {
   getMobileTerminalChatContinuationActions,
@@ -40,6 +41,14 @@ export function MobileSessionHeaderMoreMenu({ controller, anchorRef }: Props) {
     createTabBusy,
     handleOpenQuickCommands
   } = controller
+  const worktreeFork = mobileWorktreeForkAction(controller, controller.activeSessionTab, t)
+  const subagentFork = mobileWorktreeForkAction(
+    controller,
+    controller.activeSessionTab,
+    t,
+    undefined,
+    'subagent'
+  )
   const workspaceOnPairedHost = useWorkspaceOnPairedHost()
   const tabActionsDisabled = createTabBusy || connState !== 'connected'
   // Files, Source control and Checks live in the tabs sidebar.
@@ -104,6 +113,8 @@ export function MobileSessionHeaderMoreMenu({ controller, anchorRef }: Props) {
       : [])
   ]
   const tabs: ActionSheetAction[] = [
+    ...(worktreeFork ? [worktreeFork] : []),
+    ...(subagentFork ? [subagentFork] : []),
     ...getMobileNativeChatCliForkActions({
       controller,
       tab: activeSessionTab?.type === 'agent-session' ? activeSessionTab : null,
