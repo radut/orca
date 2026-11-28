@@ -48,7 +48,9 @@ export function mobileWorktreeForkAction(
       : t('chat.fork.worktree.menuHint', 'A new worktree with a copy of this chat'),
     ...(subagent
       ? { icon: Bot }
-      : { renderIcon: () => <MobileForkIcon size={16} color={getMobilePalette().textSecondary} /> }),
+      : {
+          renderIcon: () => <MobileForkIcon size={16} color={getMobilePalette().textSecondary} />
+        }),
     disabled: controller.connState !== 'connected',
     closeBeforePress: true,
     onPress: () => {
