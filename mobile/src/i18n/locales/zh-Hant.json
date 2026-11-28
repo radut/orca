@@ -348,7 +348,9 @@
     },
     "message": {
       "copyMessage": "複製訊息",
-      "forkFromResponse": "從此回覆建立分支"
+      "forkFromResponse": "從此回覆建立分支",
+      "readAloud": "朗讀",
+      "stopReadingAloud": "停止朗讀"
     },
     "messageActionsSheet": {
       "clipboardRejected": "無法將文字複製到剪貼簿。",

@@ -392,7 +392,9 @@
     "message": {
       "copyMessage": "Mesajı kopyala",
       "forkFromResponse": "Bu yanıttan çatalla",
-      "moreActions": "Diğer işlemler"
+      "moreActions": "Diğer işlemler",
+      "readAloud": "Sesli oku",
+      "stopReadingAloud": "Sesli okumayı durdur"
     },
     "messageActionsSheet": {
       "clipboardRejected": "Metin panoya kopyalanamadı.",
