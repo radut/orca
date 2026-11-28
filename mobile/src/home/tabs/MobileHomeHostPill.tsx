@@ -4,7 +4,10 @@ import { Pressable, Text, View } from 'react-native'
 import Animated from 'react-native-reanimated'
 import { PickerModal } from '../../components/sheets/PickerModal'
 import { statusDotColor } from '../../components/feedback/StatusDot'
-import { hostPickerOptions } from '../../host-catalog/selection/use-connected-host-picker'
+import {
+  hostPickerOptions,
+  useHostPickerSearch
+} from '../../host-catalog/selection/use-connected-host-picker'
 import { useMobileTranslation } from '../../i18n/use-mobile-translation'
 import { radii, spacing } from '../../theme/mobile-theme'
 import { themedStyleSheet, useThemedStyles } from '../../theme/themed-styles'
@@ -38,6 +41,7 @@ export function MobileHomeHostPill(props: {
   const [open, setOpen] = useState(false)
   const title = useHostDisplay(props.host).title
   const choosable = props.hosts.length > 1
+  const hostSearch = useHostPickerSearch(props.hosts.length)
   const dot = statusDotColor(colors, props.state ?? 'disconnected')
   return (
     <>
@@ -61,6 +65,7 @@ export function MobileHomeHostPill(props: {
           selected={props.host.id}
           onSelect={props.onPick}
           onClose={() => setOpen(false)}
+          {...hostSearch}
         />
       ) : null}
     </>
