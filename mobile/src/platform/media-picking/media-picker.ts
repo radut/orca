@@ -11,7 +11,7 @@ import { nativeRecentPhotoDevice } from './native-recent-photos-device'
 const devicePicker: MediaPicker = {
   pickImage: (source) => pickMobileImage(source),
   pickImages: (source) => pickMobileImages(source),
-  pickFiles: () => pickMobileFiles(),
+  pickFiles: (from) => pickMobileFiles(from),
   recentPhotos: {
     list: (limit) => nativeRecentPhotoDevice.list(limit),
     // RN's Image draws ph:// ids itself, at the tile's size.
