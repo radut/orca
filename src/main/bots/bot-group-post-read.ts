@@ -1,10 +1,11 @@
+import { lazyZodSchema } from '../../shared/schema/lazy-zod-schema'
 import { BoundedMap } from '../../shared/collections/bounded-map'
 import { BotGroupMessageSchema, type BotGroupMessage } from '../../shared/bots/bot-group-schema'
 import type Database from '../sqlite/sync-database'
 import { projectBotGroupRoomPost } from './bot-group-page-replies'
 
 // The row's sequence is the message order; the record keeps everything else.
-const MessageRecordSchema = BotGroupMessageSchema.omit({ sequence: true })
+const MessageRecordSchema = lazyZodSchema(() => BotGroupMessageSchema.omit({ sequence: true }))
 let nextDetailVersion = 0
 
 export class BotGroupPostRead {

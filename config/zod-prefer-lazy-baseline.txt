@@ -2,7 +2,6 @@
 # This is a RATCHET: counts may only go DOWN. Wrap schemas in `lazyZodSchema(() => ...)` instead.
 # Prune after a fix: pnpm check:zod-prefer-lazy-ratchet --prune
 3 src/main/acp/timeline/acp-tool-timeline.ts
-1 src/main/bots/bot-group-store.ts
 4 src/main/bots/sharing/bot-share-client.ts
 1 src/main/browser/extensions/api/tabs-page-methods.ts
 3 src/main/google/google-sheets.ts

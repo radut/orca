@@ -1,3 +1,4 @@
+import { lazyZodSchema } from '../../../../../shared/schema/lazy-zod-schema'
 import { BoundedMap } from '../../../../../shared/collections/bounded-map'
 import {
   BotGroupMessageSchema,
@@ -7,7 +8,7 @@ import type Database from '../../../../sqlite/sync-database'
 import { projectBotGroupRoomPost } from '../../../../bots/bot-group-page-replies'
 import type { BotGroupPostReadInput, BotGroupPostReadResult } from './orchestration-reader-protocol'
 
-const MessageRecordSchema = BotGroupMessageSchema.omit({ sequence: true })
+const MessageRecordSchema = lazyZodSchema(() => BotGroupMessageSchema.omit({ sequence: true }))
 
 /** The reader's page cache is bounded to its connection and validates each persisted row on reuse. */
 type CachedPost = { record: string; sequence: number; post: BotGroupMessage; bytes: number }
