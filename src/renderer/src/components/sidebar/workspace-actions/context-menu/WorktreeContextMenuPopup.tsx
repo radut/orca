@@ -1,3 +1,4 @@
+import { WorktreeChatForkMenuItems } from './WorktreeChatForkMenuItems'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -183,6 +184,7 @@ export function WorktreeContextMenuPopup({
                 connectionId={repo?.connectionId ?? null}
                 disabled={isDeleting}
               />
+              <WorktreeChatForkMenuItems worktreeId={worktree.id} disabled={isDeleting} />
               <WorktreeCopySubMenu model={model} />
               <WorktreeLineageSubMenu model={model} />
               <WorktreeProjectGroupSubMenu model={model} />
