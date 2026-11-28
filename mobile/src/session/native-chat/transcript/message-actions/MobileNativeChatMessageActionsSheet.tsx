@@ -97,7 +97,9 @@ export function MobileNativeChatMessageActionsSheet({
                     label: t('chat.message.forkFromResponse', 'Fork from this response'),
                     icon: GitFork,
                     disabled: forkOffer !== 'available',
-                    onPress: () => fork.fork(message)
+                    // The fork sheet asks where and with which agent; it opens once this sheet is gone.
+                    closeBeforePress: true,
+                    onPress: () => fork.openSheet(message)
                   }
                 ]
               : []),
