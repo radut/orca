@@ -12,6 +12,7 @@ import { CircleAlert } from 'lucide-react-native'
 import { MobileBrowserTabBody } from '../browser/MobileBrowserTabBody'
 import { TerminalPaneView } from '../terminal/session/pane-layout/TerminalPaneView'
 import { MountedTerminalPanes } from '../terminal/session/pane-layout/mounted-terminal-lru'
+import { MobileTerminalFindBar } from '../terminal/session/find/MobileTerminalFindBar'
 import { MobileNativeChatOverlay } from './native-chat/MobileNativeChatOverlay'
 import { useMobileSessionNativeChatHostOutage } from './native-chat/status/mobile-native-chat-host-outage'
 import { MobileAgentMessageProvider } from './native-chat/transcript/agent-messages/MobileAgentMessageProvider'
@@ -321,9 +322,11 @@ export function MobileSessionActiveContent({
               onTerminalTap={handleTerminalTap}
               onFileTap={handleFileTap}
               onOpenUrl={terminalLinks.handleTerminalOpenUrl}
+              onFindResults={controller.terminalFind.handleFindResults}
             />
           )}
         </MountedTerminalPanes>
+        {controller.terminalFind.open && <MobileTerminalFindBar find={controller.terminalFind} />}
         <MobileNativeChatDictationPreviewContext.Provider value={chatDictationPreview}>
           <MobileAgentMessageProvider
             key={JSON.stringify([hostId, executionHost, worktreeId])}
