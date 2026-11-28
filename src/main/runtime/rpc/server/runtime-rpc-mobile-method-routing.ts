@@ -225,6 +225,8 @@ export const EXECUTION_HOST_METHODS = [
   'orchestration.workerApprovalsSubscribe',
   'orchestration.workerApprovalsUnsubscribe',
   'orchestration.approvalAnswer',
+  // Pages drawn on the phone reach the network of the workspace's host.
+  'network.mobileBrowserTunnel',
   // Read-only: the chat's worker strip. Stop and Clear stay on the desktop (the host refuses a phone).
   'orchestration.workerDockRead',
   'orchestration.workerDockSubscribe',

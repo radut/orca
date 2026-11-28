@@ -1,19 +1,23 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'expo-router'
 import { ListRow } from '../components/list/ListGroup'
 import type { Translate } from '../i18n/mobile-i18n'
 import { useMobileTranslation } from '../i18n/use-mobile-translation'
 import {
+  DEFAULT_BROWSER_DRAWING,
   DEFAULT_LINK_OPEN_MODE,
+  loadBrowserDrawing,
   loadLinkOpenMode,
+  saveBrowserDrawing,
   saveLinkOpenMode,
+  type MobileBrowserDrawing,
   type MobileLinkOpenMode
 } from '../storage/preferences'
 import { SettingsNote, SettingsScreen, SettingsSection } from './settings-screen-frame'
+import { useSavedBrowserPreference } from './use-saved-browser-preference'
 
-function linkModeOptions(
-  t: Translate
-): { value: MobileLinkOpenMode; label: string; subtitle: string }[] {
+type Option<T> = { value: T; label: string; subtitle: string }
+
+function linkModeOptions(t: Translate): Option<MobileLinkOpenMode>[] {
   return [
     {
       value: 'ask',
@@ -33,6 +37,29 @@ function linkModeOptions(
   ]
 }
 
+function drawingOptions(t: Translate): Option<MobileBrowserDrawing>[] {
+  return [
+    {
+      value: 'stream',
+      label: t('settings.browserSettingsScreen.streamDrawing', 'Stream from the host'),
+      subtitle: t('settings.browserSettingsScreen.streamHint', 'Pictures of the computer’s browser')
+    },
+    {
+      value: 'host',
+      label: t('settings.browserSettingsScreen.hostDrawing', 'Draw on the phone, through the host'),
+      subtitle: t(
+        'settings.browserSettingsScreen.hostNetworkHint',
+        'Uses your computer’s network and proxy'
+      )
+    },
+    {
+      value: 'phone',
+      label: t('settings.browserSettingsScreen.phoneDrawing', 'Draw on the phone, on its network'),
+      subtitle: t('settings.browserSettingsScreen.phoneNetworkHint', 'Like any app on this phone')
+    }
+  ]
+}
+
 export default function BrowserSettingsScreen({
   onBack
 }: {
@@ -40,58 +67,17 @@ export default function BrowserSettingsScreen({
 }): React.JSX.Element {
   const t = useMobileTranslation()
   const router = useRouter()
-  const [linkMode, setLinkMode] = useState<MobileLinkOpenMode>(DEFAULT_LINK_OPEN_MODE)
-  const [error, setError] = useState<'load' | 'save' | null>(null)
-  const options = linkModeOptions(t)
-  const selectionRevision = useRef(0)
-  const failedSelectionRevision = useRef<number | null>(null)
-  const savedMode = useRef<MobileLinkOpenMode>(DEFAULT_LINK_OPEN_MODE)
-  const hasSaved = useRef(false)
-
-  useEffect(() => {
-    let active = true
-    void loadLinkOpenMode().then(
-      (mode) => {
-        if (!hasSaved.current) {
-          savedMode.current = mode
-        }
-        if (
-          active &&
-          (selectionRevision.current === 0 ||
-            failedSelectionRevision.current === selectionRevision.current)
-        ) {
-          setLinkMode(savedMode.current)
-        }
-      },
-      () => {
-        if (active) {
-          setError('load')
-        }
-      }
-    )
-    return () => {
-      active = false
-    }
-  }, [])
-
-  const selectLinkMode = useCallback((mode: MobileLinkOpenMode) => {
-    setError(null)
-    const revision = ++selectionRevision.current
-    setLinkMode(mode)
-    void saveLinkOpenMode(mode).then(
-      () => {
-        savedMode.current = mode
-        hasSaved.current = true
-      },
-      () => {
-        if (revision === selectionRevision.current) {
-          failedSelectionRevision.current = revision
-          setLinkMode(savedMode.current)
-          setError('save')
-        }
-      }
-    )
-  }, [])
+  const linkMode = useSavedBrowserPreference(
+    loadLinkOpenMode,
+    saveLinkOpenMode,
+    DEFAULT_LINK_OPEN_MODE
+  )
+  const drawing = useSavedBrowserPreference(
+    loadBrowserDrawing,
+    saveBrowserDrawing,
+    DEFAULT_BROWSER_DRAWING
+  )
+  const error = linkMode.error ?? drawing.error
 
   const errorNote = error ? (
     <SettingsNote error>
@@ -118,13 +104,31 @@ export default function BrowserSettingsScreen({
         title={t('settings.browserSettingsScreen.openLinks', 'Open links')}
         footer={errorNote}
       >
-        {options.map((option) => (
+        {linkModeOptions(t).map((option) => (
           <ListRow
             key={option.value}
             title={option.label}
             subtitle={option.subtitle}
-            selected={linkMode === option.value}
-            onPress={() => selectLinkMode(option.value)}
+            selected={linkMode.value === option.value}
+            onPress={() => linkMode.select(option.value)}
+          />
+        ))}
+      </SettingsSection>
+      <SettingsSection
+        radioGroup
+        title={t('settings.browserSettingsScreen.showTabs', 'Show tabs')}
+        footer={t(
+          'settings.browserSettingsScreen.tabsFooter',
+          'The phone button in a tab still draws that tab here.'
+        )}
+      >
+        {drawingOptions(t).map((option) => (
+          <ListRow
+            key={option.value}
+            title={option.label}
+            subtitle={option.subtitle}
+            selected={drawing.value === option.value}
+            onPress={() => drawing.select(option.value)}
           />
         ))}
       </SettingsSection>

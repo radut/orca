@@ -227,6 +227,7 @@ export function MobileSessionActiveContent({
         {/* Why: pane owns imperative frame refs; don't render a stale frame while the old stream effect cleans up. */}
         <MobileBrowserTabBody
           key={activeBrowserTab.browserPageId ?? activeBrowserTab.id}
+          hostId={hostId}
           client={client}
           worktreeId={worktreeId}
           tab={activeBrowserTab}
