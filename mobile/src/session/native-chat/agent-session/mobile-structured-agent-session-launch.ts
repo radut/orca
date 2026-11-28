@@ -10,12 +10,12 @@ import {
   isAgentSessionForkSourceAdmissionRefusal,
   isAgentSessionCreateAdmissionRefusal
 } from '../../../../../src/shared/agent-session/failures/agent-session-definitive-refusal'
-import {
-  structuredAgentSessionCreateParams,
-  type StructuredAgentSessionCreateParams,
-  type StructuredAgentSessionForkSource,
-  type StructuredAgentSessionResumeSource
+import type {
+  StructuredAgentSessionCreateParams,
+  StructuredAgentSessionForkSource,
+  StructuredAgentSessionResumeSource
 } from '../../../../../src/shared/agent-session/lifecycle/operations/structured-agent-session-create'
+import { createParamsFor, type CreateSource } from './mobile-structured-agent-session-create-params'
 import { readAgentSessionErrorRefusal } from '../../../../../src/shared/agent-session/failures/agent-session-write-failure'
 import {
   readAgentSessionRefusalReference,
@@ -29,8 +29,6 @@ import {
   structuredAgentSessionCreate,
   structuredAgentSupportProbe
 } from './mobile-structured-create-operations'
-import { randomV4Uuid } from '../../../platform/random-v4-uuid'
-import { createOrcaSessionId } from '../../../../../src/shared/agent-session/identity/orca-session-address'
 import { rememberMobileCreatedStructuredSession } from './mobile-created-structured-sessions'
 
 // Partial: the reply is read before it is checked.
@@ -59,33 +57,11 @@ type MobileStructuredAgentCreateResult = Exclude<
   { kind: 'unsupported' }
 >
 
-/** A chat starts fresh, forks a native chat, or resumes a provider conversation. */
-type CreateSource = {
-  forkFrom?: StructuredAgentSessionForkSource
-  resumeFrom?: StructuredAgentSessionResumeSource
-}
-
 /** What createSupport is asked about resuming: whether another terminal still runs it, apart from
  *  the panes the phone closes first. */
 export type MobileStructuredResumePreflight = {
   providerSessionId: string
   closingPaneKeys?: string[]
-}
-
-function createParamsFor(
-  agent: TuiAgent,
-  worktree: string,
-  source: CreateSource,
-  tabPlacement: StructuredAgentSessionCreateParams['tabPlacement']
-): StructuredAgentSessionCreateParams {
-  return structuredAgentSessionCreateParams({
-    sessionId: createOrcaSessionId(randomV4Uuid),
-    worktree,
-    agent,
-    ...source,
-    ...(tabPlacement ? { tabPlacement } : {}),
-    randomUuid: randomV4Uuid
-  })
 }
 
 function unknownCreateResult(agent: TuiAgent, error: unknown): MobileStructuredAgentCreateResult {
@@ -176,12 +152,27 @@ async function createSupportRefusal(
 export async function createMobileStructuredAgentSession(
   client: RpcClient,
   worktreeId: string,
-  agent: TuiAgent
+  agent: TuiAgent,
+  /** Sent only to a host advertising forks; skips createSupport like forkMobileStructuredAgentSession. */
+  forkFrom?: StructuredAgentSessionForkSource,
+  /** Sent only to a host advertising create placement; the replay keeps it. */
+  tabPlacement?: StructuredAgentSessionCreateParams['tabPlacement'],
+  /** Sent only to a host advertising create messages: the chat's first prompt. */
+  firstMessageText?: string,
+  /** A transcript already placed on this host, e.g. a chat copied from another host. */
+  resumeFrom?: StructuredAgentSessionResumeSource
 ): Promise<MobileStructuredAgentLaunchResult> {
   const worktree = `id:${worktreeId}`
   return (
-    (await createSupportRefusal(client, worktree, agent)) ??
-    requestStructuredAgentSessionCreate(client, worktree, agent)
+    (forkFrom ? null : await createSupportRefusal(client, worktree, agent)) ??
+    requestStructuredAgentSessionCreate(
+      client,
+      worktree,
+      agent,
+      { ...(forkFrom ? { forkFrom } : {}), ...(resumeFrom ? { resumeFrom } : {}) },
+      tabPlacement,
+      firstMessageText
+    )
   )
 }
 
@@ -236,10 +227,11 @@ async function requestStructuredAgentSessionCreate(
   worktree: string,
   agent: TuiAgent,
   source: CreateSource = {},
-  tabPlacement?: StructuredAgentSessionCreateParams['tabPlacement']
+  tabPlacement?: StructuredAgentSessionCreateParams['tabPlacement'],
+  firstMessageText?: string
 ): Promise<MobileStructuredAgentCreateResult> {
   const { forkFrom, resumeFrom } = source
-  const params = createParamsFor(agent, worktree, source, tabPlacement)
+  const params = createParamsFor(agent, worktree, source, tabPlacement, firstMessageText)
   rememberMobileCreatedStructuredSession(params.envelope.sessionId, worktree)
   let response
   let priorCreateOutcomeUnknown = false
