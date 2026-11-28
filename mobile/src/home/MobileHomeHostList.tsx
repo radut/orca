@@ -1,6 +1,8 @@
 import { Plus } from 'lucide-react-native'
-import { Fragment, memo, useCallback } from 'react'
+import { Fragment, memo, useCallback, useMemo, useState } from 'react'
 import { Pressable, Text, View } from 'react-native'
+import { MobileSearchField } from '../components/controls/MobileSearchField'
+import { filterHostsByQuery } from '../host-catalog/selection/use-connected-host-picker'
 import { useMobileTranslation } from '../i18n/use-mobile-translation'
 import { useMobileColors } from '../theme/use-mobile-color-scheme'
 import type { ConnectionState } from '../transport/connection/connection-state'
@@ -36,14 +38,28 @@ export function MobileHomeHostList(props: MobileHomeHostListProps) {
   const t = useMobileTranslation()
   const colors = useMobileColors()
   const homeListStyles = useThemedStyles(homeListStylesSheet)
+  const [query, setQuery] = useState('')
+  const searchable = props.hosts.length > 1
+  const hosts = useMemo(
+    () => (searchable ? filterHostsByQuery(props.hosts, query) : props.hosts),
+    [props.hosts, query, searchable]
+  )
   return (
     <>
       <MobileHomeSectionHeading
         title={t('home.listHeader.computersHeading', 'Computers')}
         first={props.first}
       />
+      {searchable ? (
+        <MobileSearchField
+          value={query}
+          onChangeText={setQuery}
+          placeholder={t('components.hostPicker.search', 'Search desktops')}
+          style={homeListStyles.search}
+        />
+      ) : null}
       <View style={homeListStyles.group}>
-        {props.hosts.map((host, index) => (
+        {hosts.map((host, index) => (
           <Fragment key={host.id}>
             <MobileHomeHostRow
               item={host}
@@ -60,7 +76,7 @@ export function MobileHomeHostList(props: MobileHomeHostListProps) {
             <View
               style={[
                 homeListStyles.separator,
-                index === props.hosts.length - 1 && homeListStyles.fullSeparator
+                index === hosts.length - 1 && homeListStyles.fullSeparator
               ]}
             />
           </Fragment>
