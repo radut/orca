@@ -1,7 +1,11 @@
 // @vitest-environment happy-dom
-import { act, cleanup, render } from '@testing-library/react'
+import { act, cleanup, render as renderInDom } from '@testing-library/react'
+import { TooltipProvider } from '@/components/ui/tooltip'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { NativeChatCodeBlock, NativeChatDeferredCodeBlock } from './NativeChatCodeBlock'
+
+// The code buttons' hover labels need the app's tooltip provider.
+const render = (ui: React.ReactElement) => renderInDom(ui, { wrapper: TooltipProvider })
 
 // The grammar's wasm can't load here; a marker stands in for the colored tokens.
 vi.mock('./NativeChatHighlightedCode', () => ({
