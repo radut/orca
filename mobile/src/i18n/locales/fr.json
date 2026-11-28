@@ -773,7 +773,8 @@
       "attachFailed": "Échec de l'ajout",
       "disconnected": "Échec de l'ajout (déconnecté)",
       "imageTooLarge": "Image trop volumineuse pour être jointe",
-      "permissionDenied": "Accès aux photos refusé"
+      "permissionDenied": "Accès aux photos refusé",
+      "cameraPermissionDenied": "Accès à l’appareil photo refusé"
     },
     "textAttachmentPreview": {
       "unreadableReply": "La réponse de la pièce jointe est illisible. Réessayez.",
@@ -3431,6 +3432,9 @@
       "switchToDesktop": "Passer en mode ordinateur",
       "switchToPhone": "Passer en mode téléphone"
     },
+    "terminalInputActions": {
+      "takePhoto": "Prendre une photo"
+    },
     "terminalLiveInputStatus": {
       "listening": "Écoute en cours",
       "preparingMic": "Préparation du microphone",
@@ -3513,7 +3517,8 @@
       "attachFailed": "Impossible de joindre l'image",
       "disconnected": "Échec de l'ajout (déconnecté)",
       "imageTooLarge": "Image trop volumineuse pour être jointe",
-      "permissionDenied": "Accès aux photos refusé"
+      "permissionDenied": "Accès aux photos refusé",
+      "cameraPermissionDenied": "Accès à l’appareil photo refusé"
     },
     "useMarkdownActions": {
       "copyFailed": "Impossible de copier",
@@ -3716,6 +3721,14 @@
       "worktreeDeleted": "Le worktree a été supprimé.",
       "projectRemoved": "Le projet a été retiré d’Orca.",
       "folderWorkspaceRemoved": "L’espace de travail de type dossier a été retiré."
+    },
+    "nativeChatAddContext": {
+      "title": "Ajouter du contexte",
+      "photos": "Photos",
+      "attachSelected": "Joindre ({{count}})",
+      "camera": "Appareil photo",
+      "choosePhotos": "Choisir des photos",
+      "recentPhoto": "Photo récente"
     },
     "nativeChatView": {
       "loading": "Chargement de la conversation…",

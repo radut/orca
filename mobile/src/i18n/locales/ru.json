@@ -796,7 +796,8 @@
       "attachFailed": "Не удалось прикрепить",
       "disconnected": "Не удалось прикрепить (нет соединения)",
       "imageTooLarge": "Изображение слишком большое для прикрепления",
-      "permissionDenied": "Нет доступа к фото"
+      "permissionDenied": "Нет доступа к фото",
+      "cameraPermissionDenied": "Нет доступа к камере"
     },
     "textAttachmentPreview": {
       "unreadableReply": "Не удалось прочитать ответ для вложения. Повторите попытку.",
@@ -3612,6 +3613,9 @@
       "switchToDesktop": "Включить режим компьютера",
       "switchToPhone": "Включить режим телефона"
     },
+    "terminalInputActions": {
+      "takePhoto": "Сделать фото"
+    },
     "terminalLiveInputStatus": {
       "listening": "Прослушивание",
       "preparingMic": "Подготовка микрофона",
@@ -3694,7 +3698,8 @@
       "attachFailed": "Не удалось прикрепить изображение",
       "disconnected": "Не удалось прикрепить (нет подключения)",
       "imageTooLarge": "Изображение слишком большое для прикрепления",
-      "permissionDenied": "Нет доступа к фото"
+      "permissionDenied": "Нет доступа к фото",
+      "cameraPermissionDenied": "Нет доступа к камере"
     },
     "useMarkdownActions": {
       "copyFailed": "Не удалось скопировать",
@@ -3897,6 +3902,14 @@
       "unsupported": "Чат агента {{agent}} нельзя открыть заново, пока Orca не будет обновлена.",
       "unreachable": "Чат агента {{agent}} пока недоступен. Повторите через минуту.",
       "paneUnavailable": "Панели агента больше нет."
+    },
+    "nativeChatAddContext": {
+      "title": "Добавить контекст",
+      "photos": "Фото",
+      "attachSelected": "Прикрепить ({{count}})",
+      "camera": "Камера",
+      "choosePhotos": "Выбрать фото",
+      "recentPhoto": "Недавнее фото"
     },
     "nativeChatView": {
       "linkedMessageMissing": "Не удалось найти это сообщение.",
