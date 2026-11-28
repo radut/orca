@@ -83,7 +83,10 @@ function pillAccessibleName(title: string, value: string, t: Translate = transla
       })
 }
 
-function PickerTrigger(props: {
+function PickerTrigger({
+  triggerRef,
+  ...props
+}: {
   modelLabel: string
   /** The options' values, shown after the model; empty when there are none to show. */
   optionsLabel: string
@@ -102,7 +105,7 @@ function PickerTrigger(props: {
       <TooltipTrigger asChild>
         <PopoverTrigger asChild>
           <Button
-            ref={props.triggerRef}
+            ref={triggerRef}
             type="button"
             variant="ghost"
             size="xs"
