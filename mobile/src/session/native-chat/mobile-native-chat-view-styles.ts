@@ -90,6 +90,23 @@ export const stylesSheet = themedStyleSheet((colors) => ({
   retryPillPressed: {
     opacity: feedback.pressedOpacity
   },
+  agentNoticeActions: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.xs
+  },
+  primaryPill: {
+    backgroundColor: colors.surfaceBright,
+    borderColor: colors.surfaceBright
+  },
+  primaryPillLabel: {
+    color: colors.bgBase
+  },
+  pillDisabled: {
+    opacity: 0.5
+  },
   retryPillLabel: {
     color: colors.textSecondary,
     fontSize: typography.metaSize,
