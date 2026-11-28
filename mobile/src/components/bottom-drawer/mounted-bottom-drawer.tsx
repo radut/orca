@@ -39,7 +39,7 @@ import { useDrawerReducedMotion } from './bottom-drawer-constants'
 import { useThemedStyles } from '../../theme/themed-styles'
 
 // The grabber row above the content: its padding plus the 5 pt bar.
-const HANDLE_AREA_HEIGHT = spacing.sm + 5 + spacing.md
+const HANDLE_AREA_HEIGHT = spacing.lg + 5 + spacing.lg
 
 export type MountedBottomDrawerProps = {
   visible: boolean

@@ -17,6 +17,7 @@ import {
 } from '../../../../theme/mobile-theme'
 import { themedStyleSheet, useThemedStyles } from '../../../../theme/themed-styles'
 import { useMobileColors } from '../../../../theme/use-mobile-color-scheme'
+import { MobileCodeBlockRunContext } from '../../../../components/markdown/blocks/mobile-code-block-run'
 import { useMobileTranslation } from '../../../../i18n/use-mobile-translation'
 import {
   isNewerApprovalSubject,
@@ -216,7 +217,10 @@ function MobileNativeChatPermissionContext({
       ) : null}
       {isPlanApprovalSubject(permission.subject) ? (
         <View>
-          <MobileNativeChatMarkdown content={permission.subject.text} />
+          {/* A plan under approval never runs from here: approving it is the only way. */}
+          <MobileCodeBlockRunContext.Provider value={null}>
+            <MobileNativeChatMarkdown content={permission.subject.text} />
+          </MobileCodeBlockRunContext.Provider>
           {permission.subject.filePath ? (
             <Text style={styles.planFile}>
               {t('chat.permission.planFile', 'Plan file: {{filePath}}', {
