@@ -362,7 +362,9 @@
     },
     "message": {
       "copyMessage": "Копировать сообщение",
-      "forkFromResponse": "Создать ответвление от этого ответа"
+      "forkFromResponse": "Создать ответвление от этого ответа",
+      "readAloud": "Прочитать вслух",
+      "stopReadingAloud": "Остановить чтение вслух"
     },
     "messageActionsSheet": {
       "clipboardRejected": "Не удалось записать текст в буфер обмена.",

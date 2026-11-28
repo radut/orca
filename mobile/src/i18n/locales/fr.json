@@ -355,7 +355,9 @@
     },
     "message": {
       "copyMessage": "Copier le message",
-      "forkFromResponse": "Créer une branche à partir de cette réponse"
+      "forkFromResponse": "Créer une branche à partir de cette réponse",
+      "readAloud": "Lire à voix haute",
+      "stopReadingAloud": "Arrêter la lecture à voix haute"
     },
     "messageActionsSheet": {
       "clipboardRejected": "Le presse-papiers a refusé le texte.",
