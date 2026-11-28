@@ -16,6 +16,10 @@ import { useMobileSessionSidebar } from './tabs/use-mobile-session-sidebar'
 import { SidebarPageDragContext } from './tabs/sidebar-page-drag'
 import { useMobileSessionTabSummaryChannel } from './tabs/use-mobile-session-tab-summaries'
 import { useSessionRouteRequest } from './use-session-route-request'
+import {
+  MobileCodeBlockRunContext,
+  useMobileCodeBlockRunner
+} from '../components/markdown/blocks/mobile-code-block-run'
 
 export function MobileSessionSurface({ controller }: { controller: MobileSessionController }) {
   const styles = useThemedStyles(stylesSheet)
@@ -74,43 +78,47 @@ export function MobileSessionSurface({ controller }: { controller: MobileSession
       ),
     [homeChatId, sessionTabs, activeSessionTabId, switchSessionTab, openNativeSession, worktreeId]
   )
+  // Play runs a block in this workspace on a background terminal and shows its output under the block.
+  const runCodeBlock = useMobileCodeBlockRunner(controller.client, worktreeId)
   return (
-    <View ref={setMobileSessionRootRef} style={styles.container}>
-      <MobileSessionSidebarStage
-        sidebar={sidebar}
-        cardLabel={controller.activeSessionTab?.title || controller.worktreeName}
-        panel={
-          <MobileSessionSidebar
-            controller={controller}
-            sidebar={sidebar}
-            summaries={summaries}
-            place={controller.terminalSummary}
-            connectionIssue={connectionIssue}
-          />
-        }
-      >
-        <View style={styles.kavInner}>
-          <MobileSessionHeader
-            controller={controller}
-            homeChatId={homeChatId ?? null}
-            summaries={summaries}
-            sidebar={sidebar}
-            connectionIssue={connectionIssue}
-          />
-          <MobileWorkerAutoCloseStrip controller={controller} />
-          {/* A chat's item chips open the item's page in the bot panel. */}
-          <BotItemOpenContext.Provider value={openItem}>
-            <BotChatOpenContext.Provider value={openChat}>
-              <BotPanelOpenContext.Provider value={panelOpener}>
-                <SidebarPageDragContext.Provider value={sidebar.pageDrag}>
-                  <MobileSessionContentRow controller={controller} />
-                </SidebarPageDragContext.Provider>
-              </BotPanelOpenContext.Provider>
-            </BotChatOpenContext.Provider>
-          </BotItemOpenContext.Provider>
-        </View>
-      </MobileSessionSidebarStage>
-      <MobileSessionSheets controller={controller} />
-    </View>
+    <MobileCodeBlockRunContext.Provider value={runCodeBlock}>
+      <View ref={setMobileSessionRootRef} style={styles.container}>
+        <MobileSessionSidebarStage
+          sidebar={sidebar}
+          cardLabel={controller.activeSessionTab?.title || controller.worktreeName}
+          panel={
+            <MobileSessionSidebar
+              controller={controller}
+              sidebar={sidebar}
+              summaries={summaries}
+              place={controller.terminalSummary}
+              connectionIssue={connectionIssue}
+            />
+          }
+        >
+          <View style={styles.kavInner}>
+            <MobileSessionHeader
+              controller={controller}
+              homeChatId={homeChatId ?? null}
+              summaries={summaries}
+              sidebar={sidebar}
+              connectionIssue={connectionIssue}
+            />
+            <MobileWorkerAutoCloseStrip controller={controller} />
+            {/* A chat's item chips open the item's page in the bot panel. */}
+            <BotItemOpenContext.Provider value={openItem}>
+              <BotChatOpenContext.Provider value={openChat}>
+                <BotPanelOpenContext.Provider value={panelOpener}>
+                  <SidebarPageDragContext.Provider value={sidebar.pageDrag}>
+                    <MobileSessionContentRow controller={controller} />
+                  </SidebarPageDragContext.Provider>
+                </BotPanelOpenContext.Provider>
+              </BotChatOpenContext.Provider>
+            </BotItemOpenContext.Provider>
+          </View>
+        </MobileSessionSidebarStage>
+        <MobileSessionSheets controller={controller} />
+      </View>
+    </MobileCodeBlockRunContext.Provider>
   )
 }

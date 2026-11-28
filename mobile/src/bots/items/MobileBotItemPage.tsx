@@ -35,7 +35,7 @@ import { MobileBotItemActivity } from './MobileBotItemActivity'
 import { MobileBotItemCommentBox } from './MobileBotItemCommentBox'
 import { botItemOpenAsk, useMobileBotItemAskSlot } from './MobileBotItemAskCard'
 import { botItemAskCardKey } from './bot-item-ask-card-drafts'
-import { MobileNativeChatOpenFileContext } from '../../session/native-chat/links/mobile-native-chat-open-file-context'
+import { BotItemPageScopes } from './BotItemCodeBlockRunScope'
 import { MobileNativeChatPromptStrip } from '../../session/native-chat/input/prompts/MobileNativeChatPromptStrip'
 import { MobileBotItemLinks } from './MobileBotItemLinks'
 import { botItemChatName, type BotItemSheet } from './MobileBotItemSheets'
@@ -194,8 +194,8 @@ export function MobileBotItemPage({
   const ChatIcon = item.chat.kind === 'home' ? House : MessageSquare
   const closed = item.status === 'done' || item.status === 'canceled'
   return (
-    // Paths in the item's text open as the item's file links do, as chat's do in chat.
-    <MobileNativeChatOpenFileContext value={onOpenFile}>
+    // Paths in the item's text open as its file links do; its code blocks run in the bot's home.
+    <BotItemPageScopes client={client} bot={bot} onOpenFile={onOpenFile}>
       <View style={styles.page}>
         {back}
         <MobileNativeChatComposerMenuHost style={styles.scroll}>
@@ -375,7 +375,7 @@ export function MobileBotItemPage({
           </View>
         </MobileNativeChatComposerMenuHost>
       </View>
-    </MobileNativeChatOpenFileContext>
+    </BotItemPageScopes>
   )
 }
 

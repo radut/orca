@@ -1,5 +1,5 @@
-import { TextWrap } from 'lucide-react-native'
-import { memo, useContext, useMemo } from 'react'
+import { Play, TextWrap } from 'lucide-react-native'
+import { memo, useContext, useMemo, useState } from 'react'
 import { Pressable, ScrollView, Text, View } from 'react-native'
 import { useMobileTranslation } from '../../../i18n/use-mobile-translation'
 import { highlightMobileCode } from '../../../files/session-documents/mobile-file-syntax'
@@ -14,6 +14,13 @@ import { MobileSourceCopyButton } from '../../code-presentation/MobileSourceCopy
 import { scaledMarkdownText, stylesSheet } from '../mobile-markdown-styles'
 import { MarkdownText } from '../mobile-markdown-text'
 import { useThemedStyles } from '../../../theme/themed-styles'
+import { codeBlockTerminalScript } from '../../../../../src/shared/code-block-terminal-script'
+import type { CodeBlockRunState } from '../../../../../src/shared/code-block-terminal-run'
+import { MobileCodeBlockRunContext } from './mobile-code-block-run'
+import { MobileCodeBlockRunOutput } from './MobileCodeBlockRunOutput'
+
+// Play is the block's main action, so it gets a full 32 pt target beside the 24 pt wrap toggle.
+const RUN_BUTTON_SIZE = { width: 32, height: 32 }
 
 export const MobileMarkdownCodeBlock = memo(function MobileMarkdownCodeBlock({
   code,
@@ -32,6 +39,9 @@ export const MobileMarkdownCodeBlock = memo(function MobileMarkdownCodeBlock({
   const t = useMobileTranslation()
   // In chat the transcript keeps the wrap choice, never persisted; elsewhere it is local.
   const rowKey = useContext(MobileNativeChatMarkdownRowKeyContext)
+  const run = useContext(MobileCodeBlockRunContext)
+  const command = useMemo(() => codeBlockTerminalScript(code, language), [code, language])
+  const [runState, setRunState] = useState<CodeBlockRunState | null>(null)
   const [wrapped, setWrapped] = useMobileNativeChatDisclosure(
     rowKey && sourceLine !== undefined ? `code-wrap:${rowKey}:${sourceLine}` : undefined,
     false
@@ -63,6 +73,25 @@ export const MobileMarkdownCodeBlock = memo(function MobileMarkdownCodeBlock({
           {language || t('components.markdownBlocks.codeLabel', 'Code')}
         </Text>
         <View style={styles.codeActions}>
+          {run && command ? (
+            <Pressable
+              style={({ pressed }) => [
+                styles.codeWrapButton,
+                RUN_BUTTON_SIZE,
+                pressed && pressedStyle
+              ]}
+              hitSlop={8}
+              disabled={runState?.status === 'running'}
+              accessibilityRole="button"
+              accessibilityLabel={t('components.markdownBlocks.runInTerminal', 'Run')}
+              onPress={() => void run(command, setRunState)}
+            >
+              <Play
+                size={16}
+                color={runState?.status === 'running' ? colors.textPrimary : colors.textMuted}
+              />
+            </Pressable>
+          ) : null}
           {code ? (
             <Pressable
               style={({ pressed }) => [
@@ -104,6 +133,7 @@ export const MobileMarkdownCodeBlock = memo(function MobileMarkdownCodeBlock({
           </ScrollView>
         )}
       </View>
+      {runState ? <MobileCodeBlockRunOutput state={runState} textScale={textScale} /> : null}
     </View>
   )
 })
