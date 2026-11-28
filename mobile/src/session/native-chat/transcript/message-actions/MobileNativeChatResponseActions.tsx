@@ -8,6 +8,7 @@ import { themedStyleSheet, useThemedStyles } from '../../../../theme/themed-styl
 import { useMobileColors } from '../../../../theme/use-mobile-color-scheme'
 import { useMobileTranslation } from '../../../../i18n/use-mobile-translation'
 import { MobileNativeChatRowOverlaysContext } from './mobile-native-chat-row-overlays'
+import { MobileNativeChatReadAloudButton } from './MobileNativeChatReadAloudButton'
 
 /** Copy, then ⋯ for the rest (time, select, fork), under an agent's reply. */
 export function MobileNativeChatResponseActions({
@@ -29,6 +30,9 @@ export function MobileNativeChatResponseActions({
           text={copyText}
           accessibilityLabel={t('chat.message.copyMessage', 'Copy message')}
         />
+      ) : null}
+      {message.role === 'assistant' && copyText.length > 0 ? (
+        <MobileNativeChatReadAloudButton messageId={message.id} markdown={copyText} />
       ) : null}
       <Pressable
         style={({ pressed }) => [styles.button, pressed && pressedStyle]}

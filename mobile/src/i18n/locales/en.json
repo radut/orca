@@ -3528,7 +3528,9 @@
     "message": {
       "copyMessage": "Copy message",
       "forkFromResponse": "Fork from this response",
-      "moreActions": "More actions"
+      "moreActions": "More actions",
+      "readAloud": "Read aloud",
+      "stopReadingAloud": "Stop reading aloud"
     },
     "messageActionsSheet": {
       "copyMessage": "Copy message",
