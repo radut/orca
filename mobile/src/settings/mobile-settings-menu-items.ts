@@ -6,6 +6,7 @@ import {
   MessageSquare,
   Mic,
   Shield,
+  Smartphone,
   SunMoon,
   Terminal,
   Wrench
@@ -35,6 +36,12 @@ export function mobileSettingsMenuGroups({
         icon: SunMoon,
         value: appearanceValue,
         onPress: () => push('/appearance-settings')
+      },
+      {
+        id: 'appIcon',
+        label: t('settings.menuItems.appIcon', 'App icon'),
+        icon: Smartphone,
+        onPress: () => push('/app-icon-settings')
       },
       {
         id: 'notifications',

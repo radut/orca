@@ -66,7 +66,8 @@
       "troubleshooting": "Troubleshooting",
       "about": "About",
       "chat": "Chat",
-      "updateAvailable": "Update available"
+      "updateAvailable": "Update available",
+      "appIcon": "App icon"
     },
     "nativeChatSettingsScreen": {
       "defaultViewFooter": "Switch one session from its long-press menu.",
@@ -173,6 +174,13 @@
       "runsOn": "Runs on {{name}}",
       "dictationOffFooter": "Talk instead of typing in chats and terminals.",
       "swipeToDelete": "Swipe a downloaded model left to delete it."
+    },
+    "appIconScreen": {
+      "title": "App icon",
+      "back": "Back",
+      "description": "Choose the icon Orca shows on your home screen.",
+      "unsupported": "This device cannot change the app icon.",
+      "changeFailed": "Could not change the app icon. Try again."
     },
     "voiceTranscribeOn": {
       "heading": "Transcribe on",
