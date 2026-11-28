@@ -15,6 +15,10 @@ import { useOptionalHostProtocolGates } from '../../components/host-connection/h
 import { MobileStateButton } from '../../components/feedback/MobileStateView'
 import { MobileBrowserBottomBar } from './MobileBrowserBottomBar'
 import { useNewBrowserTabAddressFocus } from './new-browser-tab-address-focus'
+import {
+  useMobileBrowserDrawingMenu,
+  type MobileBrowserStreamedDrawing
+} from '../mobile-browser-drawing-menu'
 import { MobileBrowserJavaScriptDialog } from './MobileBrowserJavaScriptDialog'
 import { MobileBrowserPagePrompt } from './MobileBrowserPagePrompt'
 import type { MobileBrowserPagePromptState } from '../page-interaction/use-mobile-browser-page-prompts'
@@ -59,6 +63,7 @@ type MobileBrowserPaneViewProps = {
   keyboardLift: number
   layoutRef: RefObject<BrowserTouchLayout | null>
   navigateToAddress: () => Promise<void>
+  drawing?: MobileBrowserStreamedDrawing
   panResponder: PanResponderInstance
   proceedCertificate: (challengeId: string) => Promise<MobileCertificateProceedFailure | null>
   reconnectStream: () => void
@@ -111,6 +116,7 @@ export function MobileBrowserPaneView(props: MobileBrowserPaneViewProps) {
     keyboardLift,
     layoutRef,
     navigateToAddress,
+    drawing,
     panResponder,
     proceedCertificate,
     reconnectStream,
@@ -154,6 +160,7 @@ export function MobileBrowserPaneView(props: MobileBrowserPaneViewProps) {
     proceedUnsafe: loadFailure?.proceedUnsafe ?? null,
     onToast
   })
+  const drawingMenu = useMobileBrowserDrawingMenu('stream', drawing ?? null)
   return (
     <View ref={setRootViewRef} style={styles.root}>
       <View
@@ -310,7 +317,7 @@ export function MobileBrowserPaneView(props: MobileBrowserPaneViewProps) {
         reloadPage={reloadPage}
         goBack={goBack}
         onKeyboard={typing.focus}
-        menuGroups={menuGroups}
+        menuGroups={drawingMenu ? [...menuGroups, drawingMenu] : menuGroups}
       />
       <TextInput
         {...typing.inputProps}
