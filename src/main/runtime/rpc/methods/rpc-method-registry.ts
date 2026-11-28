@@ -22,6 +22,7 @@ import { LINK_PREVIEW_METHODS } from './link-preview/link-preview'
 import { DIAGNOSTICS_METHODS } from './host-management/diagnostics'
 import { MANAGED_SERVER_METHODS } from './host-management/managed-server'
 import { AI_VAULT_METHODS } from './history/ai-vault'
+import { AI_VAULT_FORK_TRANSFER_METHODS } from './history/ai-vault-fork-transfer'
 import { MANAGED_RUNTIME_INSTALL_METHODS } from './host-management/managed-runtime-install'
 import { AGENT_CLI_UPDATE_METHODS } from './host-management/agent-cli-update'
 import { SSH_METHODS } from './ssh/ssh'
@@ -90,6 +91,7 @@ const CORE_RPC_METHODS = [
   ...CONNECTOR_METHODS,
   ...CONNECTOR_SLACK_MIRROR_METHODS,
   ...AI_VAULT_METHODS,
+  ...AI_VAULT_FORK_TRANSFER_METHODS,
   ...MANAGED_RUNTIME_INSTALL_METHODS,
   ...AGENT_CLI_UPDATE_METHODS,
   ...PAIRED_SERVER_ASKS_METHODS,
