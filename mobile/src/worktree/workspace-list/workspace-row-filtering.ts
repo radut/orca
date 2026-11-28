@@ -1,5 +1,10 @@
 import type { ExecutionHostId } from '../../../../src/shared/execution-host/execution-host'
 import {
+  nameSearchMatches,
+  prepareNameSearchQuery,
+  type NameSearchQuery
+} from '../../../../src/shared/palette-match/name-search-match'
+import {
   isListedByFolderWorkspace,
   NO_HIDDEN_PROJECTS,
   type HiddenProjects
@@ -88,12 +93,8 @@ export type SearchFilteredWorktrees = {
 
 const NO_FILTER_HIDDEN: ReadonlySet<string> = new Set()
 
-function matchesSearch(w: Worktree, q: string): boolean {
-  return (
-    w.displayName.toLowerCase().includes(q) ||
-    w.branch.toLowerCase().includes(q) ||
-    w.repo.toLowerCase().includes(q)
-  )
+function matchesSearch(w: Worktree, q: NameSearchQuery): boolean {
+  return nameSearchMatches(q, [w.displayName, w.branch, w.repo])
 }
 
 export function filterWorktreesForSearch(
@@ -113,7 +114,7 @@ export function filterWorktreesForSearch(
     childrenByParentIdentity,
     workspaceStatuses
   )
-  const q = search.trim().toLowerCase()
+  const q = prepareNameSearchQuery(search)
   if (!q) {
     return {
       rows: filterWorkspaceRows(worktrees, filters, facts),

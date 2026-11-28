@@ -10,6 +10,11 @@ import type { GroupHeaderRow } from '../../../../src/shared/sidebar-list/row-typ
 import { PR_GROUP_LABELS } from '../../../../src/shared/workspace-view/workspace-pr-groups'
 import type { Worktree as HostWorktree } from '../../../../src/shared/worktree/types'
 import { composeWorktreeHostIdentity } from '../../../../src/shared/worktree/host-qualified-identity'
+import {
+  nameSearchMatches,
+  prepareNameSearchQuery,
+  type NameSearchQuery
+} from '../../../../src/shared/palette-match/name-search-match'
 import type {
   Section,
   Worktree,
@@ -105,12 +110,8 @@ function drawnRow(
   }
 }
 
-function matchesSearch(row: Worktree, query: string): boolean {
-  return (
-    row.displayName.toLowerCase().includes(query) ||
-    row.branch.toLowerCase().includes(query) ||
-    row.repo.toLowerCase().includes(query)
-  )
+function matchesSearch(row: Worktree, query: NameSearchQuery): boolean {
+  return nameSearchMatches(query, [row.displayName, row.branch, row.repo])
 }
 
 // Use desktop headers/order/nesting with phone live content and last-visited highlight; apply search locally because desktop search never reaches the feed.
@@ -126,7 +127,7 @@ function hostSectionKeys(
 
 export function buildHostFeedSections(sources: HostFeedListSources): Section[] {
   const liveRowOf = indexLiveRows(sources.liveRows, sources.repoHostIdByRepoId)
-  const query = sources.search.trim().toLowerCase()
+  const query = prepareNameSearchQuery(sources.search)
   const sections: Section[] = []
   let sectionHostId: ExecutionHostId | null = null
   const itemOf = (
@@ -304,9 +305,9 @@ export function buildPreFeedSections(sources: {
   return rows.length > 0 ? [{ key: 'all', title: '', data: rows }] : []
 }
 
-function narrowSections(sections: readonly Section[], query: string): Section[] {
+function narrowSections(sections: readonly Section[], query: NameSearchQuery): Section[] {
   return sections.flatMap((section) => {
-    if (section.title.toLowerCase().includes(query)) {
+    if (nameSearchMatches(query, [section.title])) {
       return [section]
     }
     const data = section.data.filter((item) => matchesSearch(item.row, query))
