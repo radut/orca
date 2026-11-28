@@ -35,10 +35,13 @@ export const DEFAULT_LAZY_RPC_METHOD_GROUPS: readonly LazyRpcMethodGroup[] = [
     ['updater.'],
     async () => (await import('./updater/updater')).UPDATER_METHODS
   ),
-  prefixRpcMethodGroup(
-    ['aiVault.'],
-    async () => (await import('./history/ai-vault')).AI_VAULT_METHODS
-  ),
+  prefixRpcMethodGroup(['aiVault.'], async () => {
+    const [{ AI_VAULT_METHODS }, { AI_VAULT_FORK_TRANSFER_METHODS }] = await Promise.all([
+      import('./history/ai-vault'),
+      import('./history/ai-vault-fork-transfer')
+    ])
+    return [...AI_VAULT_METHODS, ...AI_VAULT_FORK_TRANSFER_METHODS]
+  }),
   prefixRpcMethodGroup(
     ['preflight.'],
     async () => (await import('./preflight/preflight')).PREFLIGHT_METHODS
