@@ -2453,7 +2453,9 @@
       "done": "Listo",
       "reset": "Restablecer",
       "thisComputer": "Este equipo",
-      "workspaceOptions": "Opciones de espacio de trabajo"
+      "workspaceOptions": "Opciones de espacio de trabajo",
+      "hideByStatus": "Ocultar por estado",
+      "hideStatus": "Ocultar espacios de trabajo en {{status}}"
     },
     "hostBottomBar": {
       "workspaceOptions": "Opciones de espacio de trabajo",

@@ -2571,7 +2571,9 @@
       "hideOtherDevicesWorkspaces": "Diğer aygıtların çalışma alanlarını gizle",
       "hideNoBranch": "Branch'i olmayan çalışma alanlarını gizle",
       "saving": "Kaydediliyor…",
-      "stillSaving": "Hâlâ kaydediliyor…"
+      "stillSaving": "Hâlâ kaydediliyor…",
+      "hideByStatus": "Duruma göre gizle",
+      "hideStatus": "{{status}} çalışma alanlarını gizle"
     },
     "workspaceRenameSheet": {
       "title": "Çalışma alanını yeniden adlandır",
