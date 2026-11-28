@@ -8453,7 +8453,8 @@
       "more": "More"
     },
     "search": {
-      "placeholder": "Search agents"
+      "placeholder": "Search agents and workspaces",
+      "noAgent": "No agent"
     },
     "sections": {
       "needsYou": "Needs you",
@@ -8464,7 +8465,8 @@
       "offlineSeenJustNow": "Offline · seen just now",
       "seenAgo": "Seen {{ago}} ago",
       "seenJustNow": "Seen just now",
-      "clear": "Clear"
+      "clear": "Clear",
+      "workspaces": "Workspaces"
     },
     "swipe": {
       "read": "Read",
