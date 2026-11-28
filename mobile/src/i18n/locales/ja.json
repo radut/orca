@@ -728,7 +728,8 @@
       "attachFailed": "添付に失敗しました。",
       "disconnected": "添付に失敗しました（接続切断）。",
       "imageTooLarge": "画像が大きすぎて添付できません。",
-      "permissionDenied": "写真へのアクセスが拒否されました。"
+      "permissionDenied": "写真へのアクセスが拒否されました。",
+      "cameraPermissionDenied": "カメラへのアクセスが拒否されました"
     },
     "textAttachmentPreview": {
       "unreadableReply": "添付ファイルの応答を読み取れません。もう一度お試しください。",
@@ -3315,6 +3316,9 @@
       "switchToDesktop": "デスクトップ表示に切り替え",
       "switchToPhone": "スマートフォン表示に切り替え"
     },
+    "terminalInputActions": {
+      "takePhoto": "写真を撮る"
+    },
     "terminalLiveInputStatus": {
       "listening": "聞き取り中",
       "preparingMic": "マイクを準備中",
@@ -3397,7 +3401,8 @@
       "attachFailed": "添付に失敗しました。",
       "disconnected": "添付に失敗しました（切断済み）。",
       "imageTooLarge": "画像が大きすぎるため添付できません。",
-      "permissionDenied": "写真へのアクセスが拒否されました。"
+      "permissionDenied": "写真へのアクセスが拒否されました。",
+      "cameraPermissionDenied": "カメラへのアクセスが拒否されました"
     },
     "useMarkdownActions": {
       "copyFailed": "コピーできませんでした",
@@ -3600,6 +3605,14 @@
       "worktreeDeleted": "ワークツリーは削除されました。",
       "projectRemoved": "プロジェクトは Orca から削除されました。",
       "folderWorkspaceRemoved": "フォルダーワークスペースは削除されました。"
+    },
+    "nativeChatAddContext": {
+      "title": "コンテキストを追加",
+      "photos": "写真",
+      "attachSelected": "添付（{{count}}）",
+      "camera": "カメラ",
+      "choosePhotos": "写真を選択",
+      "recentPhoto": "最近の写真"
     },
     "nativeChatView": {
       "loading": "会話を読み込んでいます…",

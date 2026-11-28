@@ -728,7 +728,8 @@
       "attachFailed": "附加失敗",
       "disconnected": "附加失敗（連線已中斷）",
       "imageTooLarge": "圖片太大，無法附加",
-      "permissionDenied": "照片存取權限遭拒"
+      "permissionDenied": "照片存取權限遭拒",
+      "cameraPermissionDenied": "相機權限遭拒"
     },
     "textAttachmentPreview": {
       "unreadableReply": "無法讀取附件回應。請重試。",
@@ -3315,6 +3316,9 @@
       "switchToDesktop": "切換為桌面模式",
       "switchToPhone": "切換為手機模式"
     },
+    "terminalInputActions": {
+      "takePhoto": "拍照"
+    },
     "terminalLiveInputStatus": {
       "listening": "正在聆聽",
       "preparingMic": "正在準備麥克風",
@@ -3397,7 +3401,8 @@
       "attachFailed": "附加失敗",
       "disconnected": "加入附件失敗（已中斷連線）",
       "imageTooLarge": "圖片太大，無法附加",
-      "permissionDenied": "照片存取權限遭拒"
+      "permissionDenied": "照片存取權限遭拒",
+      "cameraPermissionDenied": "相機權限遭拒"
     },
     "useMarkdownActions": {
       "copyFailed": "無法複製",
@@ -3600,6 +3605,14 @@
       "worktreeDeleted": "工作樹已刪除。",
       "projectRemoved": "專案已從 Orca 移除。",
       "folderWorkspaceRemoved": "資料夾工作區已移除。"
+    },
+    "nativeChatAddContext": {
+      "title": "新增上下文",
+      "photos": "照片",
+      "attachSelected": "附加（{{count}}）",
+      "camera": "相機",
+      "choosePhotos": "選擇照片",
+      "recentPhoto": "最近的照片"
     },
     "nativeChatView": {
       "loading": "正在載入對話…",
