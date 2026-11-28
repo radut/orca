@@ -62,6 +62,8 @@ import { useThemedStyles } from '../../theme/themed-styles'
 
 export type { MobileNativeChatInputLockReason } from './mobile-native-chat-view-props'
 
+const REPLY_CARD_SLOT = { cardId: '', timestamp: null, fallback: '', fontScale: 1 } as const
+
 type Props = ComposerTrayProps & MobileNativeChatMicProps & MobileNativeChatViewProps
 
 export function MobileNativeChatView({
@@ -115,6 +117,7 @@ export function MobileNativeChatView({
   onMicPressOut,
   inputLockReason,
   hostOutage = null,
+  agentNotice = null,
   sendErrorMessage,
   onClearSendError,
   onDismissSendError,
@@ -192,13 +195,7 @@ export function MobileNativeChatView({
   // A bot card's answer: a card answer on hosts that take one, else typed.
   const sendFromCard = useMemo(() => ({ typed: handleSend, sessionId }), [handleSend, sessionId])
   const drawReplyCard = useCallback(
-    (card: NativeChatDirectiveBotCard) =>
-      mobileNativeChatOtherBotCard(card, {
-        cardId: '',
-        timestamp: null,
-        fallback: '',
-        fontScale: 1
-      }),
+    (card: NativeChatDirectiveBotCard) => mobileNativeChatOtherBotCard(card, REPLY_CARD_SLOT),
     []
   )
   const loadEarlier = useCallback(() => onLoadEarlier?.(), [onLoadEarlier])
@@ -320,6 +317,7 @@ export function MobileNativeChatView({
         lockReason={offlineQueue.lockReason}
         waitingText={composerPlaceholder}
         hostOutage={hostOutage}
+        agentNotice={agentNotice}
       />
       <MobileNativeChatSendErrorBanner message={banner} onDismiss={onDismissSendError} />
       <MobileNativeChatQueueAbovePromptContext value={promptShown}>
