@@ -6,9 +6,10 @@ import {
 } from '../../../../src/shared/project/catalog/hidden-projects'
 import {
   filterWorkspaceRows,
+  partitionWorkspaceRowsByFilters,
   type WorkspaceRowFactReader
 } from '../../../../src/shared/workspace-view/workspace-row-filters'
-import type { FilterState, Worktree } from './workspace-list-types'
+import type { FilterState, WorkspaceListItem, Worktree } from './workspace-list-types'
 import type { WorkspaceStatusDefinition } from '../../../../src/shared/worktree/types'
 import { getWorkspaceStatus } from '../../../../src/shared/workspace/status/workspace-statuses'
 import { DEFAULT_WORKSPACE_STATUSES } from '../../../../src/shared/workspace/status/workspace-status-defaults'
@@ -79,7 +80,23 @@ function phoneRowFacts(
   }
 }
 
-export function filterWorktrees(
+export type SearchFilteredWorktrees = {
+  rows: Worktree[]
+  /** Search matches only the filters hide; listed anyway and tagged Hidden, as desktop Cmd+J does. */
+  filterHiddenIdentities: ReadonlySet<string>
+}
+
+const NO_FILTER_HIDDEN: ReadonlySet<string> = new Set()
+
+function matchesSearch(w: Worktree, q: string): boolean {
+  return (
+    w.displayName.toLowerCase().includes(q) ||
+    w.branch.toLowerCase().includes(q) ||
+    w.repo.toLowerCase().includes(q)
+  )
+}
+
+export function filterWorktreesForSearch(
   worktrees: Worktree[],
   filters: FilterState,
   search: string,
@@ -89,20 +106,50 @@ export function filterWorktrees(
   childrenByParentIdentity?: ReadonlyMap<string, readonly Worktree[]>,
   /** The board columns a row's status resolves against. */
   workspaceStatuses: readonly WorkspaceStatusDefinition[] = DEFAULT_WORKSPACE_STATUSES
-): Worktree[] {
-  const result = filterWorkspaceRows(
-    worktrees,
-    filters,
-    phoneRowFacts(repoHostIdByRepoId, hiddenProjects, childrenByParentIdentity, workspaceStatuses)
+): SearchFilteredWorktrees {
+  const facts = phoneRowFacts(
+    repoHostIdByRepoId,
+    hiddenProjects,
+    childrenByParentIdentity,
+    workspaceStatuses
   )
   const q = search.trim().toLowerCase()
   if (!q) {
-    return result
+    return {
+      rows: filterWorkspaceRows(worktrees, filters, facts),
+      filterHiddenIdentities: NO_FILTER_HIDDEN
+    }
   }
-  return result.filter(
-    (w) =>
-      w.displayName.toLowerCase().includes(q) ||
-      w.branch.toLowerCase().includes(q) ||
-      w.repo.toLowerCase().includes(q)
+  const { visible, hiddenByFilters } = partitionWorkspaceRowsByFilters(worktrees, filters, facts)
+  const hiddenMatches = hiddenByFilters.filter((w) => matchesSearch(w, q))
+  if (hiddenMatches.length === 0) {
+    return {
+      rows: visible.filter((w) => matchesSearch(w, q)),
+      filterHiddenIdentities: NO_FILTER_HIDDEN
+    }
+  }
+  const listed = new Set([...visible.filter((w) => matchesSearch(w, q)), ...hiddenMatches])
+  return {
+    rows: worktrees.filter((w) => listed.has(w)),
+    filterHiddenIdentities: new Set(hiddenMatches.map(getWorktreeRowIdentity))
+  }
+}
+
+export function filterWorktrees(...args: Parameters<typeof filterWorktreesForSearch>): Worktree[] {
+  return filterWorktreesForSearch(...args).rows
+}
+
+/** Tags the listed rows the filters hide (see filterWorktreesForSearch). */
+export function withFilterHiddenTags<Item extends WorkspaceListItem>(
+  items: Item[],
+  filterHiddenIdentities: ReadonlySet<string>
+): Item[] {
+  if (filterHiddenIdentities.size === 0) {
+    return items
+  }
+  return items.map((item) =>
+    filterHiddenIdentities.has(getWorktreeRowIdentity(item.row))
+      ? { ...item, view: { ...item.view, filterHidden: true } }
+      : item
   )
 }
