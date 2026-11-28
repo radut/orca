@@ -1,4 +1,7 @@
-import type { MobileComposerImagePick } from '../../../platform/media-picking/media-picker-contract'
+import type {
+  MobileComposerImagePick,
+  MobilePickedFileSource
+} from '../../../platform/media-picking/media-picker-contract'
 import type { TextInputInstance } from 'react-native'
 import type { NativeChatSendFollowUp } from '../../../../../src/shared/native-chat/input/composer/native-chat-follow-up-behavior'
 import type { NativeChatSkillDiscoverySnapshot } from '../../../../../src/shared/native-chat/input/composer/native-chat-picker-items'
@@ -47,6 +50,8 @@ export type MobileNativeChatComposerProps = MobileNativeChatMicProps & {
   onAttachImages?: (pick: MobileComposerImagePick) => void
   /** Images pasted into the field attach like a Photos pick. */
   onPasteImages?: (paste: MobilePastedImages) => void
+  /** A terminal-backed chat's Files and Videos rows; a structured chat brings its own. */
+  onAttachFiles?: (from: MobilePickedFileSource) => void
   attachments?: PendingNativeChatImage[]
   onRemoveAttachment?: (id: string) => void
   isAttaching?: boolean
