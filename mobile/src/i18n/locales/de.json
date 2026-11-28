@@ -2387,7 +2387,9 @@
       "done": "Fertig",
       "reset": "Leeren",
       "thisComputer": "Dieser Computer",
-      "workspaceOptions": "Arbeitsbereichsoptionen"
+      "workspaceOptions": "Arbeitsbereichsoptionen",
+      "hideByStatus": "Nach Status ausblenden",
+      "hideStatus": "Arbeitsbereiche mit Status {{status}} ausblenden"
     },
     "hostBottomBar": {
       "workspaceOptions": "Arbeitsbereichsoptionen",

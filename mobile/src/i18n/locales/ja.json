@@ -2380,7 +2380,9 @@
       "done": "完了",
       "reset": "リセット",
       "thisComputer": "このコンピュータ",
-      "workspaceOptions": "ワークスペースのオプション"
+      "workspaceOptions": "ワークスペースのオプション",
+      "hideByStatus": "ステータスで非表示",
+      "hideStatus": "{{status}} のワークスペースを非表示"
     },
     "hostBottomBar": {
       "workspaceOptions": "ワークスペースのオプション",
