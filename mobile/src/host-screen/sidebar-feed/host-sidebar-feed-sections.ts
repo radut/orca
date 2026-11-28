@@ -24,7 +24,10 @@ import {
   type WorktreeHostContextOf
 } from '../../worktree/row-presentation/worktree-host-context-labels'
 import '../../worktree/workspace-list/workspace-list-sections'
-import { filterWorktrees } from '../../worktree/workspace-list/workspace-row-filtering'
+import {
+  filterWorktreesForSearch,
+  withFilterHiddenTags
+} from '../../worktree/workspace-list/workspace-row-filtering'
 import {
   rowFiltersForView,
   type MobileViewState
@@ -283,7 +286,7 @@ export function buildPreFeedSections(sources: {
   /** The catalog's hidden projects; this fallback leaves them out as the feed's rows do. */
   hiddenProjects: HiddenProjects
 }): Section[] {
-  const rows = filterWorktrees(
+  const { rows: filtered, filterHiddenIdentities } = filterWorktreesForSearch(
     sources.rows,
     rowFiltersForView(sources.view),
     sources.search,
@@ -291,11 +294,13 @@ export function buildPreFeedSections(sources: {
     sources.hiddenProjects,
     undefined,
     sources.view.workspaceStatuses
-  ).map((row) => ({
+  )
+  const items = filtered.map((row) => ({
     // Replaces worktree.ps's mark, which is the desktop's selection.
     row: { ...row, isActive: isLastVisitedWorktreeRow(row, sources.lastVisited) },
     view: { ...sources.hostContextOf(row) }
   }))
+  const rows = withFilterHiddenTags(items, filterHiddenIdentities)
   return rows.length > 0 ? [{ key: 'all', title: '', data: rows }] : []
 }
 

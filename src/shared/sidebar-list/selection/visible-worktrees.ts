@@ -32,10 +32,24 @@ export type VisibleSidebarWorktreeInputs = {
   injectLineageAncestors?: boolean
   preserveLineageParentOrder?: boolean
   forcedVisibleWorktreeIds?: readonly string[]
+  /** Host identities listed despite the filters (the active workspace); see filterHiddenIdentities. */
+  forcedVisibleWorktreeIdentities?: readonly string[]
 }
 
+export type VisibleSidebarWorktrees = {
+  worktrees: Worktree[]
+  /** Forced identities the filters alone would hide, so their rows can say so. */
+  filterHiddenIdentities: ReadonlySet<string>
+}
+
+const NO_FILTER_HIDDEN_IDENTITIES: ReadonlySet<string> = new Set()
+
 /** The sidebar's visible worktrees, in display order, before grouping. */
-export function selectVisibleSidebarWorktrees({
+export function selectVisibleSidebarWorktrees(inputs: VisibleSidebarWorktreeInputs): Worktree[] {
+  return selectVisibleSidebarWorktreesMarkingHidden(inputs).worktrees
+}
+
+export function selectVisibleSidebarWorktreesMarkingHidden({
   rows,
   ancestorByIdentity: everyAncestorByIdentity,
   rankOf,
@@ -46,8 +60,9 @@ export function selectVisibleSidebarWorktrees({
   filterRepoIds,
   injectLineageAncestors,
   preserveLineageParentOrder,
-  forcedVisibleWorktreeIds
-}: VisibleSidebarWorktreeInputs): Worktree[] {
+  forcedVisibleWorktreeIds,
+  forcedVisibleWorktreeIdentities
+}: VisibleSidebarWorktreeInputs): VisibleSidebarWorktrees {
   const facts = withFolderNestedRowsListed(projectFacts, lineageParentIdentities)
   // Keep valid nonarchived ancestors despite ordinary filters so children retain their hierarchy.
   const listedFilterIds = filterRepoIds.filter((id) => !facts.isProjectHidden(id))
@@ -76,6 +91,12 @@ export function selectVisibleSidebarWorktrees({
     }
   }
 
+  const filterHiddenIdentities = addForcedIdentities(
+    all,
+    forcedVisibleWorktreeIdentities,
+    ancestorByIdentity
+  )
+
   // Append unranked/new rows until the next sortEpoch. Manual placement follows the parent, even if a hidden child ranks higher.
   if (injectLineageAncestors !== false && preserveLineageParentOrder) {
     all = addVisibleLineageAncestors(
@@ -92,16 +113,40 @@ export function selectVisibleSidebarWorktrees({
     .sort((a, b) => a.rank - b.rank)
     .map(({ worktree }) => worktree)
 
-  return injectLineageAncestors === false || preserveLineageParentOrder
-    ? all
-    : addVisibleLineageAncestors(
-        all,
-        ancestorByIdentity,
-        worktreeLineageById,
-        selectedRepoIds,
-        lineageParentIdentities,
-        isExcludedAncestor
-      )
+  const worktrees =
+    injectLineageAncestors === false || preserveLineageParentOrder
+      ? all
+      : addVisibleLineageAncestors(
+          all,
+          ancestorByIdentity,
+          worktreeLineageById,
+          selectedRepoIds,
+          lineageParentIdentities,
+          isExcludedAncestor
+        )
+  return { worktrees, filterHiddenIdentities }
+}
+
+/** Appends each forced row the filters left out (never archived or in a hidden project). */
+function addForcedIdentities(
+  all: Worktree[],
+  identities: readonly string[] | undefined,
+  ancestorByIdentity: ReadonlyMap<string, Worktree>
+): ReadonlySet<string> {
+  if (!identities || identities.length === 0) {
+    return NO_FILTER_HIDDEN_IDENTITIES
+  }
+  const listed = new Set(all.map(getWorktreeHostIdentity))
+  const added = new Set<string>()
+  for (const identity of identities) {
+    const worktree = listed.has(identity) ? undefined : ancestorByIdentity.get(identity)
+    if (worktree && !isWorktreeRetiredByRemoval(worktree)) {
+      listed.add(identity)
+      added.add(identity)
+      all.push(worktree)
+    }
+  }
+  return added.size > 0 ? added : NO_FILTER_HIDDEN_IDENTITIES
 }
 
 function withFolderNestedRowsListed(
