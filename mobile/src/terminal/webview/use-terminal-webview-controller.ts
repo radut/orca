@@ -11,6 +11,7 @@ import { useTerminalWebViewEngineErrorState } from './terminal-webview-engine-er
 import { useTerminalWebReadyWatchdog } from './terminal-webview-ready-watchdog'
 import type { TerminalFrame, TerminalWebViewCommand } from './terminal-webview-messages'
 import { createTerminalWebViewPendingMessages } from './terminal-webview-pending-messages'
+import { terminalViewCommands } from './terminal-webview-view-commands'
 import { dispatchTerminalWebViewNotification } from './terminal-webview-notification-dispatch'
 import { routeTerminalQueryReply } from './terminal-webview-query-reply-routing'
 import { useTerminalWebViewReadyPromises } from './terminal-webview-ready-promises'
@@ -273,15 +274,7 @@ export function useTerminalWebViewController(
         writeCoalescer.flushNow()
         postMessage({ type: 'scroll-to-bottom' })
       },
-      resetZoom() {
-        postMessage({ type: 'reset-zoom' })
-      },
-      cancelSelect() {
-        postMessage({ type: 'cancel-select' })
-      },
-      doSelectAll() {
-        postMessage({ type: 'do-select-all' })
-      },
+      ...terminalViewCommands(postMessage),
       awaitReady: promises.awaitReady
     }),
     [

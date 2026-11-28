@@ -14,6 +14,7 @@ import { applyTerminalHostSettings } from '../engine/terminal-host-settings'
 import { init, resize, write } from '../engine/terminal-init'
 import { applyTerminalFontStyle, applyTextScale } from '../viewport/text-scaling'
 import { afterQueuedWrites, resetWriteQueue } from '../engine/write-queue'
+import { clearTerminalFind, findInTerminal } from '../engine/terminal-find'
 
 export type TerminalHostMessage = {
   active?: boolean
@@ -36,6 +37,9 @@ export type TerminalHostMessage = {
   onParsed?: () => void
   frame?: { width: number; height: number } | null
   chrome?: unknown
+  query?: unknown
+  direction?: unknown
+  incremental?: unknown
 }
 
 function hostFrameOf(msg: TerminalHostMessage) {
@@ -152,6 +156,15 @@ export function handleMsg(scope: TerminalDocumentScope, msg: TerminalHostMessage
     applyChromeColors(scope, msg.chrome)
   } else if (msg.type === 'set-host-settings') {
     applyTerminalHostSettings(scope, msg.scrollbackRows, msg.wordSeparator)
+  } else if (msg.type === 'find') {
+    findInTerminal(
+      scope,
+      typeof msg.query === 'string' ? msg.query : '',
+      msg.direction === 'previous' ? 'previous' : 'next',
+      msg.incremental === true
+    )
+  } else if (msg.type === 'clear-find') {
+    clearTerminalFind(scope)
   } else if (msg.type === 'cancel-select') {
     if (scope.selMode === 'select') {
       cancelSelect(scope)
