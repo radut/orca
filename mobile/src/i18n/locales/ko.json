@@ -2389,7 +2389,9 @@
       "done": "완료",
       "reset": "재설정",
       "thisComputer": "이 컴퓨터",
-      "workspaceOptions": "워크스페이스 옵션"
+      "workspaceOptions": "워크스페이스 옵션",
+      "hideByStatus": "상태별로 숨기기",
+      "hideStatus": "{{status}} 워크스페이스 숨기기"
     },
     "hostBottomBar": {
       "workspaceOptions": "워크스페이스 옵션",

@@ -995,7 +995,9 @@
       "hideOtherDevicesWorkspaces": "Hide other devices’ workspaces",
       "hideNoBranch": "Hide workspaces with no branch",
       "saving": "Saving…",
-      "stillSaving": "Still saving…"
+      "stillSaving": "Still saving…",
+      "hideByStatus": "Hide by status",
+      "hideStatus": "Hide {{status}} workspaces"
     },
     "hostBottomBar": {
       "workspaceOptions": "Workspace options",
