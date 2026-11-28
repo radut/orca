@@ -71,6 +71,7 @@ function NativeChatBridgeView({
           isVisible={isVisible}
         >
           <NativeChatResolvedView
+            key={resolution.paneKey}
             paneKey={resolution.paneKey}
             agent={resolution.agent}
             sessionId={resolution.sessionId}
