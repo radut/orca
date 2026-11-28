@@ -355,7 +355,9 @@
     },
     "message": {
       "copyMessage": "Copiar mensaje",
-      "forkFromResponse": "Crear una rama desde esta respuesta"
+      "forkFromResponse": "Crear una rama desde esta respuesta",
+      "readAloud": "Leer en voz alta",
+      "stopReadingAloud": "Dejar de leer en voz alta"
     },
     "messageActionsSheet": {
       "clipboardRejected": "El portapapeles rechazó el texto.",
