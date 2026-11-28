@@ -17,6 +17,11 @@ import {
 } from '../../../src/shared/execution-host/execution-host'
 import { parseWorkspaceKey } from '../../../src/shared/workspace/identity/workspace-scope'
 import { composeWorktreeHostIdentity } from '../../../src/shared/worktree/host-qualified-identity'
+import {
+  nameSearchMatches,
+  prepareNameSearchQuery,
+  type NameSearchQuery
+} from '../../../src/shared/palette-match/name-search-match'
 import { getWorktreeDotStatus } from '../worktree/workspace-list/workspace-list-ordering'
 import type {
   Section,
@@ -99,8 +104,8 @@ function phonePurposeSnippet(
     : cut
 }
 
-function matches(row: Worktree, query: string): boolean {
-  return row.displayName.toLowerCase().includes(query)
+function matches(row: Worktree, query: NameSearchQuery): boolean {
+  return nameSearchMatches(query, [row.displayName])
 }
 
 /** A worker line on a server other than its bot's names it; one on a down server dims. */
@@ -149,6 +154,7 @@ export function drawHostBotEntries(
   )
   const agentByPaneKey = hostAgentsByPaneKey(hostRows)
   const query = inputs.search.trim().toLowerCase()
+  const nameQuery = prepareNameSearchQuery(inputs.search)
   // A server's bots aren't in the paired computer's roster.
   const purposes = query && hostId === LOCAL_EXECUTION_HOST_ID ? inputs.purposes : undefined
   const listed = new Set<string>()
@@ -296,7 +302,7 @@ export function drawHostBotEntries(
       }
     }
     const placed = chatItems ?? lines.map(place)
-    const shownLines = query ? placed.filter((line) => matches(line.row, query)) : placed
+    const shownLines = nameQuery ? placed.filter((line) => matches(line.row, nameQuery)) : placed
     if (!nameMatches && !purposeMatch && shownLines.length === 0) {
       continue
     }
