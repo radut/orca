@@ -771,7 +771,8 @@
       "attachFailed": "Falha ao anexar",
       "disconnected": "Falha ao anexar (desconectado)",
       "imageTooLarge": "Imagem grande demais para anexar",
-      "permissionDenied": "Permissão de acesso às fotos negada"
+      "permissionDenied": "Permissão de acesso às fotos negada",
+      "cameraPermissionDenied": "Permissão da câmera negada"
     },
     "textAttachmentPreview": {
       "unreadableReply": "A resposta do anexo não pode ser lida. Tente novamente.",
@@ -3435,6 +3436,17 @@
       "switchToDesktop": "Alternar para o modo desktop",
       "switchToPhone": "Alternar para o modo celular"
     },
+    "terminalInputActions": {
+      "takePhoto": "Tirar uma foto"
+    },
+    "nativeChatAddContext": {
+      "title": "Adicionar contexto",
+      "photos": "Fotos",
+      "attachSelected": "Anexar ({{count}})",
+      "camera": "Câmera",
+      "choosePhotos": "Escolher fotos",
+      "recentPhoto": "Foto recente"
+    },
     "terminalLiveInputStatus": {
       "listening": "Ouvindo",
       "preparingMic": "Preparando microfone",
@@ -3517,7 +3529,8 @@
       "attachFailed": "Falha ao anexar",
       "disconnected": "Falha ao anexar (desconectado)",
       "imageTooLarge": "Imagem grande demais para anexar",
-      "permissionDenied": "Permissão de acesso às fotos negada"
+      "permissionDenied": "Permissão de acesso às fotos negada",
+      "cameraPermissionDenied": "Permissão da câmera negada"
     },
     "useMarkdownActions": {
       "copyFailed": "Não foi possível copiar",

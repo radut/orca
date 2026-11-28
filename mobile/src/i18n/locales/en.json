@@ -2836,7 +2836,8 @@
       "disconnected": "Attach failed (disconnected)",
       "permissionDenied": "Photo permission denied",
       "imageTooLarge": "Image too large to attach",
-      "attachFailed": "Attach failed"
+      "attachFailed": "Attach failed",
+      "cameraPermissionDenied": "Camera permission denied"
     },
     "useNativeChatStop": {
       "terminalNotReady": "Stop not sent (terminal not ready)",
@@ -3290,6 +3291,14 @@
       "needYou_one": "{{count}} needs you",
       "needYou_other": "{{count}} need you"
     },
+    "nativeChatAddContext": {
+      "title": "Add context",
+      "photos": "Photos",
+      "attachSelected": "Attach ({{count}})",
+      "camera": "Camera",
+      "choosePhotos": "Choose photos",
+      "recentPhoto": "Recent photo"
+    },
     "textSizeSheet": {
       "chatTitle": "Chat text",
       "size": "Size",
@@ -3307,7 +3316,8 @@
       "desktopOnly": "Available in the desktop app"
     },
     "terminalInputActions": {
-      "attach": "Attach a photo or file"
+      "attach": "Attach a photo or file",
+      "takePhoto": "Take a photo"
     },
     "sidebar": {
       "backTo": "Back to {{title}}",
@@ -3361,7 +3371,8 @@
       "disconnected": "Attach failed (disconnected)",
       "permissionDenied": "Photo permission denied",
       "imageTooLarge": "Image too large to attach",
-      "attachFailed": "Attach failed"
+      "attachFailed": "Attach failed",
+      "cameraPermissionDenied": "Camera permission denied"
     },
     "ask": {
       "send": "Send",
