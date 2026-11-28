@@ -55,6 +55,15 @@ export const DEFAULT_LAZY_RPC_METHOD_GROUPS: readonly LazyRpcMethodGroup[] = [
   ),
   prefixRpcMethodGroup(
     [],
+    async () =>
+      (await import('./browser/mobile-browser-network-tunnel')).MOBILE_BROWSER_TUNNEL_METHODS,
+    {
+      exactNames: ['network.mobileBrowserTunnel', 'network.mobileBrowserTunnel.unsubscribe'],
+      streamingNames: ['network.mobileBrowserTunnel']
+    }
+  ),
+  prefixRpcMethodGroup(
+    [],
     async () => (await import('./host-management/recipe-vm-wake')).RECIPE_VM_WAKE_METHODS,
     { exactNames: ['runtimeEnvironment.wakeRecipeVm'] }
   ),
