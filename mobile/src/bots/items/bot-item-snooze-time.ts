@@ -2,6 +2,6 @@
 import { botItemSnoozeTimeFormat } from '../../../../src/shared/bots/bot-item-snooze'
 import { uiDateTimeFormat } from '../../i18n/ui-intl-locale'
 
-export function formatPhoneSnoozeTime(until: number, now: number): string {
-  return uiDateTimeFormat(botItemSnoozeTimeFormat(until, now)).format(until)
+export function formatPhoneSnoozeTime(until: number, now: number, intlLocale: string): string {
+  return uiDateTimeFormat(botItemSnoozeTimeFormat(until, now), intlLocale).format(until)
 }

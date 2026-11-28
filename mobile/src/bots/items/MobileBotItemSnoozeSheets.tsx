@@ -12,8 +12,8 @@ import {
 } from '../../../../src/shared/bots/bot-item-snooze'
 import { ActionSheetModal, type ActionSheetAction } from '../../components/sheets/ActionSheetModal'
 import { PickerListDrawer } from '../../components/sheets/PickerListDrawer'
-import { uiDateTimeFormat } from '../../i18n/ui-intl-locale'
-import { useMobileTranslation } from '../../i18n/use-mobile-translation'
+import { intlLocaleFor, uiDateTimeFormat } from '../../i18n/ui-intl-locale'
+import { useMobileTranslation, useMobileUiLocale } from '../../i18n/use-mobile-translation'
 import type { Translate } from '../../i18n/mobile-i18n'
 import { formatPhoneSnoozeTime } from './bot-item-snooze-time'
 import { useNow } from '../../hooks/use-now'
@@ -67,6 +67,7 @@ export function MobileBotItemSnoozeSheets({
   snooze: (items: readonly BotItem[], until: number | null) => Promise<boolean>
 }) {
   const t = useMobileTranslation()
+  const intlLocale = intlLocaleFor(useMobileUiLocale())
   // The presets and the hours left today resolve against it while a sheet is up.
   const now = useNow(30_000, sheet !== null)
   const items = sheet?.items ?? []
@@ -78,7 +79,7 @@ export function MobileBotItemSnoozeSheets({
       id: preset.id,
       label: botItemSnoozePresetName(preset, t),
       icon: AlarmClock,
-      status: formatPhoneSnoozeTime(preset.at, now),
+      status: formatPhoneSnoozeTime(preset.at, now, intlLocale),
       onPress: () => void snooze(items, preset.at)
     })),
     {
@@ -99,7 +100,7 @@ export function MobileBotItemSnoozeSheets({
         ]
       : [])
   ]
-  const dayName = uiDateTimeFormat(SNOOZE_DAY)
+  const dayName = uiDateTimeFormat(SNOOZE_DAY, intlLocale)
   const days = Array.from({ length: PICK_DAYS }, (_, index) => {
     const day = startOfDay(now, index)
     return {
@@ -113,7 +114,7 @@ export function MobileBotItemSnoozeSheets({
       day
     }
   }).filter(({ day }) => day + LAST_HOUR * 60 * 60_000 > now)
-  const hourName = uiDateTimeFormat(CLOCK_TIME)
+  const hourName = uiDateTimeFormat(CLOCK_TIME, intlLocale)
   const pickedDay = sheet?.kind === 'snooze-hour' ? sheet.day : startOfDay(now)
   const hours = Array.from({ length: LAST_HOUR - FIRST_HOUR + 1 }, (_, index) => {
     const at = new Date(pickedDay)
@@ -127,7 +128,7 @@ export function MobileBotItemSnoozeSheets({
         title={
           snoozedUntil !== null
             ? t('bots.items.snooze.until', 'Snoozed until {{when}}', {
-                when: formatPhoneSnoozeTime(snoozedUntil, now)
+                when: formatPhoneSnoozeTime(snoozedUntil, now, intlLocale)
               })
             : t('bots.items.snooze.pickTitle', 'Snooze until')
         }

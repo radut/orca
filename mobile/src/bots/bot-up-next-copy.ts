@@ -1,23 +1,21 @@
 // Up next and Look around wording on the phone, as the desktop words them.
 import { lookedDay } from '../../../src/shared/bots/bot-look-around'
-import { translate } from '../i18n/mobile-i18n'
+import { translate, type Translate } from '../i18n/mobile-i18n'
 import { uiDateTimeFormat } from '../i18n/ui-intl-locale'
 import { CLOCK_TIME, SHORT_MONTH_DAY } from '../../../src/shared/i18n/regional-date-time-format'
 
 /** "4:12 PM" today, "yesterday 4:12 PM", then "Oct 29". */
-export function lookedWhen(at: number, now = Date.now()): string {
+export function lookedWhen(at: number, t: Translate, intlLocale: string, now = Date.now()): string {
   const day = lookedDay(at, now)
   if (day === 'earlier') {
-    return uiDateTimeFormat(SHORT_MONTH_DAY).format(at)
+    return uiDateTimeFormat(SHORT_MONTH_DAY, intlLocale).format(at)
   }
-  const time = uiDateTimeFormat(CLOCK_TIME).format(at)
-  return day === 'today'
-    ? time
-    : translate('bots.upNext.yesterdayAt', 'yesterday {{time}}', { time })
+  const time = uiDateTimeFormat(CLOCK_TIME, intlLocale).format(at)
+  return day === 'today' ? time : t('bots.upNext.yesterdayAt', 'yesterday {{time}}', { time })
 }
 
-export function lookedText(at: number, now = Date.now()): string {
-  return translate('bots.upNext.looked', 'Looked {{time}}', { time: lookedWhen(at, now) })
+export function lookedText(at: number, t: Translate, intlLocale: string, now = Date.now()): string {
+  return t('bots.upNext.looked', 'Looked {{time}}', { time: lookedWhen(at, t, intlLocale, now) })
 }
 
 /** Why the host would not start a look, from its refusal code. */
