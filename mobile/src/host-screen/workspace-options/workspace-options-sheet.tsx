@@ -68,7 +68,8 @@ function workspaceOptionLabels(t: Translate): Record<WorkspaceViewOptionKey, str
     hideDetachedHeadWorkspaces: t(
       'hostScreen.workspaceOptionsSheet.hideNoBranch',
       'Hide workspaces with no branch'
-    )
+    ),
+    hideWorkspacesByStatus: t('hostScreen.workspaceOptionsSheet.hideByStatus', 'Hide by status')
   }
 }
 
