@@ -732,7 +732,8 @@
       "attachFailed": "Anhängen fehlgeschlagen",
       "disconnected": "Anhängen fehlgeschlagen (nicht verbunden)",
       "imageTooLarge": "Bild zum Anhängen zu groß",
-      "permissionDenied": "Zugriff auf Fotos verweigert"
+      "permissionDenied": "Zugriff auf Fotos verweigert",
+      "cameraPermissionDenied": "Zugriff auf Kamera verweigert"
     },
     "textAttachmentPreview": {
       "unreadableReply": "Die Antwort zum Anhang ist nicht lesbar. Erneut versuchen.",
@@ -3322,6 +3323,9 @@
       "switchToDesktop": "Zum Desktop-Modus wechseln",
       "switchToPhone": "Zum Smartphone-Modus wechseln"
     },
+    "terminalInputActions": {
+      "takePhoto": "Foto aufnehmen"
+    },
     "terminalLiveInputStatus": {
       "listening": "Hört zu",
       "preparingMic": "Mikrofon wird vorbereitet",
@@ -3404,7 +3408,8 @@
       "attachFailed": "Anhängen fehlgeschlagen",
       "disconnected": "Anhängen fehlgeschlagen (Verbindung getrennt)",
       "imageTooLarge": "Bild zu groß zum Anhängen",
-      "permissionDenied": "Zugriff auf Fotos verweigert"
+      "permissionDenied": "Zugriff auf Fotos verweigert",
+      "cameraPermissionDenied": "Zugriff auf Kamera verweigert"
     },
     "useMarkdownActions": {
       "copyFailed": "Kopieren fehlgeschlagen",
@@ -3607,6 +3612,14 @@
       "worktreeDeleted": "Der Worktree wurde gelöscht.",
       "projectRemoved": "Das Projekt wurde aus Orca entfernt.",
       "folderWorkspaceRemoved": "Der Ordner-Arbeitsbereich wurde entfernt."
+    },
+    "nativeChatAddContext": {
+      "title": "Kontext hinzufügen",
+      "photos": "Fotos",
+      "attachSelected": "Anhängen ({{count}})",
+      "camera": "Kamera",
+      "choosePhotos": "Fotos auswählen",
+      "recentPhoto": "Aktuelles Foto"
     },
     "nativeChatView": {
       "loading": "Unterhaltung wird geladen…",

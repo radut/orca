@@ -39,6 +39,12 @@ import {
   type BridgeChatForkResult
 } from './bridge-chat-fork-verb'
 import {
+  BRIDGE_ADD_CONTEXT_VERB,
+  addContextResultSchema,
+  type BridgeAddContextOptions,
+  type BridgeAddContextResult
+} from './bridge-add-context-verbs'
+import {
   BRIDGE_SPEECH_VERB,
   speechCancelResultSchema,
   speechFinishResultSchema,
@@ -100,6 +106,9 @@ export type NativeVerbs = {
   canForkChat: boolean
   // Settles when the person cancels the shell's sheet or the fork it ran ends.
   forkChat: (params: BridgeChatForkParams) => Promise<BridgeChatForkResult>
+  // Older shells lack it; the page then draws Add context itself, without recent photos.
+  canOpenAddContext: boolean
+  openAddContext: (options: BridgeAddContextOptions) => Promise<BridgeAddContextResult>
 }
 
 // Expose stable reason codes, including local ungranted and frame refusals. Unknown newer-shell codes floor to unreported so caller switches remain exhaustive.
@@ -255,7 +264,9 @@ export function useNativeVerbs(): NativeVerbs {
       announce: async (message) =>
         (await call('native.a11y.announce', { message }, a11yAnnounceResultSchema)).announced,
       canForkChat: has(BRIDGE_CHAT_FORK_VERB),
-      forkChat: (params) => call(BRIDGE_CHAT_FORK_VERB, params, chatForkResultSchema)
+      forkChat: (params) => call(BRIDGE_CHAT_FORK_VERB, params, chatForkResultSchema),
+      canOpenAddContext: has(BRIDGE_ADD_CONTEXT_VERB),
+      openAddContext: (options) => call(BRIDGE_ADD_CONTEXT_VERB, options, addContextResultSchema)
     }
   }, [client])
 }

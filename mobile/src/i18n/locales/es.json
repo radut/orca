@@ -756,7 +756,8 @@
       "attachFailed": "No se pudo adjuntar",
       "disconnected": "No se pudo adjuntar (sin conexión)",
       "imageTooLarge": "Imagen demasiado grande para adjuntarla",
-      "permissionDenied": "Permiso de acceso a las fotos denegado"
+      "permissionDenied": "Permiso de acceso a las fotos denegado",
+      "cameraPermissionDenied": "Permiso de cámara denegado"
     },
     "textAttachmentPreview": {
       "unreadableReply": "La respuesta del adjunto no se puede leer. Inténtalo de nuevo.",
@@ -3431,6 +3432,9 @@
       "switchToDesktop": "Cambiar al modo escritorio",
       "switchToPhone": "Cambiar al modo teléfono"
     },
+    "terminalInputActions": {
+      "takePhoto": "Hacer una foto"
+    },
     "terminalLiveInputStatus": {
       "listening": "Escuchando",
       "preparingMic": "Preparando micrófono",
@@ -3513,7 +3517,8 @@
       "attachFailed": "No se pudo adjuntar",
       "disconnected": "No se pudo adjuntar (desconectado)",
       "imageTooLarge": "Imagen demasiado grande para adjuntarla",
-      "permissionDenied": "Acceso a las fotos denegado"
+      "permissionDenied": "Acceso a las fotos denegado",
+      "cameraPermissionDenied": "Permiso de cámara denegado"
     },
     "useMarkdownActions": {
       "copyFailed": "No se pudo copiar",
@@ -3716,6 +3721,14 @@
       "unsupported": "El chat de {{agent}} no se puede volver a abrir hasta que se actualice Orca.",
       "unreachable": "El chat de {{agent}} aún no está disponible. Vuelve a intentarlo en un momento.",
       "paneUnavailable": "El panel del agente ya no está disponible."
+    },
+    "nativeChatAddContext": {
+      "title": "Añadir contexto",
+      "photos": "Fotos",
+      "attachSelected": "Adjuntar ({{count}})",
+      "camera": "Cámara",
+      "choosePhotos": "Elegir fotos",
+      "recentPhoto": "Foto reciente"
     },
     "nativeChatView": {
       "linkedMessageMissing": "No se pudo encontrar ese mensaje.",
