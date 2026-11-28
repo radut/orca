@@ -2703,6 +2703,8 @@
       "workspaceFile": "Workspace file",
       "skills": "Skills",
       "commands": "Commands",
+      "videos": "Videos",
+      "videoSource": "From your photo library",
       "plan": "Plan first",
       "goal": "Set a goal"
     },
@@ -3325,6 +3327,10 @@
     "orcaCommands": {
       "desktopOnly": "Available in the desktop app"
     },
+    "nativeChatFileAttachments": {
+      "pastedTextTooLarge": "This paste is over {{max}} MB, so it cannot be attached",
+      "terminalFileReference": "File from my phone, saved on this computer as {{path}}"
+    },
     "terminalInputActions": {
       "attach": "Attach a photo or file",
       "takePhoto": "Take a photo"
@@ -3351,7 +3357,6 @@
   "chat": {
     "composer": {
       "addToMessage": "Add to message",
-      "attachImage": "Attach image",
       "askAnything": "Ask anything",
       "cancelEditing": "Cancel editing",
       "saveEditedMessage": "Save edited message",
