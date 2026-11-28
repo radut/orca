@@ -1,4 +1,4 @@
-import type { ExecutionHostId } from '../../../shared/execution-host'
+import type { ExecutionHostId } from '../../../shared/execution-host/execution-host'
 import { hostedReviewSshConnectionId } from '../../source-control/hosted-review-execution-host'
 import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -195,7 +195,7 @@ export async function createGitLabMergeRequest(
       const { stdout } = await glabExecFileAsync(createArgs, {
         ...glabRepoExecOptions(repoPath, connectionId),
         ...(connectionId ? {} : getHostedReviewLocalGitOptions(options)),
-        ...glabHostEnvOptions(projectRef, connectionId),
+        ...glabHostEnvOptions(projectRef),
         timeout: 60_000,
         idempotent: false
       })

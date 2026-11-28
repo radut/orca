@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { lazyZodSchema } from '../../../shared/schema/lazy-zod-schema'
 import type { ProviderTimelineEvent } from '../../native-chat/agent-session-timeline/provider-timeline-event'
 import {
   pendingAcpResolution,
@@ -8,6 +9,7 @@ import {
 import type { AcpToolTimeline } from '../timeline/acp-tool-timeline'
 import { AcpRpcError } from '../transport/acp-errors'
 import { ACP_FORM_ELICITATION_METHOD, acpFormElicitationPresentation } from './acp-form-elicitation'
+import { acpUrlElicitationPresentation, isAcpUrlElicitation } from './acp-url-elicitation'
 import { readAcpPermissionRequest } from '../protocol/acp-permission-requests'
 import { isAgentJournalPromptIntent } from '../../../shared/agent-session/journal/agent-session-journal-types'
 
@@ -49,12 +51,14 @@ export function acpPermissionPresentation(
   }
 }
 
-const requestSessionSchema = z.object({ sessionId: z.string() })
+const requestSessionSchema = lazyZodSchema(() => z.object({ sessionId: z.string() }))
 const UNADVERTISED_CLIENT_METHOD = /^(?:fs|terminal)\//
-const requestToolSchema = z.object({
-  toolCallId: z.string().optional(),
-  toolCall: z.object({ toolCallId: z.string() }).optional()
-})
+const requestToolSchema = lazyZodSchema(() =>
+  z.object({
+    toolCallId: z.string().optional(),
+    toolCall: z.object({ toolCallId: z.string() }).optional()
+  })
+)
 
 export function translateAcpRequest(
   method: string,
@@ -107,7 +111,11 @@ export function translateAcpRequest(
   const presentation =
     options.dialect.request?.(method, params) ??
     (method === 'session/request_permission' ? acpPermissionPresentation(params) : undefined) ??
-    (method === ACP_FORM_ELICITATION_METHOD ? acpFormElicitationPresentation(params) : undefined)
+    (method === ACP_FORM_ELICITATION_METHOD
+      ? isAcpUrlElicitation(params)
+        ? acpUrlElicitationPresentation(params)
+        : acpFormElicitationPresentation(params)
+      : undefined)
   if (!presentation) {
     // OpenCode 1.x repeats completed writes through unadvertised client methods; omit their rows.
     if (UNADVERTISED_CLIENT_METHOD.test(method)) {

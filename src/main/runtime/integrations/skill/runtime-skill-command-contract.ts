@@ -3,7 +3,7 @@ import type {
   AgentSkillShareRequest
 } from '../../../../shared/skills/sharing/agent-skill-sharing-contract'
 import type { DiscoveredSkill } from '../../../../shared/skills/discovery/skills'
-import type { ExecutionHostId } from '../../../../shared/execution-host'
+import type { ExecutionHostId } from '../../../../shared/execution-host/execution-host'
 import type {
   SkillBundleInstallPreview,
   SkillBundleInstallPreviewRequest,
@@ -16,7 +16,6 @@ import type {
   SkillUploadChunkRequest
 } from '../../../../shared/skills/sharing/skill-upload-session-contract'
 import type { SkillUploadSessionService } from '../../../skills/runtime-upload/skill-upload-session-service'
-import type { RuntimeSkillCommands } from './runtime-skill-command-surface'
 import type {
   SkillCloudDownloadGrant,
   SkillCloudOperation,
@@ -131,9 +130,13 @@ export type RuntimeSkillCommandSurface = {
   disposeSkillUploadSessions(): Promise<void>
 }
 
+export type RuntimeSkillCommandOwner = RuntimeSkillCommandSurface & {
+  hasSkillCloudService(): boolean
+}
+
 export function installRuntimeSkillCommandSurface(
   target: RuntimeSkillCommandSurface,
-  commands: RuntimeSkillCommands
+  commands: RuntimeSkillCommandOwner
 ): void {
   const targetMethods = target as unknown as Record<string, (...args: never[]) => unknown>
   const ownerMethods = commands as unknown as Record<string, (...args: never[]) => unknown>

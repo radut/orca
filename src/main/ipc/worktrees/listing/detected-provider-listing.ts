@@ -3,13 +3,13 @@ import {
   snapshotPendingWorktreeRemovals,
   withUnregisteredRemovalCheckouts
 } from '../../../workspaces/removal/worktree-removal-listing'
-import { getRepoDialableSshTargetId } from '../../../../shared/execution-host'
+import { getRepoDialableSshTargetId } from '../../../../shared/execution-host/execution-host'
 import type { Store } from '../../../persistence/loading-store/store'
 import type { Repo } from '../../../../shared/repository/repo-types'
 import type { DetectedWorktreeListResult } from '../../../../shared/worktree/types'
 import { isFolderRepo } from '../../../../shared/repository/repo-kind'
 import { projectWorktreeLineageWithHostPeers } from '../../../workspaces/catalog/worktree-lineage-host-peers'
-import type { DirectSshDetectedWorktreeRequest } from '../../../../shared/detected-worktree-provider-contract'
+import type { DirectSshDetectedWorktreeRequest } from '../../../../shared/worktree/catalog/detected-worktree-provider-contract'
 import { isAdmissibleDirectSshAuthority } from '../../../../shared/remote-runtime/ssh/ssh-retained-payload-admission'
 import {
   buildDetectedGitWorktrees,
@@ -75,9 +75,16 @@ export async function listDetectedWorktreesForCapturedRepo(
       if (!isCurrent()) {
         return null
       }
-      const folderWorkspaceIds = Object.keys(store.getAllWorktreeMeta()).filter((worktreeId) =>
-        isFolderWorkspaceIdForRepo(repo, worktreeId)
-      )
+      const folderWorkspaceIds: string[] = []
+      const allWorktreeMeta = store.getAllWorktreeMeta()
+      for (const worktreeId in allWorktreeMeta) {
+        if (
+          Object.hasOwn(allWorktreeMeta, worktreeId) &&
+          isFolderWorkspaceIdForRepo(repo, worktreeId)
+        ) {
+          folderWorkspaceIds.push(worktreeId)
+        }
+      }
       if (hasConflictingStoredWorktreeOwner(store, repo, folderWorkspaceIds)) {
         return {
           repoId: repo.id,

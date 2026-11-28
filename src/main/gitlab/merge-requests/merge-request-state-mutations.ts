@@ -5,7 +5,7 @@ import { glabExecFileAsync } from '../../git/command-runner/hosted-cli/glab-exec
 import type { LocalGitExecOptions } from '../projects/gitlab-known-host-probe'
 import type { ProjectRef } from '../projects/project-ref-parser'
 import { withProjectRef } from './merge-request-project-resolution'
-import { codeHostFailure } from '../../../shared/code-host-failure-copy'
+import { codeHostFailure } from '../../../shared/source-control/code-host-failure-copy'
 import { invalidateReviewLookupsAfterPRMutation } from '../../github/pull-requests/refresh/pr-mutation-review-invalidation'
 
 // Why: glab's MRCheckErrors refuses a no-op close/reopen with these fixed texts; every other
@@ -31,7 +31,7 @@ export async function closeMR(
       try {
         await glabExecFileAsync(['mr', 'close', String(iid), '-R', repoFlag], {
           ...glabRepoExecOptions(repoPath, connectionId, localGitOptions),
-          ...glabHostEnvOptions(projectRef, connectionId)
+          ...glabHostEnvOptions(projectRef)
         })
         return { ok: true }
       } catch (err) {
@@ -69,7 +69,7 @@ export async function reopenMR(
       try {
         await glabExecFileAsync(['mr', 'reopen', String(iid), '-R', repoFlag], {
           ...glabRepoExecOptions(repoPath, connectionId, localGitOptions),
-          ...glabHostEnvOptions(projectRef, connectionId)
+          ...glabHostEnvOptions(projectRef)
         })
         return { ok: true }
       } catch (err) {
@@ -112,7 +112,7 @@ export async function mergeMR(
           ['mr', 'merge', String(iid), '-R', repoFlag, '--yes', ...methodFlag],
           {
             ...glabRepoExecOptions(repoPath, connectionId, localGitOptions),
-            ...glabHostEnvOptions(projectRef, connectionId)
+            ...glabHostEnvOptions(projectRef)
           }
         )
         return { ok: true }

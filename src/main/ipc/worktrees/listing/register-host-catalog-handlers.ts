@@ -1,11 +1,14 @@
-import { getRepoDialableSshTargetId, parseExecutionHostId } from '../../../../shared/execution-host'
+import {
+  getRepoDialableSshTargetId,
+  parseExecutionHostId
+} from '../../../../shared/execution-host/execution-host'
 import { ipcMain } from 'electron'
 import type {
   ListKnownWorktreesForExecutionHostArgs,
   HostQualifiedKnownWorktreeResult,
   ForgetRemovedWorktreesForExecutionHostArgs,
   ForgetRemovedWorktreesForExecutionHostResult
-} from '../../../../shared/detected-worktree-provider-contract'
+} from '../../../../shared/worktree/catalog/detected-worktree-provider-contract'
 import type { DetectedWorktree } from '../../../../shared/worktree/types'
 import { isFolderRepo } from '../../../../shared/repository/repo-kind'
 import { projectWorktreeLineageWithHostPeers } from '../../../workspaces/catalog/worktree-lineage-host-peers'
@@ -63,9 +66,16 @@ export function registerHostCatalogHandlers(context: WorktreeIpcContext): void {
       })
       // Folder instance suffixes require the folder builder rather than Git path synthesis.
       if (isFolderRepo(repo)) {
-        const folderWorkspaceIds = Object.keys(store.getAllWorktreeMeta()).filter((worktreeId) =>
-          isFolderWorkspaceIdForRepo(repo, worktreeId)
-        )
+        const folderWorkspaceIds: string[] = []
+        const allWorktreeMeta = store.getAllWorktreeMeta()
+        for (const worktreeId in allWorktreeMeta) {
+          if (
+            Object.hasOwn(allWorktreeMeta, worktreeId) &&
+            isFolderWorkspaceIdForRepo(repo, worktreeId)
+          ) {
+            folderWorkspaceIds.push(worktreeId)
+          }
+        }
         return hasConflictingStoredWorktreeOwner(store, repo, folderWorkspaceIds)
           ? rejected()
           : complete(
@@ -76,7 +86,7 @@ export function registerHostCatalogHandlers(context: WorktreeIpcContext): void {
               )
             )
       }
-      const hostMeta = readAllWorktreeMetaForHost(store, requestedExecutionHostId)
+      const hostMeta = readAllWorktreeMetaForHost(store, requestedExecutionHostId, repo.id)
       const metaIndex = createSshWorktreeMetaIndexForRepo(hostMeta, repo.id)
       return complete(
         buildDisconnectedDetectedWorktrees(

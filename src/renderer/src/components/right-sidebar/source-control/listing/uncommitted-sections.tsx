@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { useTranslate } from '@/i18n/use-translate'
 import type { GitStatusEntry } from '../../../../../../shared/git/status/git-status-types'
 import type { ConflictResolution } from '../../../../../../shared/source-control/listing/source-control-entry-actions'
-import type { SourceControlViewMode } from '../../../../../../shared/ui-chrome-types'
+import type { SourceControlViewMode } from '../../../../../../shared/ui-chrome/ui-chrome-types'
 import {
   getDiscardAllPaths,
   getUnstageAllPaths,
@@ -113,7 +113,12 @@ export function SourceControlUncommittedSections(props: {
             <SectionHeader
               label={t(sectionLabel.key, sectionLabel.fallback)}
               count={items.length}
-              conflictCount={items.filter((entry) => entry.conflictStatus === 'unresolved').length}
+              // The Conflicts section's own count already says it; repeating it reads as a duplicate.
+              conflictCount={
+                id === 'conflicts'
+                  ? 0
+                  : items.filter((entry) => entry.conflictStatus === 'unresolved').length
+              }
               isCollapsed={isCollapsed}
               onToggle={() => props.toggleSection(id)}
               actions={

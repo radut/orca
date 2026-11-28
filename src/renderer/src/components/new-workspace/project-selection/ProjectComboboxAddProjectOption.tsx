@@ -2,11 +2,11 @@ import React from 'react'
 import { ChevronRight, FolderPlus } from 'lucide-react'
 import type { AddRemoteHostMode } from '@/components/sidebar/host-admission/ssh/AddRemoteHostDialog'
 import type { AddRepoDialogEntryRequest } from '@/components/sidebar/project-admission/dialog/add-repo-dialog-types'
-import { ADD_PROJECT_MENU_ATTRIBUTE } from '@/components/sidebar/project-admission/menu/AddProjectHostSubmenu'
+import { ADD_PROJECT_MENU_ATTRIBUTE } from '@/components/sidebar/project-admission/menu/add-project-menu-dom'
 import { AddProjectMenu } from '@/components/sidebar/project-admission/menu/AddProjectMenu'
 import { useTranslate } from '@/i18n/use-translate'
 import { cn } from '@/lib/class-names'
-import type { ExecutionHostId } from '../../../../../shared/execution-host'
+import type { ExecutionHostId } from '../../../../../shared/execution-host/execution-host'
 
 export type ProjectComboboxAddProjectMenu = {
   defaultHostId?: ExecutionHostId | null

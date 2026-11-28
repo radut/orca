@@ -8,7 +8,7 @@ import {
   type ExecutionHostId,
   getRepoExecutionHostId,
   normalizeExecutionHostId
-} from '../../../shared/execution-host'
+} from '../../../shared/execution-host/execution-host'
 import { normalizeRepoBadgeColor } from '../../../shared/repository/appearance/repo-badge-color'
 import { sanitizeRepoIcon } from '../../../shared/repository/appearance/repo-icon'
 import {
@@ -31,8 +31,12 @@ import {
   isWslMoveSourceHost
 } from '../../persistence/moving-wsl-projects/quiescence/wsl-move-scope-guard'
 
-export function registerRepoUpdateHandler(mainWindow: BrowserWindow, store: Store): void {
-  ipcMain.handle(
+export function registerRepoUpdateHandler(
+  mainWindow: BrowserWindow,
+  store: Store,
+  ipc: Pick<typeof ipcMain, 'handle'> = ipcMain
+): void {
+  ipc.handle(
     'repos:update',
     async (
       _event,

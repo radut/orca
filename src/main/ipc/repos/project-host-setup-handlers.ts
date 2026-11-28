@@ -17,7 +17,10 @@ import {
   type RepositoryMetadataOwner
 } from '../../workspaces/catalog/imported-folder-project-link'
 import { readCurrentGitRemoteIdentity } from '../../workspaces/catalog/repo-git-remote-identity'
-import { getRepoExecutionHostId, parseExecutionHostId } from '../../../shared/execution-host'
+import {
+  getRepoExecutionHostId,
+  parseExecutionHostId
+} from '../../../shared/execution-host/execution-host'
 import { prepareLocalWorktreeRootForRepo } from '../../workspaces/creation/worktree-root-preparation'
 import { updateProjectHostSetupWithProvenKind } from '../../workspaces/catalog/folder-repo-git-conversion'
 import { invalidateAuthorizedRootsCache } from '../worktrees/removal/registered-worktree-roots-cache'
@@ -50,9 +53,10 @@ function buildProjectHostSetupResult(store: Store, repo: Repo): ProjectHostSetup
 export function registerProjectHostSetupHandlers(
   mainWindow: BrowserWindow,
   store: Store,
-  metadata: RepositoryMetadataOwner
+  metadata: RepositoryMetadataOwner,
+  ipc: Pick<typeof ipcMain, 'handle'> = ipcMain
 ): void {
-  ipcMain.handle(
+  ipc.handle(
     'projectHostSetups:create',
     (_event, rawArgs: ProjectHostSetupCreateArgs): ProjectHostSetupCreateResult => {
       const args = parseProjectGroupIpcArgs(
@@ -70,7 +74,7 @@ export function registerProjectHostSetupHandlers(
     }
   )
 
-  ipcMain.handle(
+  ipc.handle(
     'projectHostSetups:update',
     async (_event, rawArgs: ProjectHostSetupUpdateArgs): Promise<ProjectHostSetupUpdateResult> => {
       const args = parseProjectGroupIpcArgs(
@@ -99,7 +103,7 @@ export function registerProjectHostSetupHandlers(
     }
   )
 
-  ipcMain.handle(
+  ipc.handle(
     'projectHostSetups:delete',
     (_event, rawArgs: ProjectHostSetupDeleteArgs): ProjectHostSetupDeleteResult => {
       const args = parseProjectGroupIpcArgs(
@@ -117,7 +121,7 @@ export function registerProjectHostSetupHandlers(
     }
   )
 
-  ipcMain.handle(
+  ipc.handle(
     'projectHostSetups:setupExistingFolder',
     async (
       _event,
