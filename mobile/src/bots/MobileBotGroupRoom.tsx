@@ -282,7 +282,7 @@ export function MobileBotGroupRoom({
               'Message the group, @ to mention a bot'
             )}
             disabled={!connected}
-            onAttachImage={attachPhotos}
+            onAttachImages={attachPhotos}
             attachments={[...photos.images]}
             onRemoveAttachment={photos.remove}
             isAttaching={photos.uploading}
