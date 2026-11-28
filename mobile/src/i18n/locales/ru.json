@@ -2574,7 +2574,9 @@
       "thisComputer": "Этот компьютер",
       "workspaceOptions": "Параметры рабочих пространств",
       "done": "Готово",
-      "reset": "Сбросить"
+      "reset": "Сбросить",
+      "hideByStatus": "Скрыть по статусу",
+      "hideStatus": "Скрыть рабочие области со статусом «{{status}}»"
     },
     "workspaceRenameSheet": {
       "title": "Переименовать рабочее пространство",
