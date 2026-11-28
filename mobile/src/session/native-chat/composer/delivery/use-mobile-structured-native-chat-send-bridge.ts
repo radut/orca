@@ -43,6 +43,8 @@ export function useMobileStructuredNativeChatSendBridge(args: {
   ) => void
   holdUnconfirmed: MobileStructuredSends['holdUnconfirmed']
   onSendError: (message: string) => void
+  /** A message the host took; commands and goal changes mint no message and never call it. */
+  onMessageAccepted?: () => void
 }): {
   send: (text: string, images?: string[]) => Promise<boolean>
   sendWithOutcome: (
@@ -59,6 +61,7 @@ export function useMobileStructuredNativeChatSendBridge(args: {
     captureSendOrigin,
     clearDraftForSend,
     holdUnconfirmed,
+    onMessageAccepted,
     onSendError,
     restoreRejectedDraft,
     sendStructured,
@@ -136,6 +139,8 @@ export function useMobileStructuredNativeChatSendBridge(args: {
             settleMobileNativeChatInFlightSend(inFlightId, outcome === 'rejected' ? 'kept' : 'sent')
             if (outcome === 'rejected') {
               handBack()
+            } else if (outcome === 'accepted' && created.clientMessageId) {
+              onMessageAccepted?.()
             }
             return outcome
           }
@@ -145,6 +150,7 @@ export function useMobileStructuredNativeChatSendBridge(args: {
       captureSendOrigin,
       clearDraftForSend,
       holdUnconfirmed,
+      onMessageAccepted,
       onSendError,
       restoreRejectedDraft,
       sendStructured,
