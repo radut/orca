@@ -3117,7 +3117,8 @@
       "itemsNeedYou": "Einträge, {{count}} brauchen dich",
       "quickCommands": "Schnellbefehle",
       "items": "Einträge",
-      "textSize": "Textgröße"
+      "textSize": "Textgröße",
+      "findInTerminal": "Im Terminal suchen"
     },
     "headerMoreActionsSheet": {
       "agentHistory": "Agentenverlauf",
@@ -3622,6 +3623,13 @@
       "camera": "Kamera",
       "choosePhotos": "Fotos auswählen",
       "recentPhoto": "Aktuelles Foto"
+    },
+    "terminalFind": {
+      "placeholder": "Im Terminal suchen",
+      "noResults": "Keine Ergebnisse",
+      "previous": "Vorheriger Treffer",
+      "next": "Nächster Treffer",
+      "close": "Suche schließen"
     },
     "nativeChatView": {
       "loading": "Unterhaltung wird geladen…",
