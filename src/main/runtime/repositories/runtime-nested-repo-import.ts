@@ -17,18 +17,10 @@ import {
 } from '../../../shared/execution-host/execution-host'
 import { awaitWindowsHostGitEnvironmentReady } from '../../git/command-runner/host-routing/windows-host-git-environment'
 import { getRepoName } from '../../git/repositories/repository-name'
-import { isGitRepoAsync } from '../../git/repositories/discovery/repo-detection'
-import { scanNestedRepos } from '../../project-groups/nested-repo-discovery'
-import { findExistingCheckouts } from '../../git/repositories/discovery/existing-checkout-discovery'
 import type {
   ExistingCheckoutSuggestion,
   FindExistingCheckoutsArgs
 } from '../../../shared/project/host-setup/existing-checkout-suggestions'
-import {
-  createNestedProjectGroupResolver,
-  resolveNestedRepoSelection
-} from '../../project-groups/nested-repo-import'
-import { createNestedRepoImportTargetResolver } from '../../project-groups/nested-repo-import-target'
 import type { RuntimeStore } from '../construction/runtime-store-contract'
 import { refuseWslHostWindowsDrivePath } from '../terminal/launch/wsl-host-windows-drive-guard'
 
@@ -53,6 +45,7 @@ export class RuntimeNestedRepoImport {
     }
     await refuseWslHostWindowsDrivePath(path)
     await awaitWindowsHostGitEnvironmentReady({ cwd: path })
+    const { scanNestedRepos } = await import('../../project-groups/nested-repo-discovery')
     return scanNestedRepos({ path, options: { timeoutMs: 15_000 } })
   }
 
@@ -60,6 +53,8 @@ export class RuntimeNestedRepoImport {
     args: FindExistingCheckoutsArgs
   ): Promise<{ suggestions: ExistingCheckoutSuggestion[] }> {
     const workspaceDir = this.deps.getStore()?.getSettings().workspaceDir
+    const { findExistingCheckouts } =
+      await import('../../git/repositories/discovery/existing-checkout-discovery')
     return { suggestions: await findExistingCheckouts({ ...args, workspaceDir }) }
   }
 
@@ -78,6 +73,17 @@ export class RuntimeNestedRepoImport {
     if (!isAbsolute(args.parentPath)) {
       throw new Error('Project path must be an absolute path')
     }
+    const [
+      { scanNestedRepos },
+      { createNestedProjectGroupResolver, resolveNestedRepoSelection },
+      { createNestedRepoImportTargetResolver },
+      { inspectGitRepoAccessAsync }
+    ] = await Promise.all([
+      import('../../project-groups/nested-repo-discovery'),
+      import('../../project-groups/nested-repo-import'),
+      import('../../project-groups/nested-repo-import-target'),
+      import('../../git/repositories/discovery/repo-detection')
+    ])
     const scan = await scanNestedRepos({ path: args.parentPath, options: { timeoutMs: 15_000 } })
     const selection = resolveNestedRepoSelection({ scan, projectPaths: args.projectPaths })
     const groupResolver = createNestedProjectGroupResolver({
@@ -105,7 +111,12 @@ export class RuntimeNestedRepoImport {
     for (const repoPath of selection.selectedPaths) {
       try {
         await awaitWindowsHostGitEnvironmentReady({ cwd: repoPath })
-        if (!(await isGitRepoAsync(repoPath))) {
+        const gitAccess = await inspectGitRepoAccessAsync(repoPath)
+        if (gitAccess.ownershipError) {
+          results.push({ path: repoPath, status: 'failed', error: gitAccess.ownershipError })
+          continue
+        }
+        if (!gitAccess.isRepo) {
           results.push({
             path: repoPath,
             status: 'failed',
