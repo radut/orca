@@ -11,6 +11,8 @@ export type AppUpdateCheckResult =
 /** One install channel. Rejects when the channel could not be asked; never retries itself. */
 export type AppUpdateSource = {
   check(installedVersion: string, signal: AbortSignal): Promise<AppUpdateCheckResult>
+  /** Replaces isNewerReleaseVersion for channels whose version identity carries more than a release version. */
+  isNewer?(candidate: string, installed: string): boolean
 }
 
 /** True for a plain release version newer than the installed one; prerelease suffixes never qualify. */
