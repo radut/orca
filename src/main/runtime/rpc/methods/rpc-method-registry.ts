@@ -34,6 +34,7 @@ import { UPDATER_METHODS } from './updater/updater'
 import { PREFLIGHT_METHODS } from './preflight/preflight'
 import { WORKSPACE_PORT_METHODS } from './workspace-ports/workspace-ports'
 import { NETWORK_PORT_FORWARD_METHODS } from './workspace-ports/network-port-forward'
+import { MOBILE_BROWSER_TUNNEL_METHODS } from './browser/mobile-browser-network-tunnel'
 import { RECIPE_VM_WAKE_METHODS } from './host-management/recipe-vm-wake'
 import { ENVIRONMENT_DOCTOR_METHODS } from './host-management/environment-doctor'
 import { PAIRING_METHODS } from './pairing/pairing'
@@ -138,6 +139,7 @@ const SERVICE_RPC_METHODS = [
   ...PREFLIGHT_METHODS,
   ...WORKSPACE_PORT_METHODS,
   ...NETWORK_PORT_FORWARD_METHODS,
+  ...MOBILE_BROWSER_TUNNEL_METHODS,
   ...RECIPE_VM_WAKE_METHODS,
   ...ENVIRONMENT_DOCTOR_METHODS,
   ...PAIRING_METHODS,

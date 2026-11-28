@@ -300,10 +300,7 @@ export class RuntimeRpcWebSocketDispatch extends RuntimeRpcMobileDevices {
         delegatedPhoneServerOffers: this.delegatedPhoneServerOffers(device),
         signal: abortRegistration?.signal,
         sendBinary,
-        registerBinaryStreamHandler: (streamId, handler) =>
-          this.registerBinaryStreamHandler(connectionId, streamId, handler),
-        registerBinaryMessageHandler: (handler) =>
-          this.registerBinaryMessageHandler(connectionId, handler)
+        ...this.connectionBinaryRegistrars(connectionId)
       })
     } finally {
       abortRegistration?.dispose()
