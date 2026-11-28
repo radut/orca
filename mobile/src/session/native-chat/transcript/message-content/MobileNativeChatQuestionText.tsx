@@ -4,6 +4,7 @@ import { stylesSheet } from '../../../../components/markdown/mobile-markdown-sty
 import { typography } from '../../../../theme/mobile-theme'
 import { MobileNativeChatMarkdown } from './MobileNativeChatMarkdown'
 import { useThemedStyles } from '../../../../theme/themed-styles'
+import { MobileCodeBlockRunContext } from '../../../../components/markdown/blocks/mobile-code-block-run'
 
 type Props = Pick<
   ComponentProps<typeof MobileNativeChatMarkdown>,
@@ -29,12 +30,15 @@ export function MobileNativeChatQuestionText({
   const size = title ? typography.bodySize + 1 : fontSize
   return (
     <View style={style}>
-      <MobileNativeChatMarkdown
-        content={content}
-        rangeSelectable={rangeSelectable}
-        tone={title ? 'strong' : tone}
-        textScale={size / markdownStyles.paragraph.fontSize}
-      />
+      {/* An agent's question waits for an answer, not a run. */}
+      <MobileCodeBlockRunContext.Provider value={null}>
+        <MobileNativeChatMarkdown
+          content={content}
+          rangeSelectable={rangeSelectable}
+          tone={title ? 'strong' : tone}
+          textScale={size / markdownStyles.paragraph.fontSize}
+        />
+      </MobileCodeBlockRunContext.Provider>
     </View>
   )
 }
