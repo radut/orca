@@ -3225,7 +3225,8 @@
       "itemsNeedYou": "Elementos, por atender: {{count}}",
       "quickCommands": "Comandos rápidos",
       "items": "Elementos",
-      "textSize": "Tamaño del texto"
+      "textSize": "Tamaño del texto",
+      "findInTerminal": "Buscar en la terminal"
     },
     "headerMoreActionsSheet": {
       "agentHistory": "Historial de agentes",
@@ -3731,6 +3732,13 @@
       "camera": "Cámara",
       "choosePhotos": "Elegir fotos",
       "recentPhoto": "Foto reciente"
+    },
+    "terminalFind": {
+      "placeholder": "Buscar en la terminal",
+      "noResults": "Sin resultados",
+      "previous": "Coincidencia anterior",
+      "next": "Coincidencia siguiente",
+      "close": "Cerrar búsqueda"
     },
     "nativeChatView": {
       "linkedMessageMissing": "No se pudo encontrar ese mensaje.",

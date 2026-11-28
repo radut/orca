@@ -3229,7 +3229,8 @@
       "itemsNeedYou": "Itens, {{count}} precisam de você",
       "quickCommands": "Comandos rápidos",
       "items": "Itens",
-      "textSize": "Tamanho do texto"
+      "textSize": "Tamanho do texto",
+      "findInTerminal": "Buscar no terminal"
     },
     "headerMoreActionsSheet": {
       "agentHistory": "Histórico de Agentes",
@@ -3835,6 +3836,13 @@
       "unavailable": "Os chats do {{agent}} não estão disponíveis neste computador.",
       "uncheckable": "O Orca não conseguiu verificar o que está em execução neste terminal. Tente novamente.",
       "unconfirmed": "O Orca não conseguiu confirmar que o chat foi aberto. Verifique suas abas antes de tentar novamente."
+    },
+    "terminalFind": {
+      "placeholder": "Buscar no terminal",
+      "noResults": "Nenhum resultado",
+      "previous": "Correspondência anterior",
+      "next": "Próxima correspondência",
+      "close": "Fechar busca"
     }
   },
   "settings": {
