@@ -7,6 +7,7 @@ import {
   BotGroupStop,
   BotGroupDelete,
   BotGroupNewThread,
+  BotGroupRenameThread,
   BotGroupReorder
 } from '../../../../shared/bots/bot-group'
 import { runtimeBotGroups } from '../../../bots/bot-group-runtime'
@@ -141,6 +142,15 @@ export const BOT_GROUP_METHODS = [
     handler: async (params, context) => {
       assertBotGroupOwner(context)
       return runtimeBotGroups(context.runtime).newThread(params.groupId)
+    }
+  }),
+  defineMethod({
+    name: 'bots.groups.renameThread',
+    permission: 'workspace',
+    params: BotGroupRenameThread,
+    handler: async (params, context) => {
+      assertBotGroupOwner(context)
+      return { group: await runtimeBotGroups(context.runtime).renameThread(params) }
     }
   }),
   defineMethod({
