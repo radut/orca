@@ -14,8 +14,10 @@ import { useMobileNativeChatComposerTray } from './composer/menus/use-mobile-nat
 import { useMobileNativeChatVisualRenderer } from './visual/MobileNativeChatVisual'
 import { MobileNativeChatVisualContext } from './visual/mobile-native-chat-visual-context'
 import { MobileNativeChatRootItemSourceContext } from './transcript/projection/mobile-native-chat-item-read'
-import { useMobileNativeChatMessageDetail } from './transcript/projection/use-mobile-native-chat-message-detail'
-import { useMobileNativeChatDetailSource } from './transcript/projection/use-mobile-native-chat-detail-source'
+import {
+  useMobileNativeChatDetailSource,
+  useMobileNativeChatMessageDetail
+} from './transcript/projection/use-mobile-native-chat-message-detail'
 import {
   MobileNativeChatReplyRevealsContext,
   useMobileNativeChatReplyReveals
@@ -169,10 +171,8 @@ function MobileNativeChatOverlayContent({
   const visuals = useMobileNativeChatVisualRenderer(controller.nativeChatVisualSource)
   const replyReveals = useMobileNativeChatReplyReveals(folded, streaming !== null, sendSurfaceId)
   useStopReadAloudWithChat(sendSurfaceId)
-  const detailSource = useMobileNativeChatDetailSource(
-    controller.nativeChatItemSource,
-    fullContent.detail
-  )
+  const itemSource = controller.nativeChatItemSource
+  const detailSource = useMobileNativeChatDetailSource(itemSource, fullContent.detail)
   const { mentionFiles, markdownLinks, openFile } = useMobileNativeChatFiles({
     controller,
     worktreePath,
@@ -328,6 +328,7 @@ function MobileNativeChatOverlayContent({
                       onLoadEarlier={session.loadEarlier}
                       onSend={images.sendNativeChat}
                       sendSurfaceId={sendSurfaceId}
+                      sessionId={sessionId}
                       getSendCompletionGeneration={getSendCompletionGeneration}
                       getComposerEditGeneration={controller.getChatComposerEditGeneration}
                       pending={controller.chatPending}

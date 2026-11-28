@@ -8,9 +8,9 @@ import {
   toggleReadAloud,
   useReadAloudSpeaking
 } from '../../../../platform/read-aloud/read-aloud-turn'
-import { colors, radii } from '../../../../theme/mobile-theme'
-import { themedStyleSheet } from '../../../../theme/themed-styles'
-import { useMobileColorScheme } from '../../../../theme/use-mobile-color-scheme'
+import { radii } from '../../../../theme/mobile-theme'
+import { themedStyleSheet, useThemedStyles } from '../../../../theme/themed-styles'
+import { useMobileColors } from '../../../../theme/use-mobile-color-scheme'
 
 /** Reads a reply aloud with the phone's voice; tapped again, or on another reply, it stops. */
 export function MobileNativeChatReadAloudButton({
@@ -20,7 +20,8 @@ export function MobileNativeChatReadAloudButton({
   messageId: string
   markdown: string
 }): React.JSX.Element | null {
-  useMobileColorScheme()
+  const styles = useThemedStyles(stylesSheet)
+  const colors = useMobileColors()
   const t = useMobileTranslation()
   const engine = useReadAloudEngine()
   const speaking = useReadAloudSpeaking(messageId)
@@ -50,7 +51,7 @@ export function MobileNativeChatReadAloudButton({
   )
 }
 
-const styles = themedStyleSheet(() => ({
+const stylesSheet = themedStyleSheet((colors) => ({
   button: {
     width: 24,
     height: 24,
