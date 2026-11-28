@@ -80,6 +80,7 @@ export function useNativeAddContextSheet(sessionId: string | null): {
       onRecentPhotos={options?.images ? (ids) => pending.settle('recent', ids) : undefined}
       actions={mobileNativeChatAttachActions({
         onFiles: options?.files ? settle('files') : undefined,
+        onVideos: options?.files ? settle('videos') : undefined,
         structured: options?.structured === true,
         onWorkspaceFile: settle('workspaceFile'),
         onSkills: settle('skills'),

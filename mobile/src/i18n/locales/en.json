@@ -2804,7 +2804,9 @@
       "skills": "Skills",
       "availableSkills": "{{count}} available",
       "commands": "Commands",
-      "addFiles": "Add files"
+      "addFiles": "Add files",
+      "videos": "Videos",
+      "videoSource": "From your photo library"
     },
     "nativeChatCliFork": {
       "resumeInNewCli": "Resume in New CLI"
@@ -3409,12 +3411,15 @@
     },
     "orcaCommands": {
       "desktopOnly": "Available in the desktop app"
+    },
+    "nativeChatFileAttachments": {
+      "pastedTextTooLarge": "This paste is over {{max}} MB, so it cannot be attached",
+      "terminalFileReference": "File from my phone, saved on this computer as {{path}}"
     }
   },
   "chat": {
     "composer": {
       "addToMessage": "Add to message",
-      "attachImage": "Attach image",
       "placeholder": "Ask anything, @ to mention files, / for commands",
       "cancelEditing": "Cancel editing",
       "saveEditedMessage": "Save edited message",

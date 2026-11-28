@@ -275,7 +275,6 @@
     },
     "composer": {
       "addToMessage": "Zur Nachricht hinzufügen",
-      "attachImage": "Bild anhängen",
       "cancelEditing": "Bearbeitung abbrechen",
       "placeholder": "Frage stellen, @ für Dateiverweise, / für Befehle",
       "saveEditedMessage": "Bearbeitete Nachricht speichern",
@@ -2943,7 +2942,9 @@
       "fileTypes": "PDF, Text, Code…",
       "skills": "Skills",
       "workspaceFile": "Datei im Arbeitsbereich",
-      "addFiles": "Dateien hinzufügen"
+      "addFiles": "Dateien hinzufügen",
+      "videos": "Videos",
+      "videoSource": "Aus deiner Fotomediathek"
     },
     "nativeChatCardHeaderAction": {
       "collapse": "Einklappen"
@@ -3556,6 +3557,10 @@
       "terminalTitle": "Terminal-Text",
       "pointsAndColumns": "{{points}} · {{count}} Spalten",
       "moreTerminal": "Weitere Terminal-Einstellungen"
+    },
+    "nativeChatFileAttachments": {
+      "pastedTextTooLarge": "Dieser eingefügte Text ist größer als {{max}} MB und kann nicht angehängt werden",
+      "terminalFileReference": "Datei von meinem Telefon, auf diesem Computer gespeichert als {{path}}"
     }
   },
   "settings": {

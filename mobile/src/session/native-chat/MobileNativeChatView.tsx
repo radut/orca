@@ -103,6 +103,7 @@ export function MobileNativeChatView({
   onComposerTextChange,
   onAttachImages,
   onPasteImages,
+  onAttachFiles,
   attachments,
   onRemoveAttachment,
   isAttaching,
@@ -347,10 +348,9 @@ export function MobileNativeChatView({
           sendSurfaceId={sendSurfaceId}
           {...{ getSendCompletionGeneration, getComposerEditGeneration, inputRef, sendFollowUp }}
           steerHead={tray.steerHead}
-          {...{ agent, sessionOptions, contextUsage }}
-          {...{ onAttachImages, onPasteImages, attachments, onRemoveAttachment }}
+          {...{ agent, sessionOptions, contextUsage, dictationMode, onMicPressIn, onMicPressOut }}
+          {...{ onAttachImages, onPasteImages, onAttachFiles, attachments, onRemoveAttachment }}
           {...{ isAttaching, onMicPress, micActive, micStarting, micProcessing }}
-          {...{ dictationMode, onMicPressIn, onMicPressOut }}
           {...offlineQueue.composerLock}
           sendDisabled={expandedPromptOwnsSend}
           placeholder={composerPlaceholder}
