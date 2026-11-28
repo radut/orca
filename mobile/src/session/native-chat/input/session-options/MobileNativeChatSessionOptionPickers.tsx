@@ -268,7 +268,7 @@ export function MobileNativeChatSessionOptionPickers({
                 {modelSearchView ? (
                   <MobileNativeChatModelSearchList
                     model={activeDescriptor}
-                    disabled={locked(activeDescriptor)}
+                    disabled={busy}
                     moreChoices={moreModels}
                     onSetOption={(value) => applyOption(activeDescriptor, value)}
                   />
@@ -277,7 +277,7 @@ export function MobileNativeChatSessionOptionPickers({
                     {descriptorRowElements(
                       {
                         descriptor: activeDescriptor,
-                        disabled: locked(activeDescriptor),
+                        disabled: busy,
                         onSetOption: (value) => applyOption(activeDescriptor, value),
                         onInvokeAction: () => invokeAction(activeDescriptor),
                         ...(activeDescriptor === model ? { moreChoices: moreModels } : {}),
@@ -339,7 +339,7 @@ export function MobileNativeChatSessionOptionPickers({
                       {descriptorRowElements(
                         {
                           descriptor: permission,
-                          disabled: locked(permission),
+                          disabled: busy,
                           onSetOption: (value) => applyOption(permission, value),
                           onInvokeAction: () => invokeAction(permission),
                           choiceLeading: (value: string) => permissionChoiceLeading(colors, value)

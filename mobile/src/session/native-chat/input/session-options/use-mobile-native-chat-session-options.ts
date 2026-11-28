@@ -37,7 +37,10 @@ import {
 } from '../../../../../../src/shared/native-chat/input/session-options/native-chat-status-session-options'
 import { setBoundedScopeCacheEntry } from '../../../../../../src/shared/native-chat/input/composer/native-chat-scope-cache'
 import { nativeChatCommandOpensTerminal } from '../../../../../../src/shared/native-chat/input/commands/native-chat-agent-profiles'
-import { mobileNativeChatSessionOptionSay } from './native-chat-session-option-copy'
+import {
+  mobileHeldPickFailedMessage,
+  mobileNativeChatSessionOptionSay
+} from './native-chat-session-option-copy'
 import { useMobileTranslation } from '../../../../i18n/use-mobile-translation'
 import type { Translate } from '../../../../i18n/mobile-i18n'
 
@@ -172,12 +175,7 @@ function createMobileSurfaceEntry(args: {
       scopeKey: identity,
       onHeldPickFailed: () => {
         if (activeIdentity.current === identity) {
-          latest.current.onOptionError?.(
-            args.t(
-              'chat.sessionOptionPickers.heldPickFailed',
-              "A setting picked during the turn wasn't applied."
-            )
-          )
+          latest.current.onOptionError?.(mobileHeldPickFailedMessage(args.t))
         }
       }
     })

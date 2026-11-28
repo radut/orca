@@ -67,3 +67,11 @@ export function mobileNativeChatSessionOptionSay(t: Translate): NativeChatSessio
 
 export const sayMobileNativeChatSessionOption: NativeChatSessionOptionSay =
   mobileNativeChatSessionOptionSay(translate)
+
+/** A pick held during the turn that the agent did not take once the turn ended. */
+export function mobileHeldPickFailedMessage(t: Translate): string {
+  return t(
+    'chat.sessionOptionPickers.heldPickFailed',
+    "A setting picked during the turn wasn't applied."
+  )
+}
