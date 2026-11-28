@@ -93,6 +93,7 @@ export function MobileSessionCommandDock({ controller }: { controller: MobileSes
           buttonStyle={inputStyles.controlButton}
           disabledButtonStyle={inputStyles.disabled}
           onAttachImage={() => void attachImage('library')}
+          onTakePhoto={() => void attachImage('camera')}
           onAttachFile={() => void attachImage('files')}
           onDismissKeyboard={controller.dismissSoftwareKeyboard}
         />

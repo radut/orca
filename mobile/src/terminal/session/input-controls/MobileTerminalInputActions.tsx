@@ -58,6 +58,7 @@ type MobileTerminalLeadingButtonProps = {
   readonly buttonStyle: StyleProp<ViewStyle>
   readonly disabledButtonStyle: StyleProp<ViewStyle>
   readonly onAttachImage: () => void
+  readonly onTakePhoto?: () => void
   readonly onAttachFile: () => void
   readonly onDismissKeyboard: () => void
 }
@@ -83,6 +84,7 @@ export function MobileTerminalLeadingButton({
   buttonStyle,
   disabledButtonStyle,
   onAttachImage,
+  onTakePhoto,
   onAttachFile,
   onDismissKeyboard
 }: MobileTerminalLeadingButtonProps) {
@@ -142,6 +144,7 @@ export function MobileTerminalLeadingButton({
         onClose={() => setAttachOpen(false)}
         actions={mobileNativeChatAttachActions({
           onPhotos: onAttachImage,
+          onCamera: onTakePhoto,
           onFiles: onAttachFile,
           t
         })}
