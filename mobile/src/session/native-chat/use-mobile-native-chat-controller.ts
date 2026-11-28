@@ -18,6 +18,7 @@ import { useMobileNativeChatPromptController } from './input/prompts/use-mobile-
 import { nativeChatPendingSendPlacement } from '../../../../src/shared/native-chat/transcript/pending-sends/native-chat-pending-sends'
 import { mobileNativeChatScopeKey } from './conversation/mobile-native-chat-scope-key'
 import { useMobileNativeChatCiResultLines } from './preferences/use-mobile-native-chat-ci-result-lines'
+import { useReopenDoneWorkspaceOnChatSend } from './composer/delivery/mobile-native-chat-send-reopens-done-workspace'
 
 export function useMobileNativeChatController(args: {
   itemLink?: Parameters<typeof useMobileNativeChatSessionLane>[0]['itemLink']
@@ -187,11 +188,8 @@ export function useMobileNativeChatController(args: {
 
   const recordSessionOptionCommandRef = useRef<(command: string) => void>(() => {})
 
-  const {
-    send: handleNativeChatSend,
-    sendWithOutcome: handleNativeChatSendWithOutcome,
-    dispatchCommand: handleNativeChatDispatchCommand
-  } = useMobileNativeChatMessageSend({
+  const reopenOnSend = useReopenDoneWorkspaceOnChatSend(client, worktreeId, acceptSend)
+  const terminalSend = useMobileNativeChatMessageSend({
     client,
     enabled: inputSendable && !activeChatStructured,
     handleRef: activeHandleRef,
@@ -202,7 +200,7 @@ export function useMobileNativeChatController(args: {
     readSeededLaunchDraftSeed,
     clearDraftForSend,
     restoreRejectedDraft,
-    acceptSend,
+    acceptSend: reopenOnSend.acceptTerminalSend,
     holdUnconfirmedSend,
     onSendError
   })
@@ -215,7 +213,8 @@ export function useMobileNativeChatController(args: {
     clearDraftForSend,
     restoreRejectedDraft,
     holdUnconfirmed: structuredNativeChat.holdUnconfirmed,
-    onSendError
+    onSendError,
+    onMessageAccepted: reopenOnSend.reopenAfterMessage
   })
 
   const { nativeChatSessionOptions, recordCommand: recordNativeChatSessionOptionCommand } =
@@ -224,7 +223,7 @@ export function useMobileNativeChatController(args: {
       activeChatStructured,
       activeSessionTabId,
       agent: activeChatResolution?.agent ?? null,
-      dispatchCommand: handleNativeChatDispatchCommand,
+      dispatchCommand: terminalSend.dispatchCommand,
       hostId,
       isTabChatView,
       isWorking: activeTurn.isWorking,
@@ -303,10 +302,10 @@ export function useMobileNativeChatController(args: {
     nativeChatAccountUsage: activeChatStructured ? structuredNativeChat.accountUsage : null,
     nativeChatRewind: activeChatStructured ? structuredNativeChat.rewind : undefined,
     ...workspaceCatalog,
-    handleNativeChatSend: activeChatStructured ? structuredSend.send : handleNativeChatSend,
+    handleNativeChatSend: activeChatStructured ? structuredSend.send : terminalSend.send,
     handleNativeChatSendWithOutcome: activeChatStructured
       ? structuredSend.sendWithOutcome
-      : handleNativeChatSendWithOutcome,
+      : terminalSend.sendWithOutcome,
     readSeededLaunchDraft,
     nativeChatSessionOptions,
     ...nativeChatLane.controllerFields,
