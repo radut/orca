@@ -7,7 +7,7 @@ import type { useMobileComposerSource } from '../../source-selection/use-mobile-
 import { HostKindIcon } from '../../../components/icons/HostKindIcon'
 import { MobileAgentIcon } from '../../../components/icons/MobileAgentIcon'
 import type { NewWorktreeAgentOption } from '../runtime/new-worktree-agent-selection'
-import { newWorktreeFormStyles as styles } from '../forms/new-worktree-form-styles'
+import { newWorktreeFormStylesSheet } from '../forms/new-worktree-form-styles'
 import type { MobileWorkspaceRepo } from '../forms/new-worktree-modal-types'
 import type {
   NewWorkspaceProjectOption,
@@ -27,6 +27,7 @@ import {
 import { SmartWorkspaceSourceDrawer } from '../../source-selection/presentation/SmartWorkspaceSourceDrawer'
 import type { JiraSite, JiraSiteSelection } from '../../../../../src/shared/jira/jira-types'
 import type { NewWorktreeDrawerView } from './use-new-worktree-drawer-navigation'
+import { useThemedStyles } from '../../../theme/themed-styles'
 
 type Composer = ReturnType<typeof useMobileComposerSource>
 
@@ -61,6 +62,7 @@ export function NewWorktreeModalDrawers(props: {
   onSkipSetupTrust: () => void
   onCloseSetupTrust: () => void
 }) {
+  const styles = useThemedStyles(newWorktreeFormStylesSheet)
   const t = useMobileTranslation()
   const emptyLabel = t('components.newWorktreeModalDrawers.noMatches', 'No matches')
   return (

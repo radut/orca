@@ -1,9 +1,8 @@
 import { useMobileTranslation } from '../../i18n/use-mobile-translation'
 import { useState, type ReactNode } from 'react'
 import { View, Text } from 'react-native'
-import { colors, spacing, typography } from '../../theme/mobile-theme'
-import { themedStyleSheet } from '../../theme/themed-styles'
-import { useMobileColorScheme } from '../../theme/use-mobile-color-scheme'
+import { spacing, typography } from '../../theme/mobile-theme'
+import { themedStyleSheet, useThemedStyles } from '../../theme/themed-styles'
 import { BottomDrawer } from '../bottom-drawer/BottomDrawer'
 import {
   LIST_LEADING_INSET,
@@ -64,7 +63,7 @@ export function PickerModal<T extends string = string>({
   searchable,
   searchPlaceholder
 }: Props<T>) {
-  useMobileColorScheme()
+  const styles = useThemedStyles(stylesSheet)
   return (
     <BottomDrawer visible={visible} onClose={onClose} onAfterClose={onAfterClose} zIndex={zIndex}>
       <View style={styles.header}>
@@ -95,7 +94,7 @@ function PickerModalContent<T extends string = string>({
   searchPlaceholder
 }: PickerModalContentProps<T>) {
   const t = useMobileTranslation()
-  useMobileColorScheme()
+  const styles = useThemedStyles(stylesSheet)
   const [query, setQuery] = useState('')
   const words = query.trim().toLocaleLowerCase().split(/\s+/).filter(Boolean)
   // Each word may match the label or the subtitle, like the home Desktops search.
@@ -164,7 +163,7 @@ function PickerModalContent<T extends string = string>({
   )
 }
 
-const styles = themedStyleSheet(() => ({
+const stylesSheet = themedStyleSheet((colors) => ({
   header: {
     paddingHorizontal: LIST_ROW_PADDING,
     paddingBottom: spacing.sm

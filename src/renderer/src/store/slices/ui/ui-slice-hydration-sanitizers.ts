@@ -5,10 +5,8 @@ import type { PersistedTrustedOrcaHooks } from '../../../../../shared/workspace-
 import type { PersistedUIState } from '../../../../../shared/orca-profiles/persisted-ui-state-types'
 import type {
   ActivityBarPosition,
-  TaskViewPresetId,
   TopLevelView,
-  VisibleWorkspaceHostIds,
-  StatusBarItem
+  VisibleWorkspaceHostIds
 } from '../../../../../shared/ui-chrome/ui-chrome-types'
 
 import {
@@ -16,11 +14,10 @@ import {
   WORKSPACE_CLEANUP_CLASSIFIER_VERSION
 } from '../../../../../shared/workspace-cleanup/workspace-cleanup'
 import { isTopLevelView } from '../../../../../shared/ui-chrome/top-level-view'
-import { AGENT_STATUS_HYDRATE_MAX_AGE_MS } from '../../../../../shared/agent-status/contracts/agent-status-freshness'
+import { isWebClientLocation } from '@/app-shell/platform/web-client-location'
 import { resolveVisibleWorkspaceHostIds } from '../../../../../shared/workspace-view/workspace-host-visibility'
 import { persistedUIValuesEqual } from '../../../../../shared/collections/persisted-ui-equality'
 import '../../../../../shared/orca-profiles/constants'
-import { DEFAULT_STATUS_BAR_ITEMS } from '../../../../../shared/status-bar/status-bar-defaults'
 import type { UISlice } from './ui-slice-contract'
 
 const MIN_SIDEBAR_WIDTH = 220
@@ -113,32 +110,31 @@ export function sanitizeActivityBarPosition(position: unknown): ActivityBarPosit
   return position === 'side' ? 'side' : 'top'
 }
 
-export function sanitizePaneKeyTimestampRecord(
-  value: unknown,
-  maxAgeMs: number = AGENT_STATUS_HYDRATE_MAX_AGE_MS
-): Record<string, number> {
+// Agent rows hydrate at any age (structured chats, and terminal panes still placed), so pane-keyed
+// read state is never age-pruned; the newest entries bound growth instead.
+const PANE_KEY_TIMESTAMP_MAX_ENTRIES = 500
+
+export function sanitizePaneKeyTimestampRecord(value: unknown): Record<string, number> {
   if (value === null || typeof value !== 'object' || Array.isArray(value)) {
     return {}
   }
-  const cutoff = Date.now() - maxAgeMs
   const out: Record<string, number> = {}
-  for (const [key, ackAt] of Object.entries(value as Record<string, unknown>)) {
+  for (const [key, at] of Object.entries(value as Record<string, unknown>)) {
     if (!isSafePersistedRecordKey(key)) {
       continue
     }
-    if (typeof ackAt !== 'number' || !Number.isFinite(ackAt) || ackAt <= 0 || ackAt < cutoff) {
+    if (typeof at !== 'number' || !Number.isFinite(at) || at <= 0) {
       continue
     }
-    out[key] = ackAt
+    out[key] = at
   }
-  return out
-}
-
-export const sanitizeAcknowledgedAgentsByPaneKey = sanitizePaneKeyTimestampRecord
-
-/** Cutoffs trail status receipt times; double the status TTL so pruning cannot resurrect a cleared entry still retained by main. */
-export function sanitizeActivityClearedAtByPaneKey(value: unknown): Record<string, number> {
-  return sanitizePaneKeyTimestampRecord(value, 2 * AGENT_STATUS_HYDRATE_MAX_AGE_MS)
+  const entries = Object.entries(out)
+  if (entries.length <= PANE_KEY_TIMESTAMP_MAX_ENTRIES) {
+    return out
+  }
+  return Object.fromEntries(
+    entries.toSorted(([, left], [, right]) => right - left).slice(0, PANE_KEY_TIMESTAMP_MAX_ENTRIES)
+  )
 }
 
 export function sanitizeWorkspaceCleanupDismissals(
@@ -177,20 +173,39 @@ export function sanitizeWorkspaceCleanupDismissals(
   return out
 }
 
-export function sanitizeHydratedActiveView(value: PersistedUIState['activeView']): TopLevelView {
+export function sanitizeHydratedActiveView(
+  value: PersistedUIState['activeView'],
+  webClient = isWebClientLocation()
+): TopLevelView {
   // Why: older data (pre-activeView) or a view a different build doesn't have falls back to terminal rather than rendering nothing.
   if (!isTopLevelView(value)) {
+    return 'terminal'
+  }
+  // Why: a paired web client reads the desktop's last view, but plugins run only in the desktop app.
+  if (value === 'plugins' && webClient) {
     return 'terminal'
   }
   return value
 }
 
-export function hydratedUIPartialMatchesState(
-  state: AppState,
-  hydrated: Partial<UISlice>
-): boolean {
+/**
+ * Swaps each hydrated value that equals state's for state's own reference. Every write echoes the
+ * whole UI back, so unchanged fields must not wake their readers. Run it before capturing the
+ * write baseline so the writer's identity and JSON comparisons see kept fields as saved.
+ */
+export function keepUnchangedHydratedFields(state: AppState, hydrated: Partial<UISlice>): void {
+  const fields = hydrated as Record<string, unknown>
+  for (const [key, value] of Object.entries(fields)) {
+    const current = state[key as keyof AppState]
+    if (!Object.is(current, value) && persistedUIValuesEqual(current, value)) {
+      fields[key] = current
+    }
+  }
+}
+
+export function hydratedFieldsAreState(state: AppState, hydrated: Partial<UISlice>): boolean {
   return Object.entries(hydrated).every(([key, value]) =>
-    persistedUIValuesEqual(state[key as keyof AppState], value)
+    Object.is(state[key as keyof AppState], value)
   )
 }
 
@@ -208,36 +223,6 @@ export function clampPetSize(
     return defaults.fallback
   }
   return Math.max(defaults.min, Math.min(defaults.max, Math.round(size)))
-}
-
-export function presetToQuery(presetId: TaskViewPresetId | null): string {
-  switch (presetId) {
-    case 'all':
-    case 'issues':
-      return 'is:issue is:open'
-    case 'my-issues':
-      return 'assignee:@me is:issue is:open'
-    case 'prs':
-      return 'is:pr is:open'
-    case 'review':
-      return 'review-requested:@me is:pr is:open'
-    case 'my-prs':
-      return 'author:@me is:pr is:open'
-    case null:
-      return 'is:issue is:open'
-  }
-}
-
-export function migrateStatusBarItems(items: readonly string[] | undefined): StatusBarItem[] {
-  const source = items ?? DEFAULT_STATUS_BAR_ITEMS
-  const out: string[] = []
-  for (const id of source) {
-    const mapped = id === 'memory' || id === 'sessions' ? 'resource-usage' : id
-    if (!out.includes(mapped)) {
-      out.push(mapped)
-    }
-  }
-  return out as StatusBarItem[]
 }
 
 export function hydrateUnexpectedSignoutDismissal(
@@ -267,5 +252,37 @@ export function sanitizePerWorktreePreferences(
     showDotfilesByWorktree: sanitizeShowDotfilesByWorktree(ui.showDotfilesByWorktree),
     // Same persisted shape as the dotfile map: a per-worktree boolean opt-in record.
     notificationsMutedByWorktree: sanitizeShowDotfilesByWorktree(ui.notificationsMutedByWorktree)
+  }
+}
+
+export function sanitizeActivityBarArrangement(
+  ui: {
+    activityBarOrder?: unknown
+    activityBarBotOrder?: unknown
+    activityBarHidden?: unknown
+    activityBarPosition?: unknown
+  },
+  current: {
+    activityBarOrder: string[]
+    activityBarBotOrder: string[]
+    activityBarHidden: string[]
+  }
+): {
+  activityBarOrder: string[]
+  activityBarBotOrder: string[]
+  activityBarHidden: string[]
+  activityBarPosition: ActivityBarPosition
+} {
+  const strings = (value: unknown): string[] =>
+    Array.isArray(value) ? value.filter((id): id is string => typeof id === 'string') : []
+  return {
+    activityBarPosition: sanitizeActivityBarPosition(ui.activityBarPosition),
+    activityBarOrder:
+      preserveStringArrayIdentity(current.activityBarOrder, strings(ui.activityBarOrder)) ?? [],
+    activityBarBotOrder:
+      preserveStringArrayIdentity(current.activityBarBotOrder, strings(ui.activityBarBotOrder)) ??
+      [],
+    activityBarHidden:
+      preserveStringArrayIdentity(current.activityBarHidden, strings(ui.activityBarHidden)) ?? []
   }
 }

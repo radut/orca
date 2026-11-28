@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { FlatList, StyleSheet, Text, View } from 'react-native'
 
-import { colors, radii, spacing } from '../../theme/mobile-theme'
-import { themedStyleSheet } from '../../theme/themed-styles'
+import { radii, spacing } from '../../theme/mobile-theme'
+import { themedStyleSheet, useThemedStyles } from '../../theme/themed-styles'
 import { useMobileColorScheme } from '../../theme/use-mobile-color-scheme'
 import { BottomDrawer } from '../bottom-drawer/BottomDrawer'
 import { BOTTOM_DRAWER_HIDE_DURATION_MS } from '../bottom-drawer/bottom-drawer-constants'
@@ -45,6 +45,7 @@ export function PickerListDrawer<T extends PickerListItem>({
   renderIcon,
   search
 }: Props<T>) {
+  const styles = useThemedStyles(stylesSheet)
   const colorScheme = useMobileColorScheme()
   const [closing, setClosing] = useState(false)
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -136,16 +137,16 @@ export function PickerListDrawer<T extends PickerListItem>({
 }
 
 function PickerSeparator() {
-  useMobileColorScheme()
+  const styles = useThemedStyles(stylesSheet)
   return <View style={styles.separator} />
 }
 
 function PickerIconSeparator() {
-  useMobileColorScheme()
+  const styles = useThemedStyles(stylesSheet)
   return <View style={[styles.separator, styles.separatorIcon]} />
 }
 
-const styles = themedStyleSheet(() => ({
+const stylesSheet = themedStyleSheet((colors) => ({
   header: {
     marginTop: -spacing.xs
   },

@@ -36,6 +36,7 @@ export type NewWorkspaceProjectOption =
       projectId: string
       displayName: string
       badgeColor: string
+      repo?: Repo
       detail: string
       checkout?: NewWorkspaceProjectCheckout
       /** Hosts the row is set up on, so a search can name one ("host project"). */
@@ -110,13 +111,15 @@ export function buildNewWorkspaceProjectOptions(
   const liveHostIds = input.hosts ? new Set(input.hosts.map((host) => host.id)) : null
   const groupingIndex = buildProjectGroupingIndex({ projects, projectHostSetups })
   const readySetupCountsByProjectId = new Map<string, number>()
+  const representativeRepoByProjectId = new Map<string, Repo>()
   const setupDirectoriesByProjectId = new Map<string, ProjectSetupDirectory[]>()
   const checkoutSetups: ProjectHostSetup[] = []
 
   for (const setup of projectHostSetups) {
+    const eligibleRepo = eligibleRepoById.get(setup.repoId)
     if (
       setup.setupState !== 'ready' ||
-      !eligibleRepoById.has(setup.repoId) ||
+      !eligibleRepo ||
       (liveHostIds && !liveHostIds.has(setup.hostId))
     ) {
       continue
@@ -130,6 +133,10 @@ export function buildNewWorkspaceProjectOptions(
       setup.projectId,
       (readySetupCountsByProjectId.get(setup.projectId) ?? 0) + 1
     )
+    const existingRepresentative = representativeRepoByProjectId.get(setup.projectId)
+    if (!existingRepresentative || setup.hostId === LOCAL_EXECUTION_HOST_ID) {
+      representativeRepoByProjectId.set(setup.projectId, eligibleRepo)
+    }
     const directories = setupDirectoriesByProjectId.get(setup.projectId) ?? []
     directories.push({ path: setup.path, hostId: setup.hostId })
     setupDirectoriesByProjectId.set(setup.projectId, directories)
@@ -143,6 +150,7 @@ export function buildNewWorkspaceProjectOptions(
       projectId: project.id,
       displayName: project.displayName,
       badgeColor: project.badgeColor,
+      repo: representativeRepoByProjectId.get(project.id),
       detail: getProjectDetail(project, readySetupCountsByProjectId.get(project.id) ?? 0),
       hostLabels: (setupDirectoriesByProjectId.get(project.id) ?? []).map((directory) =>
         getSetupHostLabel(directory.hostId, hostLabelById)
@@ -159,14 +167,16 @@ export function buildNewWorkspaceProjectOptions(
   const projectById = new Map(projects.map((project) => [project.id, project]))
   const checkoutOptions = checkoutSetups.flatMap((setup) => {
     const project = projectById.get(setup.projectId)
+    const checkoutRepo = eligibleRepoById.get(setup.repoId)
     return project
       ? [
           {
             kind: 'project' as const,
             id: getProjectCheckoutOptionId(setup),
             projectId: project.id,
-            displayName: eligibleRepoById.get(setup.repoId)?.displayName || setup.displayName,
+            displayName: checkoutRepo?.displayName || setup.displayName,
             badgeColor: project.badgeColor,
+            repo: checkoutRepo,
             detail: getCheckoutDetail(setup, hostLabelById),
             hostLabels: [getSetupHostLabel(setup.hostId, hostLabelById)],
             checkout: { projectHostSetupId: setup.id, hostId: setup.hostId, repoId: setup.repoId }
