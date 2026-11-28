@@ -56,7 +56,7 @@ export function createAppUpdateChecker(deps: AppUpdateCheckerDeps) {
       deps.source &&
       latest &&
       deps.installedVersion &&
-      isNewerReleaseVersion(latest.version, deps.installedVersion)
+      (deps.source.isNewer ?? isNewerReleaseVersion)(latest.version, deps.installedVersion)
         ? latest
         : null
     return {
