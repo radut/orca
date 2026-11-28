@@ -47,6 +47,7 @@ import type { PinnedWorktreeDisplayPolicy, Row, WorktreeGroupBy } from '../row-t
 import type { SidebarFeedWindowExtras } from '../sidebar-feed-extras'
 import type { SidebarFeedDomains } from './sidebar-feed-domains'
 import { planSidebarRows } from '../sidebar-row-plan'
+import { listPendingFeedCreations } from './sidebar-feed-pending-creations'
 import { getHiddenMainCheckouts } from '../selection/hidden-main-checkouts'
 import type { FeedLineagePolicy } from './sidebar-feed-lineage-parents'
 import type { WorkspaceSortBy as SortBy } from '../../workspace-view/workspace-row-sort'
@@ -199,11 +200,7 @@ export function planSidebarFeedRows(
     defaultHostId
   )
   const listed = new Set(workspaces.map((entry) => entry.worktree.id))
-  const pendingCreations = [...domains.creations].flatMap(([creationId, creation]) =>
-    creation.worktreeId !== undefined && listed.has(creation.worktreeId)
-      ? []
-      : [{ creationId, repoId: creation.repoId }]
-  )
+  const pendingCreations = listPendingFeedCreations(domains.creations, listed)
   const hostOptions = buildFeedHostOptions(domains, repos, view)
   const placeholderRepoIds = getEmptyProjectPlaceholderRepoIds({
     groupBy,
