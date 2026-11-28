@@ -774,7 +774,8 @@
       "attachFailed": "Eklenemedi",
       "disconnected": "Eklenemedi (bağlantı yok)",
       "imageTooLarge": "Görsel eklenemeyecek kadar büyük",
-      "permissionDenied": "Fotoğraf erişim izni reddedildi"
+      "permissionDenied": "Fotoğraf erişim izni reddedildi",
+      "cameraPermissionDenied": "Kamera izni reddedildi"
     },
     "textAttachmentPreview": {
       "unreadableReply": "Ek yanıtı okunamıyor. Tekrar deneyin.",
@@ -3630,7 +3631,8 @@
       "attachFailed": "Eklenemedi",
       "disconnected": "Eklenemedi (bağlantı kesildi)",
       "imageTooLarge": "Görsel eklenemeyecek kadar büyük",
-      "permissionDenied": "Fotoğraflara erişim izni reddedildi"
+      "permissionDenied": "Fotoğraflara erişim izni reddedildi",
+      "cameraPermissionDenied": "Kamera izni reddedildi"
     },
     "useMarkdownActions": {
       "copyFailed": "Kopyalanamadı",
@@ -3851,6 +3853,14 @@
       "unreachable": "{{agent}} ajanının sohbeti henüz kullanılamıyor. Birazdan tekrar deneyin.",
       "paneUnavailable": "Ajanın bölmesi artık kullanılamıyor."
     },
+    "nativeChatAddContext": {
+      "title": "Bağlam ekle",
+      "photos": "Fotoğraflar",
+      "attachSelected": "Ekle ({{count}})",
+      "camera": "Kamera",
+      "choosePhotos": "Fotoğraf seç",
+      "recentPhoto": "Son fotoğraf"
+    },
     "nativeChatView": {
       "linkedMessageMissing": "Bu mesaj bulunamadı.",
       "loading": "Konuşma yükleniyor…"
@@ -3952,7 +3962,8 @@
       "yes": "Evet"
     },
     "terminalInputActions": {
-      "attach": "Fotoğraf veya dosya ekle"
+      "attach": "Fotoğraf veya dosya ekle",
+      "takePhoto": "Fotoğraf çek"
     },
     "sidebar": {
       "backTo": "{{title}} sayfasına dön",

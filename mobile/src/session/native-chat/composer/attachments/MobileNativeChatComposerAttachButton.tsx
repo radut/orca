@@ -1,44 +1,29 @@
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import { ActivityIndicator, Keyboard, Pressable } from 'react-native'
-import {
-  AtSign,
-  Goal,
-  Image,
-  Package,
-  Paperclip,
-  PencilRuler,
-  Plus,
-  Terminal
-} from 'lucide-react-native'
-import { spacing } from '../../../../theme/mobile-theme'
-import { themedStyleSheet, useThemedStyles } from '../../../../theme/themed-styles'
+import { Plus } from 'lucide-react-native'
+import { useThemedStyles } from '../../../../theme/themed-styles'
 import { useMobileColors } from '../../../../theme/use-mobile-color-scheme'
 import { useMobileTranslation } from '../../../../i18n/use-mobile-translation'
-import { BottomDrawer } from '../../../../components/bottom-drawer/BottomDrawer'
-import { SheetHeader } from '../../../../components/nav-bar/SheetHeader'
-import { LIST_LEADING_INSET, ListGroup, ListRow } from '../../../../components/list/ListGroup'
-import { MobileSwitch } from '../../../../components/controls/MobileSwitch'
+import { mobileNativeChatAttachActions } from './mobile-native-chat-attach-actions'
+import { MobileNativeChatAddContextSheet } from './MobileNativeChatAddContextSheet'
+import {
+  MobileNativeChatAddContextRows,
+  type MobileNativeChatAddSheet,
+  type MobileNativeChatPlanSwitch
+} from './MobileNativeChatAddContextRows'
+import type {
+  AddContextChoice,
+  MobileComposerImagePick
+} from '../../../../platform/media-picking/media-picker-contract'
+import { useMediaPicker } from '../../../../platform/media-picking/media-picker'
 import {
   COMPOSER_CONTROL_HIT_SLOP,
   composerInputStylesSheet as inputStylesSheet
 } from '../../../../components/composer-input/composer-input-styles'
 
-/** Plan mode as the + sheet's switch; absent where the chat has none. */
-export type MobileNativeChatPlanSwitch = {
-  on: boolean
-  disabled: boolean
-  set: (on: boolean) => Promise<unknown>
-}
-
-type AddSheet = {
-  openFileMenu: () => void
-  openSlashMenu: (kind: 'skill' | 'command') => void
-  skillCount: number
-}
-
-/** The composer's + button: the add-to-message sheet in a structured chat, else the photo library. */
+/** The composer's + button: opens the Add context sheet (photos, camera, files and, in a structured chat, workspace context). */
 export function MobileNativeChatComposerAttachButton({
-  onAttachImage,
+  onAttachImages,
   onAttachFiles,
   structured,
   isAttaching,
@@ -47,13 +32,13 @@ export function MobileNativeChatComposerAttachButton({
   plan,
   onGoal
 }: {
-  onAttachImage: (() => void) | undefined
+  onAttachImages: ((pick: MobileComposerImagePick) => void) | undefined
   onAttachFiles: (() => void) | undefined
   structured: boolean
   isAttaching: boolean
   disabled: boolean
-  /** A structured chat's add-to-message sheet; without it the button opens the photo library. */
-  menu?: AddSheet
+  /** The composer's add-to-message menus; without them the button opens the photo library. */
+  menu?: MobileNativeChatAddSheet
   plan?: MobileNativeChatPlanSwitch
   /** Enters goal mode; absent while it is on or where the chat has none. */
   onGoal?: (() => void) | undefined
@@ -61,13 +46,53 @@ export function MobileNativeChatComposerAttachButton({
   const inputStyles = useThemedStyles(inputStylesSheet)
   const colors = useMobileColors()
   const t = useMobileTranslation()
+  const picker = useMediaPicker()
   const [attachOpen, setAttachOpen] = useState(false)
-  // A terminal-backed chat has only photos to add, so its + opens the library at once.
-  const sheet = structured ? menu : undefined
-  const open = sheet ? () => setAttachOpen(true) : onAttachImage
-  if (!open) {
+  // Without a menu (an item comment) the + adds photos only, so it opens the library at once.
+  if (!onAttachImages && !(structured && menu)) {
     return null
   }
+  const sheet = structured ? menu : undefined
+  const run = (choice: AddContextChoice): void => {
+    if (choice.choice === 'recent') {
+      if (onAttachImages) {
+        onAttachImages({ recentPhotos: choice.images, release: choice.release })
+      } else {
+        choice.release()
+      }
+    } else if (choice.choice === 'camera' || choice.choice === 'photos') {
+      onAttachImages?.(choice.choice === 'camera' ? 'camera' : 'library')
+    } else if (choice.choice === 'files') {
+      onAttachFiles?.()
+    } else if (choice.choice === 'workspaceFile') {
+      sheet?.openFileMenu()
+    } else if (choice.choice === 'skills' || choice.choice === 'commands') {
+      sheet?.openSlashMenu(choice.choice === 'skills' ? 'skill' : 'command')
+    } else if (choice.choice === 'planOn' || choice.choice === 'planOff') {
+      void plan?.set(choice.choice === 'planOn')
+    } else if (choice.choice === 'goal') {
+      onGoal?.()
+    }
+  }
+  // On the served page the shell draws the sheet, so the photo library never reaches the page.
+  const { openAddContext, recentPhotos: library } = picker
+  const openSheet = openAddContext
+    ? () => {
+        const options = {
+          images: onAttachImages !== undefined,
+          files: onAttachFiles !== undefined,
+          structured: sheet !== undefined,
+          skillCount: sheet?.skillCount ?? 0,
+          ...(plan && !plan.disabled ? { plan: plan.on } : {}),
+          ...(onGoal ? { goal: true } : {})
+        }
+        openAddContext(options).then(run, (error: unknown) => {
+          console.warn('[add-context] the shell sheet failed; drawing it in the page', error)
+          setAttachOpen(true)
+        })
+      }
+    : () => setAttachOpen(true)
+  const open = menu ? openSheet : () => onAttachImages?.('library')
   const attachPress = () => {
     Keyboard.dismiss()
     open()
@@ -76,7 +101,7 @@ export function MobileNativeChatComposerAttachButton({
     <>
       <Pressable
         accessibilityLabel={
-          sheet
+          menu
             ? t('chat.composer.addToMessage', 'Add to message')
             : t('chat.composer.attachImage', 'Attach image')
         }
@@ -91,146 +116,25 @@ export function MobileNativeChatComposerAttachButton({
           <Plus size={19} color={colors.textPrimary} strokeWidth={2} />
         )}
       </Pressable>
-      {sheet ? (
-        <AddToMessageSheet
+      {menu ? (
+        <MobileNativeChatAddContextSheet
           visible={attachOpen}
           onClose={() => setAttachOpen(false)}
-          sheet={sheet}
-          onPhotos={onAttachImage}
-          onFiles={onAttachFiles}
-          plan={plan}
-          onGoal={onGoal}
-        />
+          onPhotos={onAttachImages && (() => onAttachImages('library'))}
+          onCamera={onAttachImages && (() => onAttachImages('camera'))}
+          library={library}
+          onRecentPhotos={
+            onAttachImages && library
+              ? (ids) => onAttachImages({ recentPhotos: library.pick(ids), release: () => {} })
+              : undefined
+          }
+          actions={mobileNativeChatAttachActions({ onFiles: onAttachFiles, t })}
+        >
+          {(closeThen) => (
+            <MobileNativeChatAddContextRows {...{ sheet, plan, onGoal, closeThen }} />
+          )}
+        </MobileNativeChatAddContextSheet>
       ) : null}
     </>
   )
 }
-
-function AddToMessageSheet({
-  visible,
-  onClose,
-  sheet,
-  onPhotos,
-  onFiles,
-  plan,
-  onGoal
-}: {
-  visible: boolean
-  onClose: () => void
-  sheet: AddSheet
-  onPhotos: (() => void) | undefined
-  onFiles: (() => void) | undefined
-  plan: MobileNativeChatPlanSwitch | undefined
-  onGoal: (() => void) | undefined
-}): React.JSX.Element {
-  const styles = useThemedStyles(stylesSheet)
-  const colors = useMobileColors()
-  const t = useMobileTranslation()
-  const [planPending, setPlanPending] = useState<boolean | null>(null)
-  // Pickers wait for the sheet to go: iOS cannot present them over its Modal.
-  const afterCloseRef = useRef<(() => void) | null>(null)
-  const closeThen = (action: () => void) => () => {
-    afterCloseRef.current = action
-    onClose()
-  }
-  const icon = (Icon: typeof Image) => <Icon size={16} color={colors.textSecondary} />
-  const planOn = planPending ?? plan?.on === true
-  const setPlan = (on: boolean) => {
-    if (!plan || planPending !== null) {
-      return
-    }
-    setPlanPending(on)
-    void plan.set(on).finally(() => setPlanPending(null))
-  }
-  const planLabel = t('session.nativeChatAttachActions.plan', 'Plan first')
-  return (
-    <BottomDrawer
-      visible={visible}
-      onClose={onClose}
-      onAfterClose={() => {
-        const run = afterCloseRef.current
-        afterCloseRef.current = null
-        run?.()
-      }}
-      dragContentToDismiss
-    >
-      <SheetHeader title={t('chat.composer.addToMessage', 'Add to message')} onClose={onClose} />
-      {onPhotos || onFiles ? (
-        <ListGroup separatorInset={LIST_LEADING_INSET} style={styles.group}>
-          {onPhotos ? (
-            <ListRow
-              key="photos"
-              title={t('session.nativeChatAttachActions.photos', 'Photos')}
-              leading={icon(Image)}
-              onPress={closeThen(onPhotos)}
-            />
-          ) : null}
-          {onFiles ? (
-            <ListRow
-              key="files"
-              title={t('session.nativeChatAttachActions.files', 'Files')}
-              leading={icon(Paperclip)}
-              onPress={closeThen(onFiles)}
-            />
-          ) : null}
-        </ListGroup>
-      ) : null}
-      <ListGroup separatorInset={LIST_LEADING_INSET} style={styles.group}>
-        <ListRow
-          key="workspaceFile"
-          title={t('session.nativeChatAttachActions.workspaceFile', 'Workspace file')}
-          leading={icon(AtSign)}
-          navigates
-          onPress={closeThen(sheet.openFileMenu)}
-        />
-        <ListRow
-          key="skills"
-          title={t('session.nativeChatAttachActions.skills', 'Skills')}
-          leading={icon(Package)}
-          {...(sheet.skillCount > 0 ? { value: String(sheet.skillCount) } : {})}
-          navigates
-          onPress={closeThen(() => sheet.openSlashMenu('skill'))}
-        />
-        <ListRow
-          key="commands"
-          title={t('session.nativeChatAttachActions.commands', 'Commands')}
-          leading={icon(Terminal)}
-          navigates
-          onPress={closeThen(() => sheet.openSlashMenu('command'))}
-        />
-      </ListGroup>
-      {plan || onGoal ? (
-        <ListGroup separatorInset={LIST_LEADING_INSET} style={styles.group}>
-          {plan ? (
-            <ListRow
-              key="plan"
-              title={planLabel}
-              leading={icon(PencilRuler)}
-              accessory={
-                <MobileSwitch
-                  value={planOn}
-                  disabled={plan.disabled || planPending !== null}
-                  accessibilityLabel={planLabel}
-                  onValueChange={setPlan}
-                />
-              }
-            />
-          ) : null}
-          {onGoal ? (
-            <ListRow
-              key="goal"
-              title={t('session.nativeChatAttachActions.goal', 'Set a goal')}
-              leading={icon(Goal)}
-              navigates
-              onPress={closeThen(onGoal)}
-            />
-          ) : null}
-        </ListGroup>
-      ) : null}
-    </BottomDrawer>
-  )
-}
-
-const stylesSheet = themedStyleSheet(() => ({
-  group: { marginTop: spacing.lg }
-}))
