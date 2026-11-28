@@ -33,13 +33,14 @@ import { LazyEditorFileTabContextMenu } from './editor-file-tab-context-menu-laz
 import { useTranslate } from '@/i18n/use-translate'
 import { TAB_LABEL_WIDTH_CLASSES } from '../strip/tab-width-rules'
 import { useTabStripSlotProps } from '../strip/use-tab-strip-slot-props'
-import { EditorFileTabCloseButton } from './EditorFileTabCloseButton'
+import { EditorFileTabTrailingSlot } from './EditorFileTabCloseButton'
 import { useTabStripPointerActivation } from '../strip/tab-strip-pointer-activation'
 import { useTabContextMenuOpening } from '../strip/tab-context-menu-opening'
 import { editorTabDocumentFolderAccess } from '@/lib/files/access/local-file-access'
 import { useTabCustomEditor } from '@/store/plugins/file-editors/plugin-custom-editors'
 import { PluginContributionIcon } from '../../plugins/PluginContributionIcon'
 import type { EditorFileTabProps } from './editor-file-tab-props'
+import { TabShortcutDigitBadge } from '../strip/TabShortcutDigitBadge'
 
 export default function EditorFileTab({
   file,
@@ -350,19 +351,12 @@ export default function EditorFileTab({
           </span>
         )}
       </span>
-      {/* Share one dot/close slot so autosave cannot change tab width. */}
-      <div className="relative flex items-center justify-center w-4 h-4 shrink-0">
-        {file.isDirty && (
-          <span className="absolute size-1.5 rounded-full bg-foreground/60 group-hover:hidden group-focus-within:hidden" />
-        )}
-        {!isPinned && (
-          <EditorFileTabCloseButton
-            fileIsDirty={file.isDirty}
-            showsSelectionChrome={isActive}
-            onClose={onClose}
-          />
-        )}
-      </div>
+      <EditorFileTabTrailingSlot
+        fileIsDirty={file.isDirty}
+        isPinned={isPinned}
+        showsSelectionChrome={isActive}
+        onClose={onClose}
+      />
     </div>
   )
 
@@ -376,6 +370,7 @@ export default function EditorFileTab({
             handleMenuOpenChange(true)
           }}
         >
+          <TabShortcutDigitBadge tabId={file.tabId ?? file.id} />
           {isRenaming || menuOpen ? (
             tabRoot
           ) : (
