@@ -5,7 +5,6 @@ import type { PersistedTrustedOrcaHooks } from '../../../../../shared/workspace-
 import type { PersistedUIState } from '../../../../../shared/orca-profiles/persisted-ui-state-types'
 import type {
   ActivityBarPosition,
-  TaskViewPresetId,
   TopLevelView,
   VisibleWorkspaceHostIds
 } from '../../../../../shared/ui-chrome/ui-chrome-types'
@@ -15,6 +14,7 @@ import {
   WORKSPACE_CLEANUP_CLASSIFIER_VERSION
 } from '../../../../../shared/workspace-cleanup/workspace-cleanup'
 import { isTopLevelView } from '../../../../../shared/ui-chrome/top-level-view'
+import { isWebClientLocation } from '@/app-shell/platform/web-client-location'
 import { resolveVisibleWorkspaceHostIds } from '../../../../../shared/workspace-view/workspace-host-visibility'
 import { persistedUIValuesEqual } from '../../../../../shared/collections/persisted-ui-equality'
 import { NO_WORKSPACE_ROW_FILTERS } from '../../../../../shared/workspace-view/workspace-row-filters'
@@ -174,9 +174,16 @@ export function sanitizeWorkspaceCleanupDismissals(
   return out
 }
 
-export function sanitizeHydratedActiveView(value: PersistedUIState['activeView']): TopLevelView {
+export function sanitizeHydratedActiveView(
+  value: PersistedUIState['activeView'],
+  webClient = isWebClientLocation()
+): TopLevelView {
   // Why: older data (pre-activeView) or a view a different build doesn't have falls back to terminal rather than rendering nothing.
   if (!isTopLevelView(value)) {
+    return 'terminal'
+  }
+  // Why: a paired web client reads the desktop's last view, but plugins run only in the desktop app.
+  if (value === 'plugins' && webClient) {
     return 'terminal'
   }
   return value
@@ -217,24 +224,6 @@ export function clampPetSize(
     return defaults.fallback
   }
   return Math.max(defaults.min, Math.min(defaults.max, Math.round(size)))
-}
-
-export function presetToQuery(presetId: TaskViewPresetId | null): string {
-  switch (presetId) {
-    case 'all':
-    case 'issues':
-      return 'is:issue is:open'
-    case 'my-issues':
-      return 'assignee:@me is:issue is:open'
-    case 'prs':
-      return 'is:pr is:open'
-    case 'review':
-      return 'review-requested:@me is:pr is:open'
-    case 'my-prs':
-      return 'author:@me is:pr is:open'
-    case null:
-      return 'is:issue is:open'
-  }
 }
 
 export function hydrateUnexpectedSignoutDismissal(
