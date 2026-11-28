@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
-import { AccessibilityInfo, Keyboard, Platform, View } from 'react-native'
+import { Keyboard, View } from 'react-native'
 import { Clock } from 'lucide-react-native'
 import { BottomDrawer } from '../../../../components/bottom-drawer/BottomDrawer'
 import { ListGroup, LIST_LEADING_INSET, SectionHeader } from '../../../../components/list/ListGroup'
 import { SheetHeader } from '../../../../components/nav-bar/SheetHeader'
-import { translate, type Translate } from '../../../../i18n/mobile-i18n'
+import type { Translate } from '../../../../i18n/mobile-i18n'
 import { useMobileTranslation } from '../../../../i18n/use-mobile-translation'
 import { useMoreModelsShown } from './use-more-models-shown'
 import {
@@ -23,6 +23,7 @@ import {
   nativeChatSessionOptionDisabledReason,
   nativeChatSessionOptionLabel
 } from '../../../../../../src/shared/native-chat/input/session-options/native-chat-session-option-labels'
+import { hasNativeChatTurnOptionPick } from '../../../../../../src/shared/native-chat/input/session-options/native-chat-turn-option-picks'
 import { mobileNativeChatSessionOptionSay } from './native-chat-session-option-copy'
 import {
   mobileDeferredPermissionSummary,
@@ -34,7 +35,6 @@ import {
   descriptorRowElements,
   ModelPill,
   SessionOptionCaption,
-  SessionOptionLockCaption,
   SessionOptionSummaryRow,
   showsSessionOptionAsSwitch
 } from './MobileNativeChatSessionOptionRows'
@@ -61,8 +61,6 @@ const SESSION_OPTIONS_HOME = '\u0000options'
 
 export type MobileNativeChatSessionOptionPickersProps = {
   controller: MobileNativeChatSessionOptionsController
-  // Mid-turn terminal model commands would interleave with agent output.
-  isWorking: boolean
   // Block applies during composer send: the host’s body/Enter delay could submit the setting as prompt text.
   sendInFlight?: boolean
 }
@@ -79,7 +77,6 @@ type PresentationProps = {
 
 export function MobileNativeChatSessionOptionPickers({
   controller,
-  isWorking,
   sendInFlight = false,
   title,
   context,
@@ -135,37 +132,19 @@ export function MobileNativeChatSessionOptionPickers({
   const searchSheet = searchLayout.search
   const modelSearchView =
     searchSheet && activeDescriptor !== undefined && activeDescriptor === model
-  // Permission mode and structured picks apply to the next send, so only the rest lock mid-turn.
-  const locksMidTurn = (descriptor: SessionOptionDescriptor | undefined): boolean =>
-    descriptor !== undefined &&
-    descriptor !== permission &&
-    descriptor.transport !== 'agent-session'
   const options = sortNativeChatSessionOptions(snapshot).filter(
     (descriptor) => descriptor !== model && descriptor !== permission
   )
   const homeRows = [...(model ? [model] : []), ...options]
-  const showWorkingNotice =
-    isWorking && (homeView ? homeRows.some(locksMidTurn) : locksMidTurn(activeDescriptor))
-
-  useEffect(() => {
-    if (Platform.OS === 'ios' && showWorkingNotice) {
-      // Queued announcements cannot be canceled when the picker closes or changes pages.
-      AccessibilityInfo.announceForAccessibilityWithOptions(
-        translate(
-          'chat.sessionOptionPickers.workingAnnouncement',
-          'Agent is working. Model settings unlock when this turn finishes.'
-        ),
-        { queue: false }
-      )
-    }
-  }, [showWorkingNotice])
+  const turnPick = hasNativeChatTurnOptionPick(snapshot)
 
   if (!model && !permission && options.length === 0) {
     return null
   }
   const busy = pendingId !== null || sendInFlight
-  const locked = (descriptor: SessionOptionDescriptor): boolean =>
-    busy || (isWorking && locksMidTurn(descriptor))
+  // Mid-turn picks wait for the turn to end, so only a write in flight locks the rows.
+  const locked = (): boolean => busy
+  const pageTurnPick = homeView ? turnPick : activeDescriptor?.appliesAfterTurn === true
   const reason = nativeChatSessionOptionDisabledReason(activeDescriptor?.disabledReason, say)
   // An Own chat looks like the mode its agent reports, as an explicit pick of that mode would.
   const permissionValue = mobileEffectivePermissionValue(permission)
@@ -222,7 +201,7 @@ export function MobileNativeChatSessionOptionPickers({
         primary={primary}
         warning={permissionColor !== undefined}
         icon={permissionIcon}
-        leading={controller.heldPick ? Clock : undefined}
+        leading={controller.heldPick || turnPick ? Clock : undefined}
         accessibleName={
           model
             ? permissionColor && !modelPermission
@@ -289,7 +268,7 @@ export function MobileNativeChatSessionOptionPickers({
                 {modelSearchView ? (
                   <MobileNativeChatModelSearchList
                     model={activeDescriptor}
-                    disabled={locked(activeDescriptor)}
+                    disabled={busy}
                     moreChoices={moreModels}
                     onSetOption={(value) => applyOption(activeDescriptor, value)}
                   />
@@ -298,7 +277,7 @@ export function MobileNativeChatSessionOptionPickers({
                     {descriptorRowElements(
                       {
                         descriptor: activeDescriptor,
-                        disabled: locked(activeDescriptor),
+                        disabled: busy,
                         onSetOption: (value) => applyOption(activeDescriptor, value),
                         onInvokeAction: () => invokeAction(activeDescriptor),
                         ...(activeDescriptor === model ? { moreChoices: moreModels } : {}),
@@ -313,7 +292,14 @@ export function MobileNativeChatSessionOptionPickers({
                     )}
                   </ListGroup>
                 )}
-                {showWorkingNotice ? <SessionOptionLockCaption /> : null}
+                {pageTurnPick ? (
+                  <SessionOptionCaption>
+                    {t(
+                      'chat.sessionOptionPickers.appliesAfterTurn',
+                      'Applies when this turn finishes'
+                    )}
+                  </SessionOptionCaption>
+                ) : null}
                 {sessionOptionDispatchUnconfirmed(activeDescriptor) ? (
                   <SessionOptionCaption>
                     {t(
@@ -336,7 +322,14 @@ export function MobileNativeChatSessionOptionPickers({
                     )}
                   </ListGroup>
                 ) : null}
-                {showWorkingNotice ? <SessionOptionLockCaption /> : null}
+                {turnPick ? (
+                  <SessionOptionCaption>
+                    {t(
+                      'chat.sessionOptionPickers.appliesAfterTurn',
+                      'Applies when this turn finishes'
+                    )}
+                  </SessionOptionCaption>
+                ) : null}
                 {permission ? (
                   <>
                     <SectionHeader
@@ -346,7 +339,7 @@ export function MobileNativeChatSessionOptionPickers({
                       {descriptorRowElements(
                         {
                           descriptor: permission,
-                          disabled: locked(permission),
+                          disabled: busy,
                           onSetOption: (value) => applyOption(permission, value),
                           onInvokeAction: () => invokeAction(permission),
                           choiceLeading: (value: string) => permissionChoiceLeading(colors, value)
