@@ -20,7 +20,7 @@ import type {
   GetSelectedCodexHomePath,
   PrepareCodexSessionResume
 } from '../ipc/pty/host-env/types'
-import { registerDaemonManagementHandlers } from '../ipc/pty/ipc/pty-management'
+import { registerLazyDaemonManagementHandlers } from '../ipc/pty/ipc/lazy-pty-management-ipc'
 import { registerSshHandlers } from '../ipc/ssh/ssh'
 import { browserManager } from '../browser/guest-lifecycle/manager/browser-manager'
 import {
@@ -28,6 +28,7 @@ import {
   requestSystemMediaAccess
 } from '../browser/site-settings/permissions/browser-media-access'
 import type { OrcaRuntimeService } from '../runtime/orca-runtime'
+import { hasWorkingUpdateAgents } from '../updater/lifecycle/update-agent-activity'
 import { reloadWithRendererCheckpoint } from './renderer-relays/native-unload-coordinator'
 import type { RuntimeWorktreeLifecycleEvent } from '../runtime/workspaces/lifecycle/worktree-lifecycle-event'
 import type {
@@ -82,6 +83,7 @@ export async function attachMainWindowServices(
     onBeforeUpdateQuit?: () => void | Promise<void>
     onBeforeUpdateQuitFailure?: PreQuitCleanupFailureMode
     updateInstallMode?: UpdateInstallMode
+    isServeMode?: boolean
     onWorktreeLifecycle?: (event: RuntimeWorktreeLifecycleEvent) => void
   }
 ): Promise<void> {
@@ -117,7 +119,7 @@ export async function attachMainWindowServices(
     }
   )
   // Register after PTY handlers so macOS reactivation reinstalls management IPC (docs/daemon-staleness-ux.md §Phase 1).
-  registerDaemonManagementHandlers()
+  registerLazyDaemonManagementHandlers()
   // Background git worktree list can trigger protected-folder prompts on macOS; use remembered IDs.
   scheduleHistoryGc(async () => {
     // An unknown daemon inventory keeps every session folder but still runs the rest of the GC.
@@ -162,7 +164,10 @@ export async function attachMainWindowServices(
     return getAgentSessionAttachmentStore()
   })
   registerTccPromptNoticeHandlers(mainWindow)
-  scheduleMainWindowAutoUpdaterSetup(mainWindow, nativeSettings, options)
+  scheduleMainWindowAutoUpdaterSetup(mainWindow, nativeSettings, {
+    ...options,
+    hasWorkingAgents: () => hasWorkingUpdateAgents(runtime.getAgentStatusSnapshotFn?.() ?? [])
+  })
   registerRuntimeWindowLifecycle(mainWindow, runtime)
 
   installPluginDesktopFrameServices(mainWindow, store)

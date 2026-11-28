@@ -1,5 +1,8 @@
 import type { AgentWorkingMode } from '../../../../src/shared/agent-status/contracts/agent-status-types'
 import type { RuntimeWorktreeAgentRow } from '../../../../src/shared/worktree/catalog/runtime-worktree-contracts'
+import type { WorkspaceLineage } from '../../../../src/shared/worktree/lineage-types'
+import type { Worktree } from '../workspace-list/workspace-list-types'
+import type { WorktreeCatalogSnapshot } from './worktree-catalog-snapshot-client'
 
 export type HomeWorktreeSummary = {
   worktreeId: string
@@ -46,6 +49,9 @@ export type HostWorktreeInfo = {
   workspaces?: readonly HomeWorkspaceEntry[]
   /** Every agent from this connection's latest list read. */
   agents?: readonly HomeAgentEntry[]
+  /** This connection's rows and folder records from its latest list read, for its bots' workers. */
+  rows?: readonly Worktree[]
+  workspaceLineage?: Readonly<Record<string, WorkspaceLineage>>
   /** This connection's unread rows, by worktree id. */
   unreadWorktreeIds?: readonly string[]
   /** The agents of a read the connection has since lost: what they were, not what they are. */
@@ -98,6 +104,11 @@ export type HomeWorktreeRead = {
         agents: readonly HomeAgentEntry[]
         workspaces?: readonly HomeWorkspaceEntry[]
         unreadWorktreeIds?: readonly string[]
+        catalog?: WorktreeCatalogSnapshot
+        folderRecords?: {
+          ids: string | null
+          records: Readonly<Record<string, WorkspaceLineage>> | undefined
+        }
       }
     | undefined
   dataUpdatedAt: number
@@ -131,6 +142,10 @@ export function homeWorktreeInfo(
     // Only a live read's workspaces can be opened from search.
     ...(live && data.workspaces ? { workspaces: data.workspaces } : {}),
     ...(live && data.unreadWorktreeIds ? { unreadWorktreeIds: data.unreadWorktreeIds } : {}),
+    ...(live && data.catalog ? { rows: data.catalog.worktrees } : {}),
+    ...(live && data.folderRecords?.records
+      ? { workspaceLineage: data.folderRecords.records }
+      : {}),
     ...(failed ? { catalogUnavailable: true, staleCounts: true } : {}),
     countsProvenAt: read.dataUpdatedAt
   }
