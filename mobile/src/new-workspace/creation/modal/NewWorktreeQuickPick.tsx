@@ -1,9 +1,8 @@
 import { useMemo, useState } from 'react'
 import { Pressable, Text, View } from 'react-native'
 import { useMobileTranslation } from '../../../i18n/use-mobile-translation'
-import { colors, radii, spacing } from '../../../theme/mobile-theme'
-import { themedStyleSheet } from '../../../theme/themed-styles'
-import { useMobileColorScheme } from '../../../theme/use-mobile-color-scheme'
+import { radii, spacing } from '../../../theme/mobile-theme'
+import { themedStyleSheet, useThemedStyles } from '../../../theme/themed-styles'
 import { getRepoExecutionHostId } from '../../../../../src/shared/execution-host/execution-host'
 import { HostKindIcon } from '../../../components/icons/HostKindIcon'
 import { LIST_LEADING_INSET, ListGroup, ListRow } from '../../../components/list/ListGroup'
@@ -24,7 +23,7 @@ export function NewWorktreeQuickPick(props: {
   hostLabelFor: (repo: MobileWorkspaceRepo) => string
   onPick: (repo: MobileWorkspaceRepo) => void
 }) {
-  useMobileColorScheme()
+  const styles = useThemedStyles(stylesSheet)
   const t = useMobileTranslation()
   const [query, setQuery] = useState('')
   const [hostId, setHostId] = useState<string | null>(null)
@@ -108,7 +107,7 @@ export function NewWorktreeQuickPick(props: {
   )
 }
 
-const styles = themedStyleSheet(() => ({
+const stylesSheet = themedStyleSheet((colors) => ({
   root: {
     gap: spacing.sm,
     marginBottom: spacing.sm
