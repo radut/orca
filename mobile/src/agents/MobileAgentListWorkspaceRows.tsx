@@ -1,9 +1,9 @@
 import { ChevronRight, Folder } from 'lucide-react-native'
 import { Pressable, Text, View } from 'react-native'
-import { homeListStyles as styles } from '../home/home-list-styles'
+import { homeListStylesSheet } from '../home/home-list-styles'
 import { useMobileTranslation } from '../i18n/use-mobile-translation'
-import { colors } from '../theme/mobile-theme'
-import { useMobileColorScheme } from '../theme/use-mobile-color-scheme'
+import { useThemedStyles } from '../theme/themed-styles'
+import { useMobileColors } from '../theme/use-mobile-color-scheme'
 import type { HostProfile } from '../host-catalog/host-profile'
 import { useHostDisplay } from '../host-descriptors/use-host-display'
 import type { AgentListWorkspaceMatch } from './agent-list-workspace-matches'
@@ -15,6 +15,7 @@ export function MobileAgentListWorkspaceRows(props: {
   nameDesktop: boolean
   onOpen: (match: AgentListWorkspaceMatch) => void
 }) {
+  const styles = useThemedStyles(homeListStylesSheet)
   return (
     <View style={styles.group}>
       {props.matches.map((match, index) => (
@@ -40,7 +41,8 @@ function WorkspaceRow(props: {
   onOpen: (match: AgentListWorkspaceMatch) => void
 }) {
   const t = useMobileTranslation()
-  useMobileColorScheme()
+  const colors = useMobileColors()
+  const styles = useThemedStyles(homeListStylesSheet)
   const desktop = useHostDisplay(props.host).title
   const { workspace } = props.match
   const where = [
