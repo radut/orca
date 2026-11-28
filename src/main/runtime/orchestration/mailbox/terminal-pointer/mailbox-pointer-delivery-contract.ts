@@ -10,6 +10,7 @@ import type {
   OrchestrationPointerSubmitCheck
 } from './mailbox-pointer-submit'
 import type { OrchestrationCliCommand } from '../../workers/launch/orchestration-cli-command'
+import type { AgentPromptChannel } from './mailbox-pointer-channel-submit'
 import type { WriteSettlement } from '../../../../../shared/terminal/pty/lifecycle/pty-write-settlement'
 
 export type OrchestrationMailboxPointerMessage = {
@@ -30,6 +31,8 @@ export type PointerDeliveryDependencies<TWaiter extends OrchestrationMessageWait
   /** Whether the terminal may take the pointer plus Enter now: at rest, or mid-turn (input queues). */
   isAgentSettledForDelivery: (ptyId: string) => boolean
   isPtyAwaitingUserInput: (ptyId: string) => boolean
+  /** When the person last typed into the PTY; Orca's own writes don't count. */
+  readLastDrivingInputAt?: (ptyId: string) => number | null
   getMessageWaiters: (mailboxHandle: string) => ReadonlySet<TWaiter> | undefined
   getCliCommand: (terminalHandle: string) => OrchestrationCliCommand
   resolveSubmitTarget: (ptyId: string) => OrchestrationMailboxPointerSubmitTarget | null
@@ -40,6 +43,8 @@ export type PointerDeliveryDependencies<TWaiter extends OrchestrationMessageWait
 /** How delivery writes a pointer into its PTY and times the Enter after it. */
 export type OrchestrationPointerPty = {
   writePty: (ptyId: string, data: string) => WriteSettlement | Promise<WriteSettlement>
+  /** The agent's own prompt channel; with one, mail is never typed into the terminal. */
+  resolvePromptChannel?: (terminal: OrchestrationMailboxTerminal) => AgentPromptChannel | null
   /** Enter's delay after `pointer` when the PTY's host is Windows; null keeps the default. */
   getWindowsPointerEnterDelayMs: (ptyId: string, pointer: string) => number | null
 } & OrchestrationPointerSubmitCheck
