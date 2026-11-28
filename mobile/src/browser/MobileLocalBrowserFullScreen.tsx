@@ -2,9 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { Text } from 'react-native'
 import { useMobileTranslation } from '../i18n/use-mobile-translation'
 import type { MobileLocalBrowserNetwork } from '../storage/preferences'
-import { colors } from '../theme/mobile-theme'
-import { themedStyleSheet } from '../theme/themed-styles'
-import { useMobileColorScheme } from '../theme/use-mobile-color-scheme'
+import { themedStyleSheet, useThemedStyles } from '../theme/themed-styles'
 import type { RpcClient } from '../transport/rpc/rpc-client-contract'
 import type { MobileBrowserViewMode } from './screencast/browser-screencast-request-parameters'
 import { MobileBrowserFullScreenFrame } from './MobileBrowserFullScreenFrame'
@@ -43,7 +41,7 @@ export function MobileLocalBrowserFullScreen({
   onClose,
   onStreamFromHost
 }: Props): React.JSX.Element {
-  useMobileColorScheme()
+  const styles = useThemedStyles(stylesSheet)
   const t = useMobileTranslation()
   const [toast, setToast] = useState<string | null>(null)
   const [failure, setFailure] = useState<string | null>(null)
@@ -92,7 +90,7 @@ export function MobileLocalBrowserFullScreen({
   )
 }
 
-const styles = themedStyleSheet(() => ({
+const stylesSheet = themedStyleSheet((colors) => ({
   status: {
     margin: 24,
     color: colors.textSecondary

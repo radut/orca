@@ -1,38 +1,54 @@
 import { ArrowLeftRight, Cast, MapPin, Maximize2, Minimize2 } from 'lucide-react-native'
 import type { ActionSheetAction } from '../components/sheets/ActionSheetModal'
 import { useMobileTranslation } from '../i18n/use-mobile-translation'
-import type { MobileBrowserStreamedDrawing } from './MobileBrowserDrawingButtons'
+import type { MobileBrowserDrawing } from '../storage/preferences'
 
-/** A streamed tab's ⋯ group: draw it on the phone instead (through the host or on the phone's network), and full screen. */
+export type MobileBrowserFullScreenToggle = { active: boolean; onToggle: () => void }
+
+// What a streamed tab offers when the phone can also draw it.
+export type MobileBrowserStreamedDrawing = {
+  onDrawingChange: (drawing: MobileBrowserDrawing) => void
+  fullScreen: MobileBrowserFullScreenToggle | null
+}
+
+/** The bottom bar's ⋯ group for how the tab is drawn, and full screen: the same whether it streams or the phone draws it. */
 export function useMobileBrowserDrawingMenu(
-  drawing: MobileBrowserStreamedDrawing | null
+  current: MobileBrowserDrawing,
+  offer: MobileBrowserStreamedDrawing | null
 ): ActionSheetAction[] | null {
   const t = useMobileTranslation()
-  if (!drawing) {
+  if (!offer) {
     return null
+  }
+  const pick = (next: MobileBrowserDrawing) => () => {
+    if (next !== current) {
+      offer.onDrawingChange(next)
+    }
   }
   const actions: ActionSheetAction[] = [
     {
       id: 'drawStream',
       label: t('browser.localPane.streamFromHost', 'Stream from the host instead'),
       icon: Cast,
-      checked: true,
-      onPress: () => {}
+      checked: current === 'stream',
+      onPress: pick('stream')
     },
     {
       id: 'drawHost',
       label: t('browser.localPane.throughHost', 'Connect through the host'),
       icon: ArrowLeftRight,
-      onPress: () => drawing.onDrawingChange('host')
+      checked: current === 'host',
+      onPress: pick('host')
     },
     {
       id: 'drawPhone',
       label: t('browser.localPane.phoneNetwork', "Connect on the phone's network"),
       icon: MapPin,
-      onPress: () => drawing.onDrawingChange('phone')
+      checked: current === 'phone',
+      onPress: pick('phone')
     }
   ]
-  const fullScreen = drawing.fullScreen
+  const fullScreen = offer.fullScreen
   if (fullScreen) {
     actions.push({
       id: 'fullScreen',

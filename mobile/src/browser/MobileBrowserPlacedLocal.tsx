@@ -7,7 +7,8 @@ import type {
 import type { ShellLocalBrowser } from '../platform/shell-local-browser-types'
 import type { MobileLocalBrowserNetwork } from '../storage/preferences'
 import type { MobileBrowserViewMode } from './screencast/browser-screencast-request-parameters'
-import { mobileBrowserPaneStyles } from './pane-view/mobile-browser-pane-styles'
+import { mobileBrowserPaneStylesSheet } from './pane-view/mobile-browser-pane-styles'
+import { useThemedStyles } from '../theme/themed-styles'
 
 type Props = {
   placed: NonNullable<ShellLocalBrowser['placed']>
@@ -66,6 +67,7 @@ export function MobileBrowserPlacedLocal({
   onRefused
 }: Props): React.JSX.Element {
   const ref = useRef<HostInstance>(null)
+  const mobileBrowserPaneStyles = useThemedStyles(mobileBrowserPaneStylesSheet)
   const placementId = useRef<string | null>(null)
   const callbacks = useRef({ onEnded, onRefused })
   callbacks.current = { onEnded, onRefused }

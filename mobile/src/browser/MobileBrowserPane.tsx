@@ -31,7 +31,7 @@ import {
   browserStop
 } from './page-interaction/mobile-browser-command-operations'
 import { resolveMobileBrowserAddressSync } from './pane-view/mobile-browser-address-sync'
-import type { MobileBrowserStreamedDrawing } from './MobileBrowserDrawingButtons'
+import type { MobileBrowserStreamedDrawing } from './mobile-browser-drawing-menu'
 import { MobileBrowserPaneView } from './pane-view/MobileBrowserPaneView'
 import { useMobileBrowserInteractions } from './page-interaction/use-mobile-browser-interactions'
 import type { BrowserPageCommandSend } from './page-interaction/use-mobile-browser-request'

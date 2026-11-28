@@ -15,8 +15,10 @@ import { useOptionalHostProtocolGates } from '../../components/host-connection/h
 import { MobileStateButton } from '../../components/feedback/MobileStateView'
 import { MobileBrowserBottomBar } from './MobileBrowserBottomBar'
 import { useNewBrowserTabAddressFocus } from './new-browser-tab-address-focus'
-import { type MobileBrowserStreamedDrawing } from '../MobileBrowserDrawingButtons'
-import { useMobileBrowserDrawingMenu } from '../mobile-browser-drawing-menu'
+import {
+  useMobileBrowserDrawingMenu,
+  type MobileBrowserStreamedDrawing
+} from '../mobile-browser-drawing-menu'
 import { MobileBrowserJavaScriptDialog } from './MobileBrowserJavaScriptDialog'
 import { MobileBrowserPagePrompt } from './MobileBrowserPagePrompt'
 import type { MobileBrowserPagePromptState } from '../page-interaction/use-mobile-browser-page-prompts'
@@ -158,7 +160,7 @@ export function MobileBrowserPaneView(props: MobileBrowserPaneViewProps) {
     proceedUnsafe: loadFailure?.proceedUnsafe ?? null,
     onToast
   })
-  const drawingMenu = useMobileBrowserDrawingMenu(drawing ?? null)
+  const drawingMenu = useMobileBrowserDrawingMenu('stream', drawing ?? null)
   return (
     <View ref={setRootViewRef} style={styles.root}>
       <View

@@ -1,9 +1,7 @@
 import type { ReactNode } from 'react'
 import { Modal, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { colors } from '../theme/mobile-theme'
-import { themedStyleSheet } from '../theme/themed-styles'
-import { useMobileColorScheme } from '../theme/use-mobile-color-scheme'
+import { themedStyleSheet, useThemedStyles } from '../theme/themed-styles'
 
 type Props = {
   onRequestClose: () => void
@@ -15,7 +13,7 @@ export function MobileBrowserFullScreenFrame({
   onRequestClose,
   children
 }: Props): React.JSX.Element {
-  useMobileColorScheme()
+  const styles = useThemedStyles(stylesSheet)
   const insets = useSafeAreaInsets()
   return (
     <Modal
@@ -31,7 +29,7 @@ export function MobileBrowserFullScreenFrame({
   )
 }
 
-const styles = themedStyleSheet(() => ({
+const stylesSheet = themedStyleSheet((colors) => ({
   root: {
     flex: 1,
     backgroundColor: colors.bgBase

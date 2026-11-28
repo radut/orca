@@ -1,8 +1,6 @@
 import { useEffect } from 'react'
 import { Text } from 'react-native'
-import { colors } from '../theme/mobile-theme'
-import { themedStyleSheet } from '../theme/themed-styles'
-import { useMobileColorScheme } from '../theme/use-mobile-color-scheme'
+import { themedStyleSheet, useThemedStyles } from '../theme/themed-styles'
 
 const TOAST_MS = 4000
 
@@ -14,7 +12,7 @@ export function MobileLocalBrowserToast({
   message: string | null
   onDismiss: () => void
 }): React.JSX.Element | null {
-  useMobileColorScheme()
+  const styles = useThemedStyles(stylesSheet)
   useEffect(() => {
     if (message === null) {
       return
@@ -32,7 +30,7 @@ export function MobileLocalBrowserToast({
   )
 }
 
-const styles = themedStyleSheet(() => ({
+const stylesSheet = themedStyleSheet((colors) => ({
   toast: {
     position: 'absolute',
     left: 16,

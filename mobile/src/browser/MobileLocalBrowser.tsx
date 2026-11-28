@@ -29,9 +29,11 @@ type Props = {
   onHostTunnelFailed: (reason: string) => void
   onUrlChange?: (url: string) => void
   onToast: (message: string, durationMs?: number) => void
+  bottomInset?: number
+  keyboardLift?: number
 }
 
-/** A phone-drawn tab on the network the browser settings pick; the toolbar can switch it for this tab. */
+/** A phone-drawn tab on the network the browser settings pick; the bottom bar's ⋯ can switch it for this tab. */
 export function MobileLocalBrowser({
   client,
   hostId,
@@ -47,7 +49,9 @@ export function MobileLocalBrowser({
   onStreamFromHost,
   onHostTunnelFailed,
   onUrlChange,
-  onToast
+  onToast,
+  bottomInset,
+  keyboardLift
 }: Props): React.JSX.Element {
   const [network, setNetwork] = useState<MobileLocalBrowserNetwork | null>(initialNetwork ?? null)
   const [viewMode, setViewMode] = useState(initialViewMode)
@@ -122,6 +126,8 @@ export function MobileLocalBrowser({
         onUrlChange?.(url)
       }}
       onToast={onToast}
+      bottomInset={bottomInset}
+      keyboardLift={keyboardLift}
     />
   )
 }

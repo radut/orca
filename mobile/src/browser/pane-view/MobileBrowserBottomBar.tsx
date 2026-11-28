@@ -47,8 +47,9 @@ type Props = {
   stopPage: () => void
   reloadPage: () => void
   goBack: () => void
-  /** Focuses the page's typing field; runs inside the tap so iOS raises the keyboard. */
-  onKeyboard: () => void
+  /** Focuses the page's typing field; runs inside the tap so iOS raises the keyboard. A page drawn in a web view
+   *  on the phone types natively, so it passes none and the pill has no keyboard slot. */
+  onKeyboard?: () => void
   menuGroups: readonly (readonly ActionSheetAction[])[]
 }
 
@@ -69,8 +70,8 @@ export function MobileBrowserBottomBar(props: Props) {
   const keyboard: BarButtonSpec = {
     icon: Keyboard,
     accessibilityLabel: t('browser.bottomBar.typeOnPage', 'Type on page'),
-    onPress: props.onKeyboard,
-    disabled: props.controlsDisabled
+    onPress: props.onKeyboard ?? (() => {}),
+    disabled: props.controlsDisabled || !props.onKeyboard
   }
   return (
     <View
@@ -198,20 +199,24 @@ function AddressPill({
               {label?.text ?? t('browser.bottomBar.addressPlaceholder', 'Search or enter address')}
             </Text>
           </View>
-          <Pressable
-            style={({ pressed }) => [
-              styles.pillSlot,
-              styles.pillSlotStart,
-              pressed && styles.pressed,
-              controlsDisabled && styles.disabled
-            ]}
-            disabled={controlsDisabled}
-            onPress={onKeyboard}
-            accessibilityRole="button"
-            accessibilityLabel={t('browser.bottomBar.typeOnPage', 'Type on page')}
-          >
-            <Keyboard size={18} color={colors.textSecondary} strokeWidth={2} />
-          </Pressable>
+          {onKeyboard ? (
+            <Pressable
+              style={({ pressed }) => [
+                styles.pillSlot,
+                styles.pillSlotStart,
+                pressed && styles.pressed,
+                controlsDisabled && styles.disabled
+              ]}
+              disabled={controlsDisabled}
+              onPress={onKeyboard}
+              accessibilityRole="button"
+              accessibilityLabel={t('browser.bottomBar.typeOnPage', 'Type on page')}
+            >
+              <Keyboard size={18} color={colors.textSecondary} strokeWidth={2} />
+            </Pressable>
+          ) : (
+            <View style={[styles.pillSlot, styles.pillSlotStart]} />
+          )}
           <Pressable
             style={({ pressed }) => [
               styles.pillSlot,

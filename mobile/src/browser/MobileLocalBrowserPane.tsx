@@ -1,6 +1,5 @@
 import { useRef, useState } from 'react'
 import { View } from 'react-native'
-import { ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react-native'
 import {
   OrcaProxiedBrowser,
   orcaProxiedBrowserView,
@@ -9,18 +8,16 @@ import {
 } from '../../modules/orca-proxied-browser/src'
 import { useMobileTranslation } from '../i18n/use-mobile-translation'
 import type { MobileLocalBrowserNetwork } from '../storage/preferences'
+import { useThemedStyles } from '../theme/themed-styles'
 import type { MobileBrowserViewMode } from './screencast/browser-screencast-request-parameters'
-import { useMobileColorScheme } from '../theme/use-mobile-color-scheme'
 import { displayBrowserUrl, normalizeBrowserUrl } from './pane-view/browser-url'
-import { buttonColor } from './screencast/mobile-browser-frame-state'
-import { mobileBrowserPaneStyles as styles } from './pane-view/mobile-browser-pane-styles'
-import { MobileBrowserAddressField } from './pane-view/MobileBrowserAddressField'
+import { mobileBrowserPaneStylesSheet } from './pane-view/mobile-browser-pane-styles'
+import { MobileBrowserBottomBar } from './pane-view/MobileBrowserBottomBar'
+import { useMobileBrowserPageMenu } from './pane-view/use-mobile-browser-page-menu'
 import {
-  MobileBrowserDrawingButtons,
+  useMobileBrowserDrawingMenu,
   type MobileBrowserFullScreenToggle
-} from './MobileBrowserDrawingButtons'
-import { MobileBrowserToolbarIconButton } from './pane-view/MobileBrowserToolbarIconButton'
-import { MobileBrowserViewModeSwitch } from './pane-view/MobileBrowserViewModeSwitch'
+} from './mobile-browser-drawing-menu'
 
 type Props = {
   network: MobileLocalBrowserNetwork
@@ -31,13 +28,16 @@ type Props = {
   // Desktop or mobile site layout, as in the streamed browser.
   viewMode: MobileBrowserViewMode
   onViewModeChange: (mode: MobileBrowserViewMode) => void
-  // Full screen is a separate view; this button opens or leaves it.
+  // Full screen is a separate view; the ⋯ menu opens or leaves it.
   fullScreen: MobileBrowserFullScreenToggle | null
   // Switch this tab back to frames streamed from the host's browser.
   onStreamFromHost: () => void
   onNetworkChange: (network: MobileLocalBrowserNetwork) => void
   onUrlChange: (url: string) => void
   onToast: (message: string, durationMs?: number) => void
+  // The bottom bar's room under it, and how far the keyboard lifts it while the address is edited.
+  bottomInset?: number
+  keyboardLift?: number
 }
 
 // Resolved once: binaries without the module never render this pane (canRenderBrowserLocally).
@@ -64,10 +64,12 @@ export function MobileLocalBrowserPane({
   onStreamFromHost,
   onNetworkChange,
   onUrlChange,
-  onToast
+  onToast,
+  bottomInset = 0,
+  keyboardLift = 0
 }: Props): React.JSX.Element {
   const t = useMobileTranslation()
-  useMobileColorScheme()
+  const styles = useThemedStyles(mobileBrowserPaneStylesSheet)
   const viewRef = useRef<OrcaProxiedBrowserViewHandle>(null)
   const [url, setUrl] = useState(initialUrl)
   const [navigation, setNavigation] = useState(IDLE_STATE)
@@ -83,53 +85,23 @@ export function MobileLocalBrowserPane({
     setUrl(next)
   }
 
+  const pageMenu = useMobileBrowserPageMenu({
+    url: navigation.url || url,
+    canGoForward: navigation.canGoForward,
+    controlsDisabled: false,
+    browserViewMode: viewMode,
+    selectBrowserViewMode: onViewModeChange,
+    goForward: () => void viewRef.current?.goForward(),
+    proceedUnsafe: null,
+    onToast
+  })
+  const drawingMenu = useMobileBrowserDrawingMenu(network, {
+    onDrawingChange: (next) => (next === 'stream' ? onStreamFromHost() : onNetworkChange(next)),
+    fullScreen
+  })
+
   return (
     <View style={styles.root}>
-      <View style={styles.toolbar}>
-        <MobileBrowserToolbarIconButton
-          disabled={!navigation.canGoBack}
-          label={t('common.back', 'Back')}
-          onPress={() => void viewRef.current?.goBack()}
-        >
-          <ChevronLeft size={15} color={buttonColor(navigation.canGoBack)} />
-        </MobileBrowserToolbarIconButton>
-        <MobileBrowserToolbarIconButton
-          disabled={!navigation.canGoForward}
-          label={t('browser.paneView.forward', 'Forward')}
-          onPress={() => void viewRef.current?.goForward()}
-        >
-          <ChevronRight size={15} color={buttonColor(navigation.canGoForward)} />
-        </MobileBrowserToolbarIconButton>
-        <MobileBrowserToolbarIconButton
-          label={t('browser.paneView.reload', 'Reload')}
-          onPress={() => void viewRef.current?.reload()}
-        >
-          <RefreshCw size={15} color={buttonColor(true)} />
-        </MobileBrowserToolbarIconButton>
-        <MobileBrowserAddressField
-          value={addressValue}
-          onChangeText={setAddressValue}
-          onFocus={() => setAddressFocused(true)}
-          onBlur={() => setAddressFocused(false)}
-          onSubmit={navigateToAddress}
-          focused={addressFocused}
-          disabled={false}
-          loading={navigation.loading}
-          loadFailed={navigation.error !== undefined}
-        />
-        <MobileBrowserViewModeSwitch
-          disabled={false}
-          value={viewMode}
-          onChange={onViewModeChange}
-        />
-        <MobileBrowserDrawingButtons
-          drawing={network}
-          onDrawingChange={(next) =>
-            next === 'stream' ? onStreamFromHost() : onNetworkChange(next)
-          }
-          fullScreen={fullScreen}
-        />
-      </View>
       <View style={styles.viewport}>
         {ProxiedBrowserView && (
           <ProxiedBrowserView
@@ -160,6 +132,27 @@ export function MobileLocalBrowserPane({
           />
         )}
       </View>
+      <MobileBrowserBottomBar
+        bare={false}
+        url={navigation.url || url}
+        canGoBack={navigation.canGoBack}
+        loading={navigation.loading}
+        loadFailed={navigation.error !== undefined}
+        bottomInset={bottomInset}
+        keyboardLift={keyboardLift}
+        controlsDisabled={false}
+        addressValue={addressValue}
+        addressFocused={addressFocused}
+        setAddressValue={setAddressValue}
+        setAddressFocused={setAddressFocused}
+        focusWhenReady={false}
+        navigateToAddress={navigateToAddress}
+        showStop={navigation.loading}
+        stopPage={() => void viewRef.current?.stopLoading()}
+        reloadPage={() => void viewRef.current?.reload()}
+        goBack={() => void viewRef.current?.goBack()}
+        menuGroups={drawingMenu ? [...pageMenu, drawingMenu] : pageMenu}
+      />
     </View>
   )
 }

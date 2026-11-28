@@ -8,9 +8,10 @@ import { loadBrowserDrawing } from '../storage/preferences'
 import { useNativeLocalBrowser } from './native-local-browser'
 
 vi.mock('react-native', () => ({ View: 'View' }))
-vi.mock('../theme/themed-styles', () => ({ themedStyleSheet: (make: () => unknown) => make() }))
-vi.mock('../theme/mobile-theme', () => ({ colors: { bgBase: '#000' } }))
-vi.mock('../theme/use-mobile-color-scheme', () => ({ useMobileColorScheme: () => 'dark' }))
+vi.mock('../theme/themed-styles', () => ({
+  themedStyleSheet: (make: (colors: unknown) => unknown) => make({ bgBase: '#000' }),
+  useThemedStyles: (styles: unknown) => styles
+}))
 vi.mock('../transport/connection/host-client-hooks', () => ({
   useHostClient: () => ({ client: {} })
 }))

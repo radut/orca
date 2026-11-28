@@ -23,9 +23,7 @@ import {
   type MobileBrowserDrawing,
   type MobileLocalBrowserNetwork
 } from '../storage/preferences'
-import { colors } from '../theme/mobile-theme'
-import { themedStyleSheet } from '../theme/themed-styles'
-import { useMobileColorScheme } from '../theme/use-mobile-color-scheme'
+import { themedStyleSheet, useThemedStyles } from '../theme/themed-styles'
 import { useHostClient } from '../transport/connection/host-client-hooks'
 
 type Tab = {
@@ -70,7 +68,7 @@ export function useNativeLocalBrowser(
   ) => (event: LayoutChangeEvent) => void
   overlay: React.JSX.Element | null
 } {
-  useMobileColorScheme()
+  const styles = useThemedStyles(stylesSheet)
   const { client } = useHostClient(hostId)
   const [fullScreen, setFullScreen] = useState<FullScreen | null>(null)
   const [placed, setPlaced] = useState<Placed | null>(null)
@@ -334,7 +332,7 @@ export function useNativeLocalBrowser(
   return { serve, serveView, onPageLayout, route, withLayout, overlay }
 }
 
-const styles = themedStyleSheet(() => ({
+const stylesSheet = themedStyleSheet((colors) => ({
   placed: {
     position: 'absolute',
     backgroundColor: colors.bgBase

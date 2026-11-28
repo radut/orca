@@ -6,12 +6,13 @@ import { useShellLocalBrowser } from '../platform/shell-local-browser'
 import { loadBrowserDrawing, type MobileBrowserDrawing } from '../storage/preferences'
 import type { MobileBrowserViewMode } from './screencast/browser-screencast-request-parameters'
 import { isBlankBrowserUrl } from './pane-view/browser-url'
-import { mobileBrowserPaneStyles } from './pane-view/mobile-browser-pane-styles'
+import { mobileBrowserPaneStylesSheet } from './pane-view/mobile-browser-pane-styles'
+import { useThemedStyles } from '../theme/themed-styles'
 import {
   getInitialMobileBrowserViewMode,
   saveMobileBrowserViewMode
 } from './pane-view/mobile-browser-view-mode-state'
-import type { MobileBrowserFullScreenToggle } from './MobileBrowserDrawingButtons'
+import type { MobileBrowserFullScreenToggle } from './mobile-browser-drawing-menu'
 import { MobileBrowserFullScreenFrame } from './MobileBrowserFullScreenFrame'
 import { MobileBrowserPane } from './MobileBrowserPane'
 import { MobileBrowserPlacedLocal } from './MobileBrowserPlacedLocal'
@@ -35,6 +36,7 @@ function failureMessage(error: unknown): string {
 /** Draws pages on the phone when the browser settings say so and it can, and streams the host's browser otherwise. */
 export function MobileBrowserSurface({ hostId, ...paneProps }: Props): React.JSX.Element {
   const { client, worktreeId, tab, onToast } = paneProps
+  const mobileBrowserPaneStyles = useThemedStyles(mobileBrowserPaneStylesSheet)
   const localPossible = canRenderBrowserLocally(client)
   // A page served into the app shell cannot host native views, so it asks the shell to draw them.
   const shell = useShellLocalBrowser()
@@ -138,6 +140,8 @@ export function MobileBrowserSurface({ hostId, ...paneProps }: Props): React.JSX
         pending={<View style={mobileBrowserPaneStyles.root} />}
         onStreamFromHost={() => choose('stream')}
         onHostTunnelFailed={onHostTunnelFailed}
+        bottomInset={fullScreen ? 0 : paneProps.bottomInset}
+        keyboardLift={paneProps.keyboardLift}
         onToast={onToast}
       />
     )

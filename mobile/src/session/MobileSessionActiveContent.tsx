@@ -362,7 +362,7 @@ export function MobileSessionActiveContent({
                     hostName={executionHost === undefined && hostProfile ? hostTitle : null}
                     onOpenUrlInOrca={openUrlInOrca}
                     linkOpenMode={controller.linkOpenMode}
-                    hostOutage={mobileSessionNativeChatHostOutage(controller, hostTitle, t)}
+                    hostOutage={nativeChatHostOutage}
                     onRunInTerminal={nativeChatTerminalRunner(controller)}
                     // Accounts open on the paired host, so a chat another server runs offers none.
                     onOpenAccounts={
