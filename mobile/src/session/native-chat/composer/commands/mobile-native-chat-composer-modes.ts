@@ -5,7 +5,7 @@ import type { NativeChatContextUsageSummary } from '../../../../../../src/shared
 import type { MobileNativeChatSessionOptionsController } from '../../input/session-options/use-mobile-native-chat-session-options'
 import type { MobileNativeChatContext } from './MobileNativeChatContextUsage'
 import type { MobileNativeChatSendIntent } from '../delivery/mobile-native-chat-send'
-import type { MobileNativeChatPlanSwitch } from '../attachments/MobileNativeChatComposerAttachButton'
+import type { MobileNativeChatPlanSwitch } from '../attachments/MobileNativeChatAddContextRows'
 import { createNonSecureContextUuid } from '../../../../../../src/shared/identifiers/non-secure-context-uuid'
 
 /** The + sheet's Plan first switch and Set a goal (while goal mode is off), and the context line's /compact where the chat has it. */

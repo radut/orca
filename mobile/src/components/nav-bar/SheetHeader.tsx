@@ -22,7 +22,7 @@ type SheetHeaderProps = {
   leadingButton?: ReactNode
   /** "Done" or the sheet's commit, in bold. */
   trailing?: SheetTextAction
-  /** A close button instead of a text action, for sheets that only show things. */
+  /** A close button instead of a text action, for sheets that only show things; it moves to the leading side beside a trailing action. */
   onClose?: () => void
   /** Up to two NavBarButtons instead of a trailing text action, for a sheet whose actions are icons. */
   trailingButtons?: ReactNode
@@ -46,7 +46,6 @@ export function SheetHeader({
   titleAboveActions
 }: SheetHeaderProps) {
   const styles = useThemedStyles(stylesSheet)
-  const t = useMobileTranslation()
   useSheetPageTop(title)
   // Sides as narrow as one round button when that's all either holds, so the title gets the room.
   const narrow =
@@ -83,6 +82,9 @@ export function SheetHeader({
             ) : (
               (leadingButton ?? null)
             )}
+            {onClose && trailing && !leading && !onBack && leadingButton === undefined ? (
+              <CloseButton onClose={onClose} />
+            ) : null}
           </View>
           {!titleAboveActions ? (
             <View style={styles.center}>
@@ -102,17 +104,22 @@ export function SheetHeader({
           )}
           <View style={[...side, styles.trailing]}>
             {trailing ? <TextAction action={trailing} emphasis /> : (trailingButtons ?? null)}
-            {onClose && !trailing && !trailingButtons ? (
-              <NavBarButton
-                icon={X}
-                accessibilityLabel={t('components.sheetHeader.close', 'Close')}
-                onPress={onClose}
-              />
-            ) : null}
+            {onClose && !trailing && !trailingButtons ? <CloseButton onClose={onClose} /> : null}
           </View>
         </View>
       </View>
     </NavBarButtonOnSheetContext>
+  )
+}
+
+function CloseButton({ onClose }: { onClose: () => void }) {
+  const t = useMobileTranslation()
+  return (
+    <NavBarButton
+      icon={X}
+      accessibilityLabel={t('components.sheetHeader.close', 'Close')}
+      onPress={onClose}
+    />
   )
 }
 
