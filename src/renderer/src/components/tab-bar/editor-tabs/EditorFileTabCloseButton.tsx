@@ -34,3 +34,31 @@ export function EditorFileTabCloseButton({
     </button>
   )
 }
+
+/** One dot/close slot, so autosave cannot change the tab's width. */
+export function EditorFileTabTrailingSlot({
+  fileIsDirty,
+  isPinned,
+  showsSelectionChrome,
+  onClose
+}: {
+  fileIsDirty: boolean
+  isPinned: boolean
+  showsSelectionChrome: boolean
+  onClose: () => void
+}): React.JSX.Element {
+  return (
+    <div className="relative flex items-center justify-center w-4 h-4 shrink-0">
+      {fileIsDirty && (
+        <span className="absolute size-1.5 rounded-full bg-foreground/60 group-hover:hidden group-focus-within:hidden" />
+      )}
+      {!isPinned && (
+        <EditorFileTabCloseButton
+          fileIsDirty={fileIsDirty}
+          showsSelectionChrome={showsSelectionChrome}
+          onClose={onClose}
+        />
+      )}
+    </div>
+  )
+}
