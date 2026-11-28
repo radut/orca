@@ -13,9 +13,9 @@ import {
   type BuiltInAppIconId
 } from '../../../src/shared/app-lifecycle/identity/app-icon'
 import { useMobileTranslation } from '../i18n/use-mobile-translation'
-import { colors, radii, spacing, typography } from '../theme/mobile-theme'
-import { themedStyleSheet } from '../theme/themed-styles'
-import { useMobileColorScheme } from '../theme/use-mobile-color-scheme'
+import { radii, spacing, typography } from '../theme/mobile-theme'
+import { themedStyleSheet, useThemedStyles } from '../theme/themed-styles'
+import { useMobileColors } from '../theme/use-mobile-color-scheme'
 import { APP_ICON_PREVIEWS } from './app-icon-previews'
 
 // Same choices as the desktop's App icon setting; the names match the expo-alternate-app-icons entries in app.json.
@@ -35,7 +35,8 @@ export default function AppIconSettingsScreen({
   onBack?: () => void
 }): React.JSX.Element {
   const t = useMobileTranslation()
-  useMobileColorScheme()
+  const colors = useMobileColors()
+  const styles = useThemedStyles(stylesSheet)
   const router = useRouter()
   const insets = useSafeAreaInsets()
   const [selected, setSelected] = useState<BuiltInAppIconId>(() =>
@@ -121,7 +122,7 @@ export default function AppIconSettingsScreen({
   )
 }
 
-const styles = themedStyleSheet(() => ({
+const stylesSheet = themedStyleSheet((colors) => ({
   container: {
     flex: 1,
     backgroundColor: colors.bgBase,
