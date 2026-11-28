@@ -2380,7 +2380,9 @@
       "done": "完成",
       "reset": "重設",
       "thisComputer": "本機",
-      "workspaceOptions": "工作區選項"
+      "workspaceOptions": "工作區選項",
+      "hideByStatus": "依狀態隱藏",
+      "hideStatus": "隱藏「{{status}}」工作區"
     },
     "hostBottomBar": {
       "workspaceOptions": "工作區選項",
