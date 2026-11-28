@@ -1,14 +1,10 @@
 import { isWorktreeRetiredByRemoval } from '../../../../../../shared/worktree/removal/removal-visibility'
 import { matchPaletteDocument } from '../../../../../../shared/palette-match/match-document'
+import { prepareCompactPaletteQuery } from '../../../../../../shared/palette-match/compact-query-match'
 import {
-  matchPaletteDocumentCompactQuery,
-  matchPaletteDocumentTypoQuery,
-  prepareCompactPaletteQuery
-} from '../../../../../../shared/palette-match/compact-query-match'
-import {
-  matchPaletteDocumentCrossFieldQuery,
-  matchPaletteDocumentCrossFieldTypoQuery
-} from '../../../../../../shared/palette-match/cross-field-query-match'
+  matchPaletteDocumentWholeQuery,
+  matchPaletteDocumentWholeQueryTypo
+} from '../../../../../../shared/palette-match/palette-whole-query-fallbacks'
 import { preparePaletteQuery } from '../../../../../../shared/palette-match/palette-query'
 import type { MatchRange } from '../../../../../../shared/palette-match/normalized-text'
 import type { PaletteResultQualityClass } from '../../../../../../shared/palette-match/match-quality'
@@ -273,11 +269,7 @@ export function searchWorktreeDocuments(args: WorktreePaletteSearchArgs): Palett
         tokens: prepared.tokens,
         normalizedQuery: prepared.normalized,
         tokenCountBeforeDeduplication: prepared.tokenCountBeforeDeduplication
-      }) ??
-      (compactQuery
-        ? (matchPaletteDocumentCompactQuery(document, compactQuery) ??
-          matchPaletteDocumentCrossFieldQuery(document, compactQuery))
-        : null)
+      }) ?? (compactQuery ? matchPaletteDocumentWholeQuery(document, compactQuery) : null)
     if (match) {
       results.push(toResult(worktree, match))
     }
@@ -288,10 +280,7 @@ export function searchWorktreeDocuments(args: WorktreePaletteSearchArgs): Palett
   // Typo recovery runs only when nothing matched, so near-misses never crowd real hits.
   for (const worktree of args.worktrees) {
     const document = args.documents.get(getPaletteWorktreeIdentity(worktree))
-    const match = document
-      ? (matchPaletteDocumentTypoQuery(document, compactQuery) ??
-        matchPaletteDocumentCrossFieldTypoQuery(document, compactQuery))
-      : null
+    const match = document ? matchPaletteDocumentWholeQueryTypo(document, compactQuery) : null
     if (match) {
       results.push(toResult(worktree, match))
     }

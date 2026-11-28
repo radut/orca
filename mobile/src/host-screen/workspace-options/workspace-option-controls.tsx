@@ -11,6 +11,10 @@ import * as hostVisibility from '../../../../src/shared/workspace-view/workspace
 import type { ExecutionHostId } from '../../../../src/shared/execution-host/execution-host'
 import type { WorktreeCardProperty } from '../../../../src/shared/ui-chrome/ui-chrome-types'
 import { hostScreenStylesSheet } from '../host-screen-styles'
+import {
+  nameSearchMatches,
+  prepareNameSearchQuery
+} from '../../../../src/shared/palette-match/name-search-match'
 import { withoutPhoneHiddenProperties } from './phone-card-property-choices'
 import type { HostScreenController } from '../use-host-screen-controller'
 import {
@@ -130,10 +134,10 @@ function ProjectsPage({ controller }: WorkspaceOptionProps) {
   const t = useMobileTranslation()
   const { settings, state } = controller
   const [query, setQuery] = useState('')
-  const needle = query.trim().toLowerCase()
+  const needle = prepareNameSearchQuery(query)
   const selected = state.view.filters.filterRepoIds
   const repos = controller.sectionsResult.uniqueRepos.filter(
-    (repo) => !needle || repo.name.toLowerCase().includes(needle)
+    (repo) => !needle || nameSearchMatches(needle, [repo.name])
   )
   return (
     <>

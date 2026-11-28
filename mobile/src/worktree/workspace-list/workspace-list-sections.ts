@@ -1,5 +1,9 @@
 import { orderMainWorktreeFirst } from '../../../../src/shared/sidebar-list/sections/section-order'
 import { withFolderWorkspacesLast } from './folder-workspace-lane-order'
+import {
+  nameSearchMatches,
+  prepareNameSearchQuery
+} from '../../../../src/shared/palette-match/name-search-match'
 import { prGroupOfPsLinkedPR } from '../../../../src/shared/sidebar-list/feed-facts/workspace-review-facts'
 import {
   buildWorktreeOccurrencePlan,
@@ -179,14 +183,14 @@ export function buildMobileWorkspacePlan(
           isHiddenRow
         )
         const representedRepoIds = new Set(worktrees.map((w) => w.repoId))
-        const query = search.trim().toLowerCase()
+        const query = prepareNameSearchQuery(search)
         const placeholderRepoIds = projectCatalog.repos
           .filter(
             (repo) =>
               !representedRepoIds.has(repo.id) &&
               !isRepoHidden(repo) &&
               (listedFilterIds.length === 0 || listedFilterIds.includes(repo.id)) &&
-              (!query || repo.displayName.toLowerCase().includes(query))
+              (!query || nameSearchMatches(query, [repo.displayName]))
           )
           .map((repo) => repo.id)
         const projectSections = buildProjectSections({
@@ -213,7 +217,7 @@ export function buildMobileWorkspacePlan(
           entries: projectSections,
           catalog: projectCatalog,
           folderRowsByGroupId: folderLane.folderRowsByGroupId,
-          narrowed: query.length > 0,
+          narrowed: query !== null,
           projectSection,
           groupSection: (key, title, rows) =>
             makeSection(key, title, withFolderWorkspacesLast(rows))
