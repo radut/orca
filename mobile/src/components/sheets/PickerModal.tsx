@@ -35,11 +35,18 @@ type Props<T extends string = string> = {
   onAfterClose?: () => void
   zIndex?: number
   searchable?: boolean
+  searchPlaceholder?: string
 }
 
 type PickerModalContentProps<T extends string = string> = Pick<
   Props<T>,
-  'options' | 'selected' | 'onSelect' | 'onLongSelect' | 'onClose' | 'searchable'
+  | 'options'
+  | 'selected'
+  | 'onSelect'
+  | 'onLongSelect'
+  | 'onClose'
+  | 'searchable'
+  | 'searchPlaceholder'
 >
 
 export function PickerModal<T extends string = string>({
@@ -53,7 +60,8 @@ export function PickerModal<T extends string = string>({
   onClose,
   onAfterClose,
   zIndex,
-  searchable
+  searchable,
+  searchPlaceholder
 }: Props<T>) {
   const styles = useThemedStyles(stylesSheet)
   return (
@@ -70,6 +78,7 @@ export function PickerModal<T extends string = string>({
         onLongSelect={onLongSelect}
         onClose={onClose}
         searchable={searchable}
+        searchPlaceholder={searchPlaceholder}
       />
     </BottomDrawer>
   )
@@ -81,17 +90,19 @@ function PickerModalContent<T extends string = string>({
   onSelect,
   onLongSelect,
   onClose,
-  searchable
+  searchable,
+  searchPlaceholder
 }: PickerModalContentProps<T>) {
   const t = useMobileTranslation()
   const styles = useThemedStyles(stylesSheet)
   const [query, setQuery] = useState('')
+  const words = query.trim().toLocaleLowerCase().split(/\s+/).filter(Boolean)
+  // Each word may match the label or the subtitle, like the home Desktops search.
   const visibleOptions = searchable
-    ? options.filter((option) =>
-        `${option.label} ${option.subtitle ?? ''}`
-          .toLocaleLowerCase()
-          .includes(query.trim().toLocaleLowerCase())
-      )
+    ? options.filter((option) => {
+        const text = `${option.label} ${option.subtitle ?? ''}`.toLocaleLowerCase()
+        return words.every((word) => text.includes(word))
+      })
     : options
   // Put option rows in shown child; closed BottomDrawer returns null, avoiding hidden-content rebuilds on parent renders.
   const hasIcons = visibleOptions.some((opt) => opt.renderIcon !== undefined)
@@ -110,7 +121,7 @@ function PickerModalContent<T extends string = string>({
         <MobileSearchField
           value={query}
           onChangeText={setQuery}
-          placeholder={t('automations.mobile.searchOptions', 'Search options')}
+          placeholder={searchPlaceholder ?? t('automations.mobile.searchOptions', 'Search options')}
         />
       ) : null}
       {sections.map((section, index) => (
